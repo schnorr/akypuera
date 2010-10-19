@@ -1,5 +1,6 @@
 #include <mpi.h>
 #include <stdio.h>
+#include <rastro_public.h>
 
 #if defined(NEEDS_STDLIB_PROTOTYPES)
 #include "protofix.h"
@@ -1241,6 +1242,7 @@ int  MPI_Finalize(  )
   returnVal = PMPI_Finalize(  );
  
   printf( "[%d] Ending MPI_Finalize\n", llrank ); fflush( stdout );
+  rst_finalize();
 
   return returnVal;
 }
@@ -1283,6 +1285,11 @@ char *** argv;
   returnVal = PMPI_Init( argc, argv );
 
   TRACE_PRINTF( "Ending MPI_Init" );
+  
+  int rank;
+  PMPI_Comm_rank( MPI_COMM_WORLD, &rank );
+  rst_init (rank, 0);
+  rst_event (0);
 
   return returnVal;
 }
