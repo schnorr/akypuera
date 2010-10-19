@@ -1,0 +1,11 @@
+#static
+gcc -I/usr/lib/openmpi/include/ -c cuia.c
+ar crs libcuia.a cuia.o
+ranlib libcuia.a
+
+#shared
+gcc -fPIC -I/usr/lib/openmpi/include/ -c cuia.c
+gcc -shared -Wl,-soname,libcuia.so.1 -o libcuia.so.1.0.1 cuia.o
+
+#example
+gcc -L. -I/usr/lib/openmpi/include/ prog.c -lcuia -lmpi
