@@ -9,8 +9,8 @@ add_subdirectory(examples)
 
 find_package(MPI REQUIRED)
 
-include_directories(${MPI_INCLUDE_PATH})
-add_library (Cuia SHARED cuia.c cuia.h)
+include_directories(${MPI_INCLUDE_PATH} include/)
+add_library (Cuia SHARED src/cuia.c)
 target_link_libraries(Cuia Rastro)
 
 install(TARGETS Cuia
