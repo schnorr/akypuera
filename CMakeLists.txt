@@ -13,7 +13,7 @@ include_directories(${MPI_INCLUDE_PATH} include/)
 add_library (Cuia SHARED src/cuia.c)
 target_link_libraries(Cuia Rastro)
 
-add_executable(cuia_converter src/cuia_converter.c)
+add_executable(cuia_converter src/cuia_converter.c src/cuia_paje.c)
 target_link_libraries(cuia_converter Rastro)
 
 install(TARGETS Cuia

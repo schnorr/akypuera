@@ -287,4 +287,10 @@
 #define MPI_GRAPH_MIN 233
 #define MPI_GRAPH_MAX 244
 
+typedef struct paje_event {
+  const char *name;
+  const char *description;
+  int id;
+} s_paje_event_t, *paje_event_t;
+
 #endif //__CUIA_H
