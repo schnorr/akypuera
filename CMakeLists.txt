@@ -18,4 +18,6 @@ target_link_libraries(cuia_converter Rastro)
 
 install(TARGETS Cuia
         DESTINATION lib)
+install(PROGRAMS cuia_converter
+        DESTINATION bin)
 
