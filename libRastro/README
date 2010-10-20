@@ -1,0 +1,95 @@
+/*
+    Copyright (c) 1998--2006 Benhur Stein
+    
+    This file is part of Pajé.
+
+    Pajé is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by the
+    Free Software Foundation; either version 2 of the License, or (at your
+    option) any later version.
+
+    Pajé is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
+    for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Pajé; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
+*/
+
+
+//////////////////////////////////////////////////
+/*      Author: Geovani Ricardo Wiedenhoft      */
+/*      Email: grw@inf.ufsm.br                  */
+//////////////////////////////////////////////////
+
+
+
+	Manual de utilização
+
+1) Para geração e leitura de rastros de execução, primeiramente o usuário deverá instrumentar o programa com funções que poderão ser criadas. Nessas funções irão ser gravados informações relevantes ao usuário. Além das funções existentes é possível gerar novas de acordo com as necessidades. Por exemplo:
+
+rst_event(u_int16_t type) -> armazena o tipo do rastro
+rst_event_?...
+? - pode ser:
+	c - 8 bits
+	w - 16 bits
+	i - 32 bits
+	l - 64 bits
+	f - float
+	d - double
+	s - string
+
+... - indica que pode ter mais elementos "?" iguais ou diferentes, não importa a ordem que aparecem
+exemplo:
+	rst_event_iicilf(...)
+	rst_event_siicicffll(...)
+
+2) É necessário após a instrumentação do programa gerar as funções que não existem na biblioteca através do programa:
+
+rastro_get_names.sh -> gera as funções para o usuário automaticamente passando os arquivos que contenham as novas funções e apenas o nome do arquivo de saída.
+
+Ex:
+	#rastro_get_names.sh <arquivos do usuario .c> <arquivo de saida com as funcoes sem terminacao>
+	rastro_get_names.sh rastro_write_example.c saida
+
+Programas que são utilizados por ele:
+
+rastro_names.sh -> Programa que pega da entrada padrão o arquivo pré-compilado e busca por novas funções que não existem na biblioteca e coloca na saída padrão só os nomes das novas funções.
+
+rastro_function.sh -> Programa que recebe da entrada padrão os nomes das novas funções e as gera.
+
+ou manualmente
+
+	#gcc -E rastro_write_example.c outroArquivo.c ...c | rastro_names.sh | rastro_function.sh
+
+OBS: Desse modo manual será gerado os arquivos rastro.c e rastro.h que possuem as novas funções que não existem na biblioteca.
+
+
+3) Feito as tarefas anteriores serão gerados dois arquivos um .c e outro .h com as funções que não existem na biblioteca. É necessário que seja incluído o arquivo gerado .h no arquivo do usuário.
+
+
+4) Próximo passo eh compilar o programa do usuário.
+
+Ex:
+	gcc -o exe rastro_write_example.c <nome do arquivo de saida>.c -I/usr/local/libRastro/include -L/usr/local/libRastro/lib -lrastro
+
+Agora basta executar.
+Ex:
+	./exe
+
+5) Para fazer a leitura dos rastros de execução gerados é necessário criar um programa para fazer a decodificação.
+
+
+Ex:
+	gcc -o dec rastro_read_example.c -I/usr/local/libRastro/include -L/usr/local/libRastro/lib -lrastro
+
+
+Agora execute.
+Ex:
+	./dec <Arquivo timesync> <Arquivos de Rastros...>
+
+PS:
+	O Arquivo timesync pode ser null (passe um arquivo inexistente) se estiveres executando na mesma máquina.
+

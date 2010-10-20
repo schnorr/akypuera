@@ -1,0 +1,59 @@
+/*
+    Copyright (c) 1998--2006 Benhur Stein
+    
+    This file is part of Pajé.
+
+    Pajé is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by the
+    Free Software Foundation; either version 2 of the License, or (at your
+    option) any later version.
+
+    Pajé is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
+    for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Pajé; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
+*/
+
+
+//////////////////////////////////////////////////
+/*      Author: Geovani Ricardo Wiedenhoft      */
+/*      Email: grw@inf.ufsm.br                  */
+//////////////////////////////////////////////////
+
+
+
+Biblioteca libRastro
+
+biblioteca de geração e leitura de rastros de execução desenvolvida no Laboratório de Sistemas de Computação com o intuito de proporcionar ao programador o rastreamento e leitura de uma forma genérica e com baixa intrusividade no código a ser rastreado.
+	
+	Manual de Instalação
+
+Como root
+
+Para compilar digite:
+
+	#make
+
+Para indicar o Diretório que a biblioteca será instalada, abra o arquivo Makefile e edite o diretório.
+
+"RASTRO_DIR=/usr/local/libRastro"
+
+Para instalar digite:
+
+	#make install
+
+Como usuário normal
+
+Sete em seu PATH o diretório dos arquivos binários.
+
+"RASTRO_DIR_BIN=$(RASTRO_DIR)/bin"
+
+DICA:
+Abra o seu arquivo .bashrc e coloque a linha abaixo com o diretório que você instalou os binários da biblioteca.
+	
+	export PATH=$PATH:/usr/local/libRastro/bin
+
