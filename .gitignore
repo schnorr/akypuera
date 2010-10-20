@@ -8,6 +8,6 @@ examples/scatter
 
 libRastro/examples/read
 libRastro/examples/write
-libRastro/src/rastro_generate
-libRastro/src/rastro_timesync
+rastro_generate
+rastro_timesync
 *.so

@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include "rastro.h"
 
 // Aligns pointer p to 4-byte-aligned address
 #define ALIGN_PTR(p) ((void *)(((intptr_t)(p)+(4-1))&(~(4-1))))

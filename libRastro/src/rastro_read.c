@@ -31,7 +31,7 @@
 #include <errno.h>
 #include <sys/param.h>  /* for MAXHOSTNAMELEN */
 
-#include "rastro_public.h"
+#include "rastro.h"
 #include "rastro_private.h"
 
 

@@ -20,8 +20,6 @@
 
 
 
-//#include "rastro_public.h"
-//#include "rastro_private.h"
 #include "rastro_write_functions.h"
 
 #include <unistd.h>
