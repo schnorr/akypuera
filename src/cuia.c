@@ -664,6 +664,7 @@ char *** argv;
   int rank;
   PMPI_Comm_rank( MPI_COMM_WORLD, &rank );
   rst_init (rank, 0);
+  rst_event (MPI_INIT);
   return returnVal;
 }
 
