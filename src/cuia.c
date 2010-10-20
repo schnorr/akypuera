@@ -643,6 +643,7 @@ int MPI_Finalize( )
   int llrank;
   PMPI_Comm_rank( MPI_COMM_WORLD, &llrank );
   int returnVal = PMPI_Finalize( );
+  rst_event (MPI_FINALIZE);
   rst_finalize();
   return returnVal;
 }
