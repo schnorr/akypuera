@@ -18,6 +18,8 @@ target_link_libraries(aky_converter Rastro)
 
 install(TARGETS aky
         DESTINATION lib)
+install(FILES include/aky.h
+        DESTINATION include)
 install(PROGRAMS aky_converter
         DESTINATION bin)
 
