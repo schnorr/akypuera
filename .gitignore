@@ -5,6 +5,8 @@ cmake_install.cmake
 install_manifest.txt
 examples/prog
 examples/scatter
+CPack*
+aky_converter
 
 libRastro/examples/read
 libRastro/examples/write
