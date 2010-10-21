@@ -8,7 +8,7 @@ add_subdirectory(libRastro)
 add_subdirectory(examples)
 
 find_package(MPI REQUIRED)
-include(FindTAU.cmake)
+include(cmake/FindTAU.cmake)
 
 include_directories(${MPI_INCLUDE_PATH} include/)
 add_library (aky SHARED src/aky.c)
