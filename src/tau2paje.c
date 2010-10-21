@@ -1,55 +1,85 @@
 #include <TAU_tf.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <aky.h>
+
+#define MAX_MPI_STATE 10000
+static char **state_name = NULL;
+static double *rank_last_time = NULL;
+static int nrank = 0;
+
+static double time_to_seconds (double time)
+{
+  return time/1000000;
+}
 
 /* implementation of callback routines */
 int EnterState(void *userData, double time, 
 		unsigned int nodeid, unsigned int tid, unsigned int stateid)
 {
-  printf("Entered state %d time %g nid %d tid %d\n", 
-		  stateid, time, nodeid, tid);
+  rank_last_time[nodeid] = time_to_seconds(time);
+
+  char mpi_process[100];
+  snprintf (mpi_process, 100, "rank%d", nodeid);
+  if (stateid == 1) return 0;
+  pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", state_name[stateid-1]);
+  //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
   return 0;
 }
 
-int LeaveState(void *userData, double time, unsigned int nid, unsigned int tid, unsigned int stateid)
+int LeaveState(void *userData, double time, unsigned int nodeid, unsigned int tid, unsigned int stateid)
 {
-  printf("Leaving state %d time %g nid %d tid %d\n", stateid, time, nid, tid);
+  rank_last_time[nodeid] = time_to_seconds(time);
+  if (stateid == 1) return 0;
+  char mpi_process[100];
+  snprintf (mpi_process, 100, "rank%d", nodeid);
+  pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", "Executing");
+  //printf("Leaving state %d time %g nodeid %d tid %d\n", stateid, time, nodeid, tid);
   return 0;
 }
 
 
 int ClockPeriod( void*  userData, double clkPeriod )
 {
-  printf("Clock period %g\n", clkPeriod);
+  //printf("Clock period %g\n", clkPeriod);
   return 0;
 }
 
 int DefThread(void *userData, unsigned int nodeid, unsigned int threadToken,
 const char *threadName )
 {
-  printf("DefThread nid %d tid %d, thread name %s\n", 
-		  nodeid, threadToken, threadName);
+  char mpi_process[100];
+  snprintf (mpi_process, 100, "rank%d", nodeid);
+  pajeCreateContainer (0, mpi_process, "PROCESS", "0", mpi_process);
+  pajeSetState (0, mpi_process, "STATE", "Executing");
+  rank_last_time = realloc (rank_last_time, sizeof(double)*++nrank);
+  rank_last_time[nodeid] = 0;
+  //printf("DefThread nodeid %d tid %d, thread name %s\n", nodeid, threadToken, threadName);
   return 0;
 }
 
 int EndTrace( void *userData, unsigned int nodeid, unsigned int threadid)
 {
-  printf("EndTrace nid %d tid %d\n", nodeid, threadid);
+  char mpi_process[100];
+  snprintf (mpi_process, 100, "rank%d", nodeid);
+  pajeDestroyContainer (rank_last_time[nodeid], "PROCESS", mpi_process);
+  //printf("EndTrace nodeid %d tid %d\n", nodeid, threadid);
   return 0;
 }
 
-int DefStateGroup( void *userData, unsigned int stateGroupToken, 
-		const char *stateGroupName )
+int DefStateGroup( void *userData, unsigned int stateGroupToken, const char *stateGroupName)
 {
-  printf("StateGroup groupid %d, group name %s\n", stateGroupToken, 
-		  stateGroupName);
+  //printf("StateGroup groupid %d, group name %s\n", stateGroupToken,  stateGroupName);
   return 0;
 }
 
-int DefState( void *userData, unsigned int stateToken, const char *stateName, 
+int DefState( void *userData, unsigned int stateid, const char *statename, 
 		unsigned int stateGroupToken )
 {
-  printf("DefState stateid %d stateName %s stategroup id %d\n",
-		  stateToken, stateName, stateGroupToken);
+  state_name[stateid-1] = strdup (statename);
+//  printf("DefState stateid %d stateName %s stategroup id %d\n",
+//		  stateToken, stateName, stateGroupToken);
   return 0;
 }
 
@@ -57,8 +87,8 @@ int DefUserEvent( void *userData, unsigned int userEventToken,
 		const char *userEventName, int monotonicallyIncreasing )
 {
 
-  printf("DefUserEvent event id %d user event name %s, monotonically increasing = %d\n", userEventToken,
-		  userEventName, monotonicallyIncreasing);
+  //printf("DefUserEvent event id %d user event name %s, monotonically increasing = %d\n", userEventToken,
+	//	  userEventName, monotonicallyIncreasing);
   return 0;
 }
 
@@ -68,7 +98,9 @@ int EventTrigger( void *userData, double time,
 	       	unsigned int userEventToken,
 		long long userEventValue)
 {
-  printf("EventTrigger: time %g, nid %d tid %d event id %d triggered value %lld \n", time, nodeToken, threadToken, userEventToken, userEventValue);
+  rank_last_time[nodeToken] = time_to_seconds(time);
+
+  //printf("EventTrigger: time %g, nodeid %d tid %d event id %d triggered value %lld \n", time, nodeToken, threadToken, userEventToken, userEventValue);
   return 0;
 }
 
@@ -83,11 +115,17 @@ int SendMessage ( void*  userData,
 				unsigned int messageComm
 				)
     {
-    printf("Message Send: time %g, nid %d, tid %d dest nid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
+  rank_last_time[sourceNodeToken] = time_to_seconds(time);
+  rank_last_time[destinationNodeToken] = time_to_seconds(time);
+
+
+/*
+    printf("Message Send: time %g, nodeid %d, tid %d dest nodeid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
     sourceThreadToken, destinationNodeToken,
     destinationThreadToken, messageSize, messageComm, messageTag);
+*/
     return 0;
-    }
+}
 
 int RecvMessage ( void*  userData,
                                 double time,
@@ -100,9 +138,14 @@ int RecvMessage ( void*  userData,
 				unsigned int messageComm
 				)
   {
-    printf("Message Recv: time %g, nid %d, tid %d dest nid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
+  rank_last_time[sourceNodeToken] = time_to_seconds(time);
+  rank_last_time[destinationNodeToken] = time_to_seconds(time);
+
+/*
+    printf("Message Recv: time %g, nodeid %d, tid %d dest nodeid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
     sourceThreadToken, destinationNodeToken,
     destinationThreadToken, messageSize, messageComm, messageTag);
+*/
     return 0;
     }
 
@@ -110,6 +153,8 @@ int RecvMessage ( void*  userData,
 int main(int argc, char **argv)
 {
   Ttf_FileHandleT fh;
+
+  state_name = (char **)malloc(sizeof(char*)*MAX_MPI_STATE);
 
   int recs_read, pos;
   Ttf_CallbacksT cb;
@@ -142,14 +187,16 @@ int main(int argc, char **argv)
   cb.EventTrigger = EventTrigger;
   cb.SendMessage = SendMessage;
   cb.RecvMessage = RecvMessage;
+
   pos = Ttf_RelSeek(fh,2);
-  printf("Position returned %d\n", pos);
 
-  recs_read = Ttf_ReadNumEvents(fh, cb, 4);
-  printf("Read %d records\n", recs_read);
+  paje_header();
+  paje_hierarchy();
 
-  recs_read = Ttf_ReadNumEvents(fh, cb, 100);
-  printf("Read %d records\n", recs_read);
+  recs_read = Ttf_ReadNumEvents(fh, cb, 1000);
+  while (recs_read > 0){
+    recs_read = Ttf_ReadNumEvents(fh, cb, 1000);
+  }
 
   Ttf_CloseFile(fh);
   return 0;
