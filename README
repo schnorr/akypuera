@@ -1,14 +1,9 @@
-#static
-gcc -I$HOME/install/include/ -I/usr/lib/openmpi/include/ -c cuia.c
-ar crs libcuia.a cuia.o
-ranlib libcuia.a
+#
+# Akypuera 
+#
 
-#shared
-gcc -fPIC -I$HOME/install/include/ -I/usr/lib/openmpi/include/ -c cuia.c
-gcc -L$HOME/install/lib -shared -Wl,-soname,libcuia.so.1 \
-  -o libcuia.so.1.0.1 cuia.o -lrastro
-
-#example
-gcc -L. -L$HOME/install/lib -I/usr/lib/openmpi/include/ prog.c \
-  -lcuia -lrastro -lmpi
-mpirun ./a.out
+Akypuera is a tracing library for MPI applications released under GPLv3.
+The library, simplified as aky (linked with -laky to mpi apps), uses 
+libRastro to provide a low memory footprint and low intrusion. The binary
+trace files are converted to paje file format using the tool called
+aky_converter. Akypuera is a word from the tupi language that means trace.
