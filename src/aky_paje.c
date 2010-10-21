@@ -2,7 +2,8 @@
 #include <aky.h>
 #include <rastro.h>
 
-static timestamp_t first_timestamp = -1;
+//static timestamp_t first_timestamp = -1;
+static double first_timestamp = -1;
 
 static s_paje_event_t paje_events[] = {
   {"PajeDefineContainerType",
@@ -45,7 +46,7 @@ static int paje_event_id (const char *name)
   return -1;
 }
 
-static timestamp_t paje_event_timestamp (timestamp_t timestamp)
+static double paje_event_timestamp (double timestamp)
 {
   if (first_timestamp == -1){
     first_timestamp = timestamp;
@@ -71,34 +72,34 @@ void pajeDefineStateType (const char *alias,
     alias, containerType, name);
 }
 
-void pajeCreateContainer (timestamp_t timestamp,
+void pajeCreateContainer (double timestamp,
     const char *alias,
     const char *type,
     const char *container,
     const char *name)
 {
-  printf ("%d %lld %s %s %s %s\n",
+  printf ("%d %f %s %s %s %s\n",
       paje_event_id ("PajeCreateContainer"),
       paje_event_timestamp (timestamp),
       alias, type, container, name);
 }
 
-void pajeDestroyContainer (timestamp_t timestamp,
+void pajeDestroyContainer (double timestamp,
     const char *type,
     const char *container)
 {
-  printf ("%d %lld %s %s\n",
+  printf ("%d %f %s %s\n",
       paje_event_id ("PajeDestroyContainer"),
       paje_event_timestamp (timestamp),
       type, container);
 }
 
-void pajeSetState (timestamp_t timestamp,
+void pajeSetState (double timestamp,
     const char *container,
     const char *type,
     const char *value)
 {
-  printf ("%d %lld %s %s %s\n",
+  printf ("%d %f %s %s %s\n",
       paje_event_id ("PajeSetState"),
       paje_event_timestamp (timestamp),
       container, type, value);

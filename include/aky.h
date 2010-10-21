@@ -293,4 +293,26 @@ typedef struct paje_event {
   int id;
 } s_paje_event_t, *paje_event_t;
 
+//prototypes for aky_paje.c
+void pajeDefineContainerType (const char *alias,
+    const char *containerType,
+    const char *name);
+void pajeDefineStateType (const char *alias,
+    const char *containerType,
+    const char *name);
+void pajeCreateContainer (double timestamp,
+    const char *alias,
+    const char *type,
+    const char *container,
+    const char *name);
+void pajeDestroyContainer (double timestamp,
+    const char *type,
+    const char *container);
+void pajeSetState (double timestamp,
+    const char *container,
+    const char *type,
+    const char *value);
+void paje_header (void);
+void paje_hierarchy (void);
+
 #endif //__CUIA_H
