@@ -10,5 +10,5 @@ SET(CMAKE_CXX_COMPILER mpicxx)
 
 add_executable(prog prog.c)
 add_executable(scatter scatter.c)
-target_link_libraries(prog Cuia Rastro)
-target_link_libraries(scatter Cuia Rastro)
+target_link_libraries(prog aky Rastro)
+target_link_libraries(scatter aky Rastro)
