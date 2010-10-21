@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <cuia.h>
+#include <aky.h>
 #include <rastro.h>
 
 int main (int argc, char **argv)

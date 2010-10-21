@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (Cuia)
+project (aky)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -10,15 +10,15 @@ add_subdirectory(examples)
 find_package(MPI REQUIRED)
 
 include_directories(${MPI_INCLUDE_PATH} include/)
-add_library (Cuia SHARED src/cuia.c)
-target_link_libraries(Cuia Rastro)
+add_library (aky SHARED src/aky.c)
+target_link_libraries(aky Rastro)
 
-add_executable(cuia_converter src/cuia_converter.c src/cuia_paje.c)
-target_link_libraries(cuia_converter Rastro)
+add_executable(aky_converter src/aky_converter.c src/aky_paje.c)
+target_link_libraries(aky_converter Rastro)
 
-install(TARGETS Cuia
+install(TARGETS aky
         DESTINATION lib)
-install(PROGRAMS cuia_converter
+install(PROGRAMS aky_converter
         DESTINATION bin)
 
 #packaging
