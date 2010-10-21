@@ -17,6 +17,13 @@ target_link_libraries(aky Rastro)
 add_executable(aky_converter src/aky_converter.c src/aky_paje.c)
 target_link_libraries(aky_converter Rastro)
 
+if(TAU_FOUND)
+  include_directories(${TAU_INCLUDE_PATH})
+  link_directories(${TAU_LIBRARY_PATH})
+  add_executable (tau2paje src/tau2paje.c src/aky_paje.c)
+  target_link_libraries (tau2paje TAU TAU_tf)
+endif(TAU_FOUND)
+
 install(TARGETS aky
         DESTINATION lib)
 install(FILES include/aky.h
