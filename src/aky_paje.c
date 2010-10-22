@@ -34,6 +34,17 @@ static s_paje_event_t paje_events[] = {
    "% EntityType string\n"
    "% Value string",
    -1},
+  {"PajePushState",
+   "% Time string\n"
+   "% Container string\n"
+   "% EntityType string\n"
+   "% Value string",
+   -1},
+  {"PajePopState",
+   "% Time string\n"
+   "% Container string\n"
+   "% EntityType string",
+   -1},
   {NULL, NULL, -1}
 };
 
@@ -103,6 +114,27 @@ void pajeSetState (double timestamp,
       paje_event_id ("PajeSetState"),
       paje_event_timestamp (timestamp),
       container, type, value);
+}
+
+void pajePushState (double timestamp,
+    const char *container,
+    const char *type,
+    const char *value)
+{
+  printf ("%d %f %s %s %s\n",
+      paje_event_id ("PajePushState"),
+      paje_event_timestamp (timestamp),
+      container, type, value);
+}
+
+void pajePopState (double timestamp,
+    const char *container,
+    const char *type)
+{
+  printf ("%d %f %s %s\n",
+      paje_event_id ("PajePopState"),
+      paje_event_timestamp (timestamp),
+      container, type);
 }
 
 void paje_header (void)

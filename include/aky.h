@@ -312,6 +312,14 @@ void pajeSetState (double timestamp,
     const char *container,
     const char *type,
     const char *value);
+void pajePushState (double timestamp,
+    const char *container,
+    const char *type,
+    const char *value);
+void pajePopState (double timestamp,
+    const char *container,
+    const char *type);
+
 void paje_header (void);
 void paje_hierarchy (void);
 
