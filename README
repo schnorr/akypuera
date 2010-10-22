@@ -36,9 +36,8 @@ followed by the single edf file.  The corresponding paje trace file is
 printed on stdout. Every MPI operation (with the exception of MPI_Init and
 MPI_Finalize) are transformed in a paje state.
 
-## how to get tau traces
-
-Download the last version of tau, from http://tau.uoregon.edu/tau.tgz
+To get tau traces, download the last version of tau, from
+http://tau.uoregon.edu/tau.tgz
 Configure it using the following parameters to configure script:
  -mpiinc=/usr/lib/openmpi/include/ \
  -mpilib=/usr/lib/openmpi/lib/ \
