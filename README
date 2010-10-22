@@ -7,3 +7,40 @@ The library, simplified as aky (linked with -laky to mpi apps), uses
 libRastro to provide a low memory footprint and low intrusion. The binary
 trace files are converted to paje file format using the tool called
 aky_converter. Akypuera is a word from the tupi language that means trace.
+
+# tau2paje (created if tau is found by akypuera cmake)
+
+tau2paje is a simple converter from tau format file to paje's generic file
+format. The tau traces must have been generated with the execution of a mpi
+compilation compiled with tau_compiler (with mpi support). Since such execution
+generates as many files as the number of processes, these files must be merged
+using tau_merge. After that, execute tau2paje passing the single trc file
+followed by the single edf file.  The corresponding paje trace file is
+printed on stdout. Every MPI operation (with the exception of MPI_Init and
+MPI_Finalize) are transformed in a paje state.
+
+## how to get tau traces
+
+Download the last version of tau, from http://tau.uoregon.edu/tau.tgz
+Configure it using the following parameters to configure script:
+ -mpiinc=/usr/lib/openmpi/include/ \
+ -mpilib=/usr/lib/openmpi/lib/ \
+ -TRACE \
+ -MPITRACE
+and then install it. The installation creates a Makefile tuned to your 
+environment. It is usually placed in the lib installation directory, and
+it is required to compile the mpi application to be traced. You have to specify
+the path to this makefile using the environment variable TAU_MAKEFILE, like this
+export TAU_MAKEFILE=/path/to/your/Makefile..tau-mpi-trace-mpitrace
+After that,, just compile your application using tau_cc. The execution is
+maked as usual with mpirun. An execution with 3 mpi processes creates:
+tautrace.0.0.0.trc
+tautrace.1.0.0.trc
+tautrace.2.0.0.trc
+events.0.edf
+events.1.edf
+events.2.edf
+These files have to be merged in order to be used by tau2paje.
+To merge and convert them to paje, execute tau_merge and tau2paje this way:
+$ tau_merge -e events.*.edf -m merged.edf tautrace.*.trc merged.trc
+$ tau2paje merged.trc merged.edf
