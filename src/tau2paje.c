@@ -22,7 +22,9 @@ int EnterState(void *userData, double time,
 
   char mpi_process[100];
   snprintf (mpi_process, 100, "rank%d", nodeid);
-  if (stateid == 1) return 0;
+  char *state = state_name[stateid-1];
+  char *y = strstr (state, "addr");
+  if (y) return 0;
   pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", state_name[stateid-1]);
   //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
   return 0;
@@ -34,6 +36,9 @@ int LeaveState(void *userData, double time, unsigned int nodeid, unsigned int ti
   if (stateid == 1) return 0;
   char mpi_process[100];
   snprintf (mpi_process, 100, "rank%d", nodeid);
+  char *state = state_name[stateid-1];
+  char *y = strstr (state, "addr");
+  if (y) return 0;
   pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", "Executing");
   //printf("Leaving state %d time %g nodeid %d tid %d\n", stateid, time, nodeid, tid);
   return 0;
@@ -77,7 +82,10 @@ int DefStateGroup( void *userData, unsigned int stateGroupToken, const char *sta
 int DefState( void *userData, unsigned int stateid, const char *statename, 
 		unsigned int stateGroupToken )
 {
-  state_name[stateid-1] = strdup (statename);
+  char *x = strdup (statename+1);
+  char *y = strchr (x, '(');
+  if (y) *y = '\0';
+  state_name[stateid-1] = strdup (x);
 //  printf("DefState stateid %d stateName %s stategroup id %d\n",
 //		  stateToken, stateName, stateGroupToken);
   return 0;
