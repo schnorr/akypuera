@@ -34,7 +34,6 @@ int main (int argc, char **argv)
       case MPI_INIT:
         pajeCreateContainer (timestamp, mpi_process,
                              "PROCESS", "0", mpi_process);
-        pajeSetState (timestamp, mpi_process, "STATE", "Executing");
         break;
       case MPI_FINALIZE:
         pajeDestroyContainer (timestamp, "PROCESS", mpi_process);
@@ -299,7 +298,6 @@ int main (int argc, char **argv)
       case MPI_RECV_IDLE_OUT:
       case MPI_CART_RANK_OUT:
       case MPI_CART_SUB_OUT:
-        pajeSetState (timestamp, mpi_process, "STATE", "Executing");
         break;
     }
   }

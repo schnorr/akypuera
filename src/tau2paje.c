@@ -24,7 +24,9 @@ int EnterState(void *userData, double time,
   snprintf (mpi_process, 100, "rank%d", nodeid);
   char *state = state_name[stateid-1];
   char *y = strstr (state, "addr");
-  if (y) return 0;
+  if (y) return 0; //ignore if it is not a MPI function
+  if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
+
   pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", state_name[stateid-1]);
   //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
   return 0;
@@ -38,8 +40,9 @@ int LeaveState(void *userData, double time, unsigned int nodeid, unsigned int ti
   snprintf (mpi_process, 100, "rank%d", nodeid);
   char *state = state_name[stateid-1];
   char *y = strstr (state, "addr");
-  if (y) return 0;
-  pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", "Executing");
+  if (y) return 0; //ignore if it is not a MPI function
+  if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
+  pajePopState (rank_last_time[nodeid], mpi_process, "STATE");
   //printf("Leaving state %d time %g nodeid %d tid %d\n", stateid, time, nodeid, tid);
   return 0;
 }
@@ -57,7 +60,6 @@ const char *threadName )
   char mpi_process[100];
   snprintf (mpi_process, 100, "rank%d", nodeid);
   pajeCreateContainer (0, mpi_process, "PROCESS", "0", mpi_process);
-  pajeSetState (0, mpi_process, "STATE", "Executing");
   rank_last_time = realloc (rank_last_time, sizeof(double)*++nrank);
   rank_last_time[nodeid] = 0;
   //printf("DefThread nodeid %d tid %d, thread name %s\n", nodeid, threadToken, threadName);
