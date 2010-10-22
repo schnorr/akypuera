@@ -14,7 +14,7 @@ include_directories(${MPI_INCLUDE_PATH} include/)
 add_library (aky SHARED src/aky.c)
 target_link_libraries(aky Rastro)
 
-add_executable(aky_converter src/aky_converter.c src/aky_paje.c)
+add_executable(aky_converter src/aky_converter.c src/aky_paje.c src/aky_names.c)
 target_link_libraries(aky_converter Rastro)
 
 if(TAU_FOUND)

@@ -21,6 +21,7 @@ int main (int argc, char **argv)
     }
   }
 
+  name_init ();
   paje_header();
   paje_hierarchy ();
 
@@ -28,15 +29,12 @@ int main (int argc, char **argv)
     char mpi_process[100];
     char value[100];
     snprintf (mpi_process, 100, "rank%ld", event.id1);
-    snprintf (value, 100, "%d", event.type);
+    snprintf (value, 100, "%s", name_get(event.type));
     double timestamp = (double)event.timestamp/1000000;
     switch (event.type){
       case MPI_INIT:
         pajeCreateContainer (timestamp, mpi_process,
                              "PROCESS", "0", mpi_process);
-        break;
-      case MPI_FINALIZE:
-        pajeDestroyContainer (timestamp, "PROCESS", mpi_process);
         break;
       case MPI_COMM_SPAWN_IN:
       case MPI_COMM_GET_NAME_IN:
@@ -167,6 +165,7 @@ int main (int argc, char **argv)
       case MPI_RECV_IDLE_IN:
       case MPI_CART_RANK_IN:
       case MPI_CART_SUB_IN:
+      case MPI_FINALIZE_IN:
         pajeSetState (timestamp, mpi_process, "STATE", value);
         break;
       case MPI_COMM_SPAWN_OUT:
@@ -298,6 +297,11 @@ int main (int argc, char **argv)
       case MPI_RECV_IDLE_OUT:
       case MPI_CART_RANK_OUT:
       case MPI_CART_SUB_OUT:
+        pajePopState (timestamp, mpi_process, "STATE");
+        break;
+      case MPI_FINALIZE_OUT:
+        pajePopState (timestamp, mpi_process, "STATE");
+        pajeDestroyContainer (timestamp, "PROCESS", mpi_process);
         break;
     }
   }
