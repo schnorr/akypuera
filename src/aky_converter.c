@@ -29,14 +29,15 @@ int main (int argc, char **argv)
     char value[100];
     snprintf (mpi_process, 100, "rank%ld", event.id1);
     snprintf (value, 100, "%d", event.type);
+    double timestamp = (double)event.timestamp/1000000;
     switch (event.type){
       case MPI_INIT:
-        pajeCreateContainer (event.timestamp, mpi_process,
+        pajeCreateContainer (timestamp, mpi_process,
                              "PROCESS", "0", mpi_process);
-        pajeSetState (event.timestamp, mpi_process, "STATE", "Executing");
+        pajeSetState (timestamp, mpi_process, "STATE", "Executing");
         break;
       case MPI_FINALIZE:
-        pajeDestroyContainer (event.timestamp, "PROCESS", mpi_process);
+        pajeDestroyContainer (timestamp, "PROCESS", mpi_process);
         break;
       case MPI_COMM_SPAWN_IN:
       case MPI_COMM_GET_NAME_IN:
@@ -167,7 +168,7 @@ int main (int argc, char **argv)
       case MPI_RECV_IDLE_IN:
       case MPI_CART_RANK_IN:
       case MPI_CART_SUB_IN:
-        pajeSetState (event.timestamp, mpi_process, "STATE", value);
+        pajeSetState (timestamp, mpi_process, "STATE", value);
         break;
       case MPI_COMM_SPAWN_OUT:
       case MPI_COMM_GET_NAME_OUT:
@@ -298,7 +299,7 @@ int main (int argc, char **argv)
       case MPI_RECV_IDLE_OUT:
       case MPI_CART_RANK_OUT:
       case MPI_CART_SUB_OUT:
-        pajeSetState (event.timestamp, mpi_process, "STATE", "Executing");
+        pajeSetState (timestamp, mpi_process, "STATE", "Executing");
         break;
     }
    // fprintf (stderr, "%ld ", event.id1);
