@@ -1,0 +1,15 @@
+#
+# Akypuera installation file
+#
+
+1/ Dependencies
+  - gcc
+  - cmake
+
+1/ Compilation
+  - cmake . 
+    - you can optionally configure it with TAU, to get tau2paje converter
+    - for that, type:
+    - cmake . -DTAU_PATH=/path/to/tau/
+  - make
+  - make install
