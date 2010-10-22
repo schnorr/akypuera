@@ -302,8 +302,6 @@ int main (int argc, char **argv)
         pajeSetState (timestamp, mpi_process, "STATE", "Executing");
         break;
     }
-   // fprintf (stderr, "%ld ", event.id1);
-   // rst_print_event(&event);
   }
 
   rst_close_file(&data);
