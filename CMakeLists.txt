@@ -22,6 +22,8 @@ if(TAU_FOUND)
   link_directories(${TAU_LIBRARY_PATH})
   add_executable (tau2paje src/tau2paje.c src/aky_paje.c)
   target_link_libraries (tau2paje TAU TAU_tf)
+  install(PROGRAMS tau2paje
+          DESTINATION bin)
 endif(TAU_FOUND)
 
 install(TARGETS aky
