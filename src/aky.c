@@ -640,10 +640,9 @@ MPI_Errhandler errhandler;
 
 int MPI_Finalize( )
 {
-  int llrank;
-  PMPI_Comm_rank( MPI_COMM_WORLD, &llrank );
+  rst_event (MPI_FINALIZE_IN);
   int returnVal = PMPI_Finalize( );
-  rst_event (MPI_FINALIZE);
+  rst_event (MPI_FINALIZE_OUT);
   rst_finalize();
   return returnVal;
 }

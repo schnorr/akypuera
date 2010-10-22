@@ -2,8 +2,8 @@
 #define __AKY_H
 
 #define MPI_INIT 1000
-#define MPI_FINALIZE 1001
-#define MPI_RASTRO_VERSION  1002
+#define MPI_FINALIZE_IN 1002
+#define MPI_FINALIZE_OUT 1003
 
 /* MPI-2 */
 #define MPI_COMM_SPAWN_IN 2000
