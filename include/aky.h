@@ -1,5 +1,5 @@
-#ifndef __CUIA_H
-#define __CUIA_H
+#ifndef __AKY_H
+#define __AKY_H
 
 #define MPI_INIT 1000
 #define MPI_FINALIZE 1001
@@ -315,4 +315,4 @@ void pajeSetState (double timestamp,
 void paje_header (void);
 void paje_hierarchy (void);
 
-#endif //__CUIA_H
+#endif //__AKY_H
