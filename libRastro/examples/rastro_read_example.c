@@ -25,7 +25,7 @@
 //////////////////////////////////////////////////
 
 
-#include "rastro_public.h"
+#include "rastro.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[])

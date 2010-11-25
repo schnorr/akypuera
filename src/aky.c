@@ -16,7 +16,7 @@
 */
 #include <mpi.h>
 #include <stdio.h>
-#include <rastro_public.h>
+#include "rastro.h"
 #include "aky.h"
 
 int MPI_Allgather( sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm )

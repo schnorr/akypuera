@@ -3,7 +3,7 @@
 #ifndef _RASTRO_rastro_timesync_f_H_
 #define _RASTRO_rastro_timesync_f_H_
 
-#include "rastro_public.h"
+#include "rastro.h"
 #include "rastro_private.h"
 
 

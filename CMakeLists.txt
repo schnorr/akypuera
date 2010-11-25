@@ -11,6 +11,7 @@ find_package(MPI REQUIRED)
 include(cmake/FindTAU.cmake)
 
 include_directories(${MPI_INCLUDE_PATH} include/)
+include_directories(${MPI_INCLUDE_PATH} libRastro/include/)
 add_library (aky SHARED src/aky.c)
 target_link_libraries(aky Rastro)
 
