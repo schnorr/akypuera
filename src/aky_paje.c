@@ -32,6 +32,13 @@ static s_paje_event_t paje_events[] = {
    "% ContainerType string\n"
    "% Name string",
    -1},
+  {"PajeDefineLinkType",
+   "% Alias string\n"
+   "% ContainerType string\n"
+   "% SourceContainerType string\n"
+   "% DestContainerType string\n"
+   "% Name string",
+   -1},
   {"PajeCreateContainer",
    "% Time string\n"
    "% Alias string\n"
@@ -60,6 +67,22 @@ static s_paje_event_t paje_events[] = {
    "% Time string\n"
    "% Container string\n"
    "% EntityType string",
+   -1},
+  {"PajeStartLink",
+   "% Time string\n"
+   "% Container string\n"
+   "% EntityType string\n"
+   "% SourceContainer string\n"
+   "% Value string\n"
+   "% Key string",
+   -1},
+  {"PajeEndLink",
+   "% Time string\n"
+   "% Container string\n"
+   "% EntityType string\n"
+   "% DestContainer string\n"
+   "% Value string\n"
+   "% Key string",
    -1},
   {NULL, NULL, -1}
 };
@@ -97,6 +120,17 @@ void pajeDefineStateType (const char *alias,
   printf ("%d %s %s %s\n",
     paje_event_id ("PajeDefineStateType"),
     alias, containerType, name);
+}
+
+void pajeDefineLinkType (const char *alias,
+    const char *containerType,
+    const char *sourceContainerType,
+    const char *destContainerType,
+    const char *name)
+{
+  printf ("%d %s %s %s %s %s\n",
+    paje_event_id ("PajeDefineLinkType"),
+    alias, containerType, sourceContainerType, destContainerType, name);
 }
 
 void pajeCreateContainer (double timestamp,
@@ -153,6 +187,32 @@ void pajePopState (double timestamp,
       container, type);
 }
 
+void pajeStartLink (double timestamp,
+    const char *container,
+    const char *type,
+    const char *sourceContainer,
+    const char *value,
+    const char *key)
+{
+  printf ("%d %f %s %s %s %s %s\n",
+      paje_event_id ("PajeStartLink"),
+      paje_event_timestamp (timestamp),
+      container, type, sourceContainer, value, key);
+}
+
+void pajeEndLink (double timestamp,
+    const char *container,
+    const char *type,
+    const char *endContainer,
+    const char *value,
+    const char *key)
+{
+  printf ("%d %f %s %s %s %s %s\n",
+      paje_event_id ("PajeEndLink"),
+      paje_event_timestamp (timestamp),
+      container, type, endContainer, value, key);
+}
+
 void paje_header (void)
 {
   int i;
@@ -167,4 +227,5 @@ void paje_hierarchy (void)
 {
   pajeDefineContainerType ("PROCESS", "0", "PROCESS");
   pajeDefineStateType ("STATE", "PROCESS", "STATE");
+  pajeDefineLinkType ("LINK", "0", "PROCESS", "PROCESS", "LINK");
 }
