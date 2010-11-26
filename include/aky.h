@@ -31,7 +31,7 @@
 #define MPI_COMM_SET_NAME_IN 3002
 #define MPI_COMM_SET_NAME_OUT 3003
 
-#define MAX_AKY_STATE_NAMES 3004
+#define MAX_AKY_STATE_NAMES 5002
 
 /* used */
 #define MPI_REDUCE_IN 25
@@ -305,6 +305,9 @@
 #define MPI_GRAPH_MIN 233
 #define MPI_GRAPH_MAX 244
 
+//aky stuff
+#define AKY_PTP_SEND 5000
+#define AKY_PTP_RECV 5001
 
 typedef struct paje_event {
   const char *name;

@@ -16,8 +16,10 @@
 */
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "rastro.h"
 #include "aky.h"
+#include "aky_rastro.h"
 
 int MPI_Allgather( sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm )
 void * sendbuf;
@@ -863,6 +865,7 @@ MPI_Request * request;
   rst_event (MPI_IRECV_IN);
   int returnVal = PMPI_Irecv( buf, count, datatype, source, tag, comm, request );
   rst_event (MPI_IRECV_OUT);
+  aky_insert (request);
   return returnVal;
 }
 
@@ -891,6 +894,7 @@ MPI_Comm comm;
 MPI_Request * request;
 {
   rst_event (MPI_ISEND_IN);
+  rst_event_i (AKY_PTP_SEND, AKY_translate_rank (comm, dest));
   int returnVal = PMPI_Isend( buf, count, datatype, dest, tag, comm, request );
   rst_event (MPI_ISEND_OUT);
   return returnVal;
@@ -962,6 +966,7 @@ MPI_Status * status;
 {
   rst_event (MPI_RECV_IN);
   int returnVal = PMPI_Recv( buf, count, datatype, source, tag, comm, status );
+  rst_event_i (AKY_PTP_RECV, AKY_translate_rank (comm, source));
   rst_event (MPI_RECV_OUT);
   return returnVal;
 }
@@ -1005,6 +1010,7 @@ int tag;
 MPI_Comm comm;
 {
   rst_event (MPI_SEND_IN);
+  rst_event_i (AKY_PTP_SEND, AKY_translate_rank (comm, dest));
   int returnVal = PMPI_Send( buf, count, datatype, dest, tag, comm );
   rst_event (MPI_SEND_OUT);
   return returnVal;
@@ -1317,8 +1323,19 @@ int MPI_Wait( request, status )
 MPI_Request * request;
 MPI_Status * status;
 {
+  MPI_Status stat2;
+
   rst_event (MPI_WAIT_IN);
-  int returnVal = PMPI_Wait( request, status );
+  int returnVal = PMPI_Wait( request, &stat2 );
+
+  if (status != MPI_STATUS_IGNORE){
+    *status = stat2;
+  }
+
+  if (aky_check (request)){
+    rst_event_i (AKY_PTP_RECV, stat2.MPI_SOURCE);
+    aky_remove (request);
+  } 
   rst_event (MPI_WAIT_OUT);
   return returnVal;
 }
@@ -1328,8 +1345,21 @@ int count;
 MPI_Request * array_of_requests;
 MPI_Status * array_of_statuses;
 {
+  MPI_Status *stat2 = malloc (count*sizeof(MPI_Status));
   rst_event (MPI_WAITALL_IN);
-  int returnVal = PMPI_Waitall( count, array_of_requests, array_of_statuses );
+  int returnVal = PMPI_Waitall( count, array_of_requests, stat2 );
+  int i;
+  for (i = 0; i < count; i++){
+    if (array_of_statuses != MPI_STATUS_IGNORE){
+      array_of_statuses[i] = stat2[i];
+    }
+    MPI_Request *req = &array_of_requests[i];
+    if (aky_check(req)){
+      rst_event_i (AKY_PTP_RECV, stat2[i].MPI_SOURCE);
+      aky_remove (req);
+    }
+  }
+  free(stat2);
   rst_event (MPI_WAITALL_OUT);
   return returnVal;
 }
@@ -1340,8 +1370,18 @@ MPI_Request * array_of_requests;
 int * index;
 MPI_Status * status;
 {
+  MPI_Status stat2;
   rst_event (MPI_WAITANY_IN);
-  int returnVal = PMPI_Waitany( count, array_of_requests, index, status );
+  int i;
+  int returnVal = PMPI_Waitany( count, array_of_requests, index, &stat2 );
+  if (status != MPI_STATUS_IGNORE){
+    *status = stat2;
+  }
+  MPI_Request *req = &array_of_requests[*index];
+  if (aky_check(req)){
+    rst_event_i (AKY_PTP_RECV, stat2.MPI_SOURCE);
+    aky_remove (req);
+  }
   rst_event (MPI_WAITANY_OUT);
   return returnVal;
 }
