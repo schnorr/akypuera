@@ -14,9 +14,95 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdio.h>
 #include <aky.h>
+#include <stdio.h>
 #include <rastro.h>
+#include <string.h>
+#include <stdlib.h>
+#include <search.h>
+
+static void *root = NULL;
+
+#define AKY_DEFAULT_STR_SIZE 200
+
+typedef struct elem {
+  struct elem *back;
+  struct elem *forw;
+  void *data;
+}elem_t;
+
+static elem_t *enqueue (elem_t *first, elem_t *new)
+{
+  if (first == NULL){
+    new->back = NULL;
+    new->forw = NULL;
+    return new;
+  }
+  first->back = new;
+  new->back = NULL;
+  new->forw = first;
+  return new;
+}
+
+static elem_t *dequeue (elem_t *first)
+{
+  elem_t *ret = first;
+  while (ret){
+    if (ret->forw == NULL) break;
+    ret = ret->forw;
+  }
+  if (ret->back){
+    ret->back->forw = NULL;
+  }
+  return ret;
+}
+
+static char *aky_put_key (int src, int dst, char *key, int n)
+{
+  //get the dynar for src#dst
+  ENTRY e, *ep;
+  char aux[100];
+  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%d#%d", src, dst);
+  e.key = aux;
+  
+  ep = hsearch (e, FIND);
+  if (ep == NULL){
+    ep = hsearch (e, ENTER);
+  }
+
+  //generate the key
+  static unsigned long long counter = 0;
+  snprintf(key, n, "%d%d%lld", src, dst, counter++);
+
+  elem_t *elem = (elem_t*)malloc(sizeof(elem_t));
+  elem->data = (char*)malloc(strlen(key)*sizeof(char));
+  strncpy (elem->data, key, strlen(key));
+
+  //put on queue
+  ep->data = enqueue (ep->data, elem);
+  while (elem){
+    elem = elem->forw;
+  }
+  return key;
+}
+
+static char *aky_get_key (int src, int dst, char *key, int n)
+{
+  ENTRY e, *ep;
+  //get the dynar for src#dst
+  char aux[100];
+  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%d#%d", src, dst);
+  e.key = aux;
+  ep = hsearch (e, FIND);
+  elem_t *elem = dequeue (ep->data);
+  snprintf (key, n, "%s", (char*)elem->data);
+  if (ep->data == elem){
+    ep->data = NULL;
+  }
+  free (elem->data);
+  free (elem);
+  return key;
+}
 
 int main (int argc, char **argv)
 {
@@ -24,6 +110,8 @@ int main (int argc, char **argv)
     printf ("%s {rastro-0-0.rst rastro-1-0.rst ...}\n", argv[0]);
     return 1;
   }
+
+  hcreate (1000000);
 
   rst_file_t data;
   rst_event_t event;
@@ -48,6 +136,20 @@ int main (int argc, char **argv)
     snprintf (value, 100, "%s", name_get(event.type));
     double timestamp = (double)event.timestamp/1000000;
     switch (event.type){
+      case AKY_PTP_SEND:
+        {
+          char key[AKY_DEFAULT_STR_SIZE];
+          aky_put_key (event.id1, event.v_uint32[0], key, AKY_DEFAULT_STR_SIZE);
+          pajeStartLink (timestamp, "0", "LINK", mpi_process, "PTP", key);
+        }
+        break;
+      case AKY_PTP_RECV:
+        {
+          char key[AKY_DEFAULT_STR_SIZE];
+          aky_get_key (event.v_uint32[0], event.id1, key, AKY_DEFAULT_STR_SIZE);
+          pajeEndLink (timestamp, "0", "LINK", mpi_process, "PTP", key);
+        }
+        break;
       case MPI_INIT:
         pajeCreateContainer (timestamp, mpi_process,
                              "PROCESS", "0", mpi_process);
@@ -182,7 +284,7 @@ int main (int argc, char **argv)
       case MPI_CART_RANK_IN:
       case MPI_CART_SUB_IN:
       case MPI_FINALIZE_IN:
-        pajeSetState (timestamp, mpi_process, "STATE", value);
+        pajePushState (timestamp, mpi_process, "STATE", value);
         break;
       case MPI_COMM_SPAWN_OUT:
       case MPI_COMM_GET_NAME_OUT:
@@ -323,5 +425,6 @@ int main (int argc, char **argv)
   }
 
   rst_close_file(&data);
+  hdestroy();
   return 0;
 }
