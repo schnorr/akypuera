@@ -45,7 +45,7 @@ int EnterState(void *userData, double time,
 
   char nstate[1000];
   snprintf (nstate, 1000, "\"%s\"", state);
-  pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", nstate);
+  pajePushState (rank_last_time[nodeid], mpi_process, "STATE", nstate);
   //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
   return 0;
 }
