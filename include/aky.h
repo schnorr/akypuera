@@ -349,4 +349,6 @@ void paje_hierarchy (void);
 void name_init (void);
 char *name_get (int id);
 
+#define AKY_DEFAULT_STR_SIZE 200
+
 #endif //__AKY_H
