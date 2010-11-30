@@ -56,6 +56,7 @@ int EnterState(void *userData, double time,
   char *y = strstr (state, "addr");
   if (y) return 0; //ignore if it is not a MPI function
   if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
+  if (!strstr(state,"MPI_")) return 0; //ignore if the state does not start by a MPI_
 
   char nstate[1000], nstate2[1000];
   snprintf (nstate, 1000, "%s", state);
@@ -76,6 +77,7 @@ int LeaveState(void *userData, double time, unsigned int nodeid, unsigned int ti
   char *y = strstr (state, "addr");
   if (y) return 0; //ignore if it is not a MPI function
   if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
+  if (!strstr(state,"MPI_")) return 0; //ignore if the state does not start by a MPI_
   pajePopState (rank_last_time[nodeid], mpi_process, "STATE");
   //printf("Leaving state %d time %g nodeid %d tid %d\n", stateid, time, nodeid, tid);
   return 0;
