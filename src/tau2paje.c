@@ -30,6 +30,20 @@ static double time_to_seconds (double time)
   return time/1000000;
 }
 
+static void xbt_str_subst(char *str, char from, char to, int occurence)
+{
+  char *p = str;
+  while (*p != '\0') {
+    if (*p == from) {
+      *p = to;
+      if (occurence == 1)
+        return;
+      occurence--;
+    }
+    p++;
+  }
+}
+
 /* implementation of callback routines */
 int EnterState(void *userData, double time, 
 		unsigned int nodeid, unsigned int tid, unsigned int stateid)
@@ -43,9 +57,11 @@ int EnterState(void *userData, double time,
   if (y) return 0; //ignore if it is not a MPI function
   if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
 
-  char nstate[1000];
-  snprintf (nstate, 1000, "\"%s\"", state);
-  pajePushState (rank_last_time[nodeid], mpi_process, "STATE", nstate);
+  char nstate[1000], nstate2[1000];
+  snprintf (nstate, 1000, "%s", state);
+  xbt_str_subst (nstate, '"', ' ', 0);
+  snprintf (nstate2, 1000, "\"%s\"", nstate);
+  pajePushState (rank_last_time[nodeid], mpi_process, "STATE", nstate2);
   //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
   return 0;
 }
