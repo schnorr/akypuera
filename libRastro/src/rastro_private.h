@@ -42,7 +42,7 @@
 #define RST_BUF_DATA(ptr) (ptr->rst_buffer)
 #define RST_BUF_SIZE(ptr) (ptr->rst_buffer_size)
 
-#ifndef THREADED
+#ifndef LIBRASTRO_THREADED
 extern rst_buffer_t *rst_global_buffer;
 #define RST_PTR (rst_global_buffer)
 #define RST_SET_PTR(ptr) (rst_global_buffer = ptr)

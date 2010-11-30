@@ -38,7 +38,7 @@
 list_t list;
 bool list_init=false;
 
-#ifndef THREADED
+#ifndef LIBRASTRO_THREADED
 rst_buffer_t *rst_global_buffer;
 #else
 int rst_key_initialized = 0;
@@ -145,7 +145,7 @@ void rst_init_ptr(rst_buffer_t *ptr, u_int64_t id1, u_int64_t id2)
         return;
     }
     
-#ifdef THREADED
+#ifdef LIBRASTRO_THREADED
     if (!rst_key_initialized) {
         pthread_key_create(&rst_key, rst_destroy_buffer);
         rst_key_initialized = 1;
