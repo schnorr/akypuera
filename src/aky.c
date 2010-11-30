@@ -17,7 +17,7 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rastro.h"
+#include <rastro.h>
 #include "aky.h"
 #include "aky_rastro.h"
 
