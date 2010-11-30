@@ -1,0 +1,6 @@
+#ifndef RASTRO_CONFIG_H
+#define RASTRO_CONFIG_H
+
+#cmakedefine LIBRASTRO_THREADED @LIBRASTRO_THREADED@
+
+#endif

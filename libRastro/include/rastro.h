@@ -167,4 +167,6 @@ void reorganize_bottom_up (rst_file_t *f_data, int son);
 void reorganize_top_down (rst_file_t *f_data, int dead);
 void smallest_first (rst_file_t *f_data, int dead, int son);
 
+#include "rastro_config.h"
+
 #endif //_RASTRO_PUBLIC_H_
