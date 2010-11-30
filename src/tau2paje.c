@@ -43,7 +43,9 @@ int EnterState(void *userData, double time,
   if (y) return 0; //ignore if it is not a MPI function
   if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
 
-  pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", state_name[stateid-1]);
+  char nstate[1000];
+  snprintf (nstate, 1000, "\"%s\"", state);
+  pajeSetState (rank_last_time[nodeid], mpi_process, "STATE", nstate);
   //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
   return 0;
 }
