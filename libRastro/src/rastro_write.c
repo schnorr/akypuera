@@ -199,12 +199,17 @@ void rst_flush(rst_buffer_t * ptr)
 // Termina biblioteca em nodo ou thread
 void rst_finalize(void)
 {
+#ifndef LIBRASTRO_THREADED
     rst_buffer_t *ptr = RST_PTR;
 
     list_remove(&list, (void *)ptr);
 
     rst_destroy_buffer(ptr);
     free(ptr);
+#else
+  //nothing to do in thread mode, rst_destroy_buffer was already
+  //set as a destructor in pthread_key_create
+#endif
 }
 
 // Termina biblioteca em nodo ou thread com ptr
