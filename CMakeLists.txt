@@ -20,7 +20,7 @@ target_link_libraries(aky_converter Rastro)
 if(TAU_FOUND)
   include_directories(${TAU_INCLUDE_PATH})
   link_directories(${TAU_LIBRARY_PATH})
-  add_executable (tau2paje src/tau2paje.c src/aky_paje.c)
+  add_executable (tau2paje src/tau2paje.c src/aky_paje.c src/aky_keys.c)
   target_link_libraries (tau2paje TAU TAU_tf)
   install(PROGRAMS tau2paje
           DESTINATION bin)

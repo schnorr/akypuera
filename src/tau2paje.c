@@ -162,6 +162,12 @@ int SendMessage ( void*  userData,
   rank_last_time[sourceNodeToken] = time_to_seconds(time);
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
 
+  char mpi_process[100];
+  snprintf (mpi_process, 100, "rank%d", sourceNodeToken);
+
+  char key[AKY_DEFAULT_STR_SIZE];
+  aky_put_key (sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  pajeStartLink (rank_last_time[sourceNodeToken], "0", "LINK", mpi_process, "PTP", key);
 
 /*
     printf("Message Send: time %g, nodeid %d, tid %d dest nodeid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
@@ -185,6 +191,13 @@ int RecvMessage ( void*  userData,
   rank_last_time[sourceNodeToken] = time_to_seconds(time);
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
 
+  char mpi_process[100];
+  snprintf (mpi_process, 100, "rank%d", destinationNodeToken);
+
+  char key[AKY_DEFAULT_STR_SIZE];
+  aky_get_key (sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  pajeEndLink (rank_last_time[destinationNodeToken], "0", "LINK", mpi_process, "PTP", key);
+
 /*
     printf("Message Recv: time %g, nodeid %d, tid %d dest nodeid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
     sourceThreadToken, destinationNodeToken,
@@ -199,6 +212,7 @@ int main(int argc, char **argv)
   Ttf_FileHandleT fh;
 
   state_name = (char **)malloc(sizeof(char*)*MAX_MPI_STATE);
+  hcreate (1000000);
 
   int recs_read, pos;
   Ttf_CallbacksT cb;
@@ -243,5 +257,6 @@ int main(int argc, char **argv)
   }
 
   Ttf_CloseFile(fh);
+  hdestroy();
   return 0;
 }
