@@ -3,7 +3,6 @@ project (aky)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-find_file(HAVE_RASTRO_PUBLIC_H rastro_public.h)
 add_subdirectory(libRastro)
 add_subdirectory(examples)
 
