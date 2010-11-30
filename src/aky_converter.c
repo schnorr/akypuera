@@ -64,6 +64,7 @@ static char *aky_put_key (int src, int dst, char *key, int n)
   char aux[100];
   snprintf(aux, AKY_DEFAULT_STR_SIZE, "%d#%d", src, dst);
   e.key = aux;
+  e.data = NULL;
   
   ep = hsearch (e, FIND);
   if (ep == NULL){
@@ -74,9 +75,12 @@ static char *aky_put_key (int src, int dst, char *key, int n)
   static unsigned long long counter = 0;
   snprintf(key, n, "%d%d%lld", src, dst, counter++);
 
+  int len = strlen(key)+1;
   elem_t *elem = (elem_t*)malloc(sizeof(elem_t));
-  elem->data = (char*)malloc(strlen(key)*sizeof(char));
-  strncpy (elem->data, key, strlen(key));
+  elem->data = (char*)malloc(len*sizeof(char));
+  elem->forw = NULL;
+  elem->back = NULL;
+  strncpy (elem->data, key, len);
 
   //put on queue
   ep->data = enqueue (ep->data, elem);
