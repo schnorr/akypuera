@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     case AKY_PTP_SEND:
       {
         char key[AKY_DEFAULT_STR_SIZE];
-        aky_put_key(event.id1, event.v_uint32[0], key,
+        aky_put_key("n", event.id1, event.v_uint32[0], key,
                     AKY_DEFAULT_STR_SIZE);
         pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
       }
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     case AKY_PTP_RECV:
       {
         char key[AKY_DEFAULT_STR_SIZE];
-        aky_get_key(event.v_uint32[0], event.id1, key,
+        aky_get_key("n", event.v_uint32[0], event.id1, key,
                     AKY_DEFAULT_STR_SIZE);
         pajeEndLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
       }
