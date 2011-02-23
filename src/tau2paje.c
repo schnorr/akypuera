@@ -14,16 +14,20 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
+#define _GNU_SOURCE
 #include <TAU_tf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <search.h>
 #include <aky.h>
 
 #define MAX_MPI_STATE 10000
 static char **state_name = NULL;
 static double *rank_last_time = NULL;
+static int total_number_of_ranks = 0;
 static int nrank = 0;
+static int EndOfTrace = 0;
 
 static double time_to_seconds (double time)
 {
@@ -49,10 +53,10 @@ int EnterState(void *userData, double time,
 		unsigned int nodeid, unsigned int tid, unsigned int stateid)
 {
   rank_last_time[nodeid] = time_to_seconds(time);
-
   char mpi_process[100];
   snprintf (mpi_process, 100, "rank%d", nodeid);
-  char *state = state_name[stateid-1];
+  char *state = NULL;
+  state = state_name[stateid-1];
   char *y = strstr (state, "addr");
   if (y) return 0; //ignore if it is not a MPI function
   if (strcmp (state, "MPI_Init")==0) return 0; //ignore MPI_Init state (we don't have it in akypuera
@@ -96,7 +100,10 @@ const char *threadName )
   char mpi_process[100];
   snprintf (mpi_process, 100, "rank%d", nodeid);
   pajeCreateContainer (0, mpi_process, "PROCESS", "0", mpi_process);
-  rank_last_time = realloc (rank_last_time, sizeof(double)*++nrank);
+  if (nodeid+1 > total_number_of_ranks){
+    total_number_of_ranks = nodeid+1;
+    rank_last_time = realloc (rank_last_time, sizeof(double)*total_number_of_ranks);
+  }
   rank_last_time[nodeid] = 0;
   //printf("DefThread nodeid %d tid %d, thread name %s\n", nodeid, threadToken, threadName);
   return 0;
@@ -108,6 +115,7 @@ int EndTrace( void *userData, unsigned int nodeid, unsigned int threadid)
   snprintf (mpi_process, 100, "rank%d", nodeid);
   pajeDestroyContainer (rank_last_time[nodeid], "PROCESS", mpi_process);
   //printf("EndTrace nodeid %d tid %d\n", nodeid, threadid);
+  EndOfTrace = 1;
   return 0;
 }
 
@@ -120,12 +128,13 @@ int DefStateGroup( void *userData, unsigned int stateGroupToken, const char *sta
 int DefState( void *userData, unsigned int stateid, const char *statename, 
 		unsigned int stateGroupToken )
 {
-  char *x = strdup (statename+1);
+  char *x = strdup (statename);
   char *y = strchr (x, '(');
   if (y) *y = '\0';
   state_name[stateid-1] = strdup (x);
+  free(x);
 //  printf("DefState stateid %d stateName %s stategroup id %d\n",
-//		  stateToken, stateName, stateGroupToken);
+//		  stateid, statename, stateGroupToken);
   return 0;
 }
 
@@ -168,7 +177,14 @@ int SendMessage ( void*  userData,
   snprintf (mpi_process, 100, "rank%d", sourceNodeToken);
 
   char key[AKY_DEFAULT_STR_SIZE];
-  aky_put_key (sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  bzero(key, AKY_DEFAULT_STR_SIZE);
+
+  //try to get a "u" (unusual) key
+  char *found = aky_get_key ("u", sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  if (!found){
+    //generate a "n" (normal) key
+    aky_put_key ("n", sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  }
   pajeStartLink (rank_last_time[sourceNodeToken], "0", "LINK", mpi_process, "PTP", key);
 
 /*
@@ -197,7 +213,14 @@ int RecvMessage ( void*  userData,
   snprintf (mpi_process, 100, "rank%d", destinationNodeToken);
 
   char key[AKY_DEFAULT_STR_SIZE];
-  aky_get_key (sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  bzero(key, AKY_DEFAULT_STR_SIZE);
+
+  //try to get a "n" (normal) key
+  char *found = aky_get_key ("n", sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  if (!found){
+    //generate a "u" (unusual) key
+    aky_put_key ("u", sourceNodeToken, destinationNodeToken, key, AKY_DEFAULT_STR_SIZE);
+  }
   pajeEndLink (rank_last_time[destinationNodeToken], "0", "LINK", mpi_process, "PTP", key);
 
 /*
@@ -214,28 +237,27 @@ int main(int argc, char **argv)
   Ttf_FileHandleT fh;
 
   state_name = (char **)malloc(sizeof(char*)*MAX_MPI_STATE);
-  hcreate (1000000);
+
+  hcreate(1000000);
 
   int recs_read, pos;
   Ttf_CallbacksT cb;
 
   /* main program: Usage app <trc> <edf> */
-  if (argc != 3)
-  {
+  if (argc != 3) {
     printf("Usage: %s <TAU trace> <edf file>\n", argv[0]);
     return 1;
   }
      
   /* open trace file */
   fh = Ttf_OpenFileForInput( argv[1], argv[2]);
-  if (!fh)
-  {
-    printf("ERROR:Ttf_OpenFileForInput fails");
+  if (!fh) {
+    printf("ERROR: Ttf_OpenFileForInput fails");
     return 1;
   }
 
   /* Fill the callback struct */
-  cb.UserData = 0;
+  cb.UserData = NULL;
   cb.DefClkPeriod = ClockPeriod;
   cb.DefThread = DefThread;
   cb.DefStateGroup = DefStateGroup;
@@ -248,15 +270,12 @@ int main(int argc, char **argv)
   cb.SendMessage = SendMessage;
   cb.RecvMessage = RecvMessage;
 
-  pos = Ttf_RelSeek(fh,2);
-
   paje_header();
   paje_hierarchy();
 
-  recs_read = Ttf_ReadNumEvents(fh, cb, 1000);
-  while (recs_read > 0){
-    recs_read = Ttf_ReadNumEvents(fh, cb, 1000);
-  }
+  do {
+    recs_read = Ttf_ReadNumEvents(fh, cb, 100);
+  }while (recs_read >= 0 && !EndOfTrace);
 
   Ttf_CloseFile(fh);
   hdestroy();
