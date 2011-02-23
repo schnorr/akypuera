@@ -2,49 +2,53 @@
 
 #include "aky_rastro.h"
 
-void rst_event_i_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0)
+void rst_event_i_ptr(rst_buffer_t * ptr, u_int16_t type, u_int32_t i0)
 {
-	rst_startevent(ptr, type<<18|0x27000);
-	RST_PUT(ptr, u_int32_t, i0);
-	rst_endevent(ptr);
+  rst_startevent(ptr, type << 18 | 0x27000);
+  RST_PUT(ptr, u_int32_t, i0);
+  rst_endevent(ptr);
 }
 
-void rst_event_ii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1)
+void rst_event_ii_ptr(rst_buffer_t * ptr, u_int16_t type, u_int32_t i0,
+                      u_int32_t i1)
 {
-	rst_startevent(ptr, type<<18|0x27700);
-	RST_PUT(ptr, u_int32_t, i0);
-	RST_PUT(ptr, u_int32_t, i1);
-	rst_endevent(ptr);
+  rst_startevent(ptr, type << 18 | 0x27700);
+  RST_PUT(ptr, u_int32_t, i0);
+  RST_PUT(ptr, u_int32_t, i1);
+  rst_endevent(ptr);
 }
 
-void rst_event_iii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int32_t i2)
+void rst_event_iii_ptr(rst_buffer_t * ptr, u_int16_t type, u_int32_t i0,
+                       u_int32_t i1, u_int32_t i2)
 {
-	rst_startevent(ptr, type<<18|0x27770);
-	RST_PUT(ptr, u_int32_t, i0);
-	RST_PUT(ptr, u_int32_t, i1);
-	RST_PUT(ptr, u_int32_t, i2);
-	rst_endevent(ptr);
+  rst_startevent(ptr, type << 18 | 0x27770);
+  RST_PUT(ptr, u_int32_t, i0);
+  RST_PUT(ptr, u_int32_t, i1);
+  RST_PUT(ptr, u_int32_t, i2);
+  rst_endevent(ptr);
 }
 
-void rst_event_iiii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int32_t i2, u_int32_t i3)
+void rst_event_iiii_ptr(rst_buffer_t * ptr, u_int16_t type, u_int32_t i0,
+                        u_int32_t i1, u_int32_t i2, u_int32_t i3)
 {
-	rst_startevent(ptr, type<<18|0x27777);
-	RST_PUT(ptr, u_int32_t, i0);
-	RST_PUT(ptr, u_int32_t, i1);
-	RST_PUT(ptr, u_int32_t, i2);
-	RST_PUT(ptr, u_int32_t, i3);
-	rst_endevent(ptr);
+  rst_startevent(ptr, type << 18 | 0x27777);
+  RST_PUT(ptr, u_int32_t, i0);
+  RST_PUT(ptr, u_int32_t, i1);
+  RST_PUT(ptr, u_int32_t, i2);
+  RST_PUT(ptr, u_int32_t, i3);
+  rst_endevent(ptr);
 }
 
-void rst_event_iiiii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int32_t i2, u_int32_t i3, u_int32_t i4)
+void rst_event_iiiii_ptr(rst_buffer_t * ptr, u_int16_t type, u_int32_t i0,
+                         u_int32_t i1, u_int32_t i2, u_int32_t i3,
+                         u_int32_t i4)
 {
-	rst_startevent(ptr, type<<18|0x7777);
-	RST_PUT(ptr, u_int32_t, 0x27000000);
-	RST_PUT(ptr, u_int32_t, i0);
-	RST_PUT(ptr, u_int32_t, i1);
-	RST_PUT(ptr, u_int32_t, i2);
-	RST_PUT(ptr, u_int32_t, i3);
-	RST_PUT(ptr, u_int32_t, i4);
-	rst_endevent(ptr);
+  rst_startevent(ptr, type << 18 | 0x7777);
+  RST_PUT(ptr, u_int32_t, 0x27000000);
+  RST_PUT(ptr, u_int32_t, i0);
+  RST_PUT(ptr, u_int32_t, i1);
+  RST_PUT(ptr, u_int32_t, i2);
+  RST_PUT(ptr, u_int32_t, i3);
+  RST_PUT(ptr, u_int32_t, i4);
+  rst_endevent(ptr);
 }
-
