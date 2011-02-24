@@ -1,3 +1,6 @@
+if(POLICY CMP0015)
+  cmake_policy(SET CMP0015 NEW)
+endif(POLICY CMP0015)
 include_directories (../src/) 
 link_directories (../src/)
 
