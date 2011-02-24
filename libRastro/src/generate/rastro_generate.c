@@ -43,50 +43,50 @@ void break_types(char *argtypes, char *arglist, char *varlist, char * arglist_f,
     ct->n_float = ct->n_double = ct->n_string = 0;
 
     na = sprintf(arglist,   "u_int16_t type");
-    nf = sprintf(arglist_f, "u_int16_t *type");
-    np = sprintf(params_f,  "*type");
+    nf = sprintf(arglist_f, "int16_t *type");
+    np = sprintf(params_f,  "(u_int16_t)*type");
     nv = sprintf(varlist, "type");
     while ((c = *s++) != '\0') {
 	switch (c) {
 	case LETRA_UINT32_ASPA:
-	    na += sprintf(arglist+na,   ", u_int32_t "  XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
-	    nf += sprintf(arglist_f+nf, ", u_int32_t *" XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
-            np += sprintf(params_f +np, ", *"           XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
-	    nv += sprintf(varlist+nv,   ", "            XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
+	    na += sprintf(arglist+na,   ", u_int32_t "   XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
+	    nf += sprintf(arglist_f+nf, ", int32_t *"    XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
+            np += sprintf(params_f +np, ", (u_int32_t)*" XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
+	    nv += sprintf(varlist+nv,   ", "             XSTR(LETRA_UINT32) "%d",  ct->n_uint32);
             ct->n_uint32++;
 	    break;
 	case LETRA_UINT16_ASPA:
 	    na += sprintf(arglist+na,    ", u_int16_t "  XSTR(LETRA_UINT16) "%d", ct->n_uint16);
-	    nf += sprintf(arglist_f+nf,  ", u_int16_t *" XSTR(LETRA_UINT16) "%d", ct->n_uint16);
-            np += sprintf(params_f +np,  ", *"           XSTR(LETRA_UINT16) "%d", ct->n_uint16);
+	    nf += sprintf(arglist_f+nf,  ", int16_t *" XSTR(LETRA_UINT16) "%d", ct->n_uint16);
+            np += sprintf(params_f +np,  ", (u_int16_t)*" XSTR(LETRA_UINT16) "%d", ct->n_uint16);
 	    nv += sprintf(varlist+nv,    ", "            XSTR(LETRA_UINT16) "%d", ct->n_uint16);
 	    ct->n_uint16++;
 	    break;
 	case LETRA_UINT8_ASPA:
 	    na += sprintf(arglist+na,    ", u_int8_t "  XSTR(LETRA_UINT8) "%d",   ct->n_uint8);
-	    nf += sprintf(arglist_f+nf,  ", u_int8_t *" XSTR(LETRA_UINT8) "%d",   ct->n_uint8);
-            np += sprintf(params_f +np,  ", *"          XSTR(LETRA_UINT8) "%d",   ct->n_uint8);
+	    nf += sprintf(arglist_f+nf,  ", int8_t *" XSTR(LETRA_UINT8) "%d",   ct->n_uint8);
+            np += sprintf(params_f +np,  ", (u_int8_t)*" XSTR(LETRA_UINT8) "%d",   ct->n_uint8);
 	    nv += sprintf(varlist+nv,    ", "           XSTR(LETRA_UINT8) "%d",   ct->n_uint8);
             ct->n_uint8++;
 	    break;
 	case LETRA_FLOAT_ASPA:
 	    na += sprintf(arglist+na,    ", float "  XSTR(LETRA_FLOAT) "%d",      ct->n_float);
 	    nf += sprintf(arglist_f+nf,  ", float *" XSTR(LETRA_FLOAT) "%d",      ct->n_float);
-            np += sprintf(params_f +np,  ", *"       XSTR(LETRA_FLOAT) "%d",      ct->n_float);
+            np += sprintf(params_f +np,  ", (float)*" XSTR(LETRA_FLOAT) "%d",      ct->n_float);
 	    nv += sprintf(varlist+nv,    ", "        XSTR(LETRA_FLOAT) "%d",      ct->n_float);
             ct->n_float++;
 	    break;
 	case LETRA_DOUBLE_ASPA:
 	    na += sprintf(arglist+na,    ", double "  XSTR(LETRA_DOUBLE) "%d",    ct->n_double);
 	    nf += sprintf(arglist_f+nf,  ", double *" XSTR(LETRA_DOUBLE) "%d",    ct->n_double);
-              np += sprintf(params_f +np,  ", *"      XSTR(LETRA_DOUBLE) "%d",    ct->n_double);
+              np += sprintf(params_f +np,  ", (double)* " XSTR(LETRA_DOUBLE) "%d",    ct->n_double);
 	    nv += sprintf(varlist+nv,    ", "         XSTR(LETRA_DOUBLE) "%d",    ct->n_double);
             ct->n_double++;
 	    break;
 	case LETRA_UINT64_ASPA:
 	    na += sprintf(arglist+na,    ", u_int64_t "  XSTR(LETRA_UINT64) "%d", ct->n_uint64);
-	    nf += sprintf(arglist_f+nf,  ", u_int64_t *" XSTR(LETRA_UINT64) "%d", ct->n_uint64);
-            np += sprintf(params_f +np,  ", *"           XSTR(LETRA_UINT64) "%d", ct->n_uint64);
+	    nf += sprintf(arglist_f+nf,  ", int64_t *" XSTR(LETRA_UINT64) "%d", ct->n_uint64);
+            np += sprintf(params_f +np,  ", (u_int64_t)*" XSTR(LETRA_UINT64) "%d", ct->n_uint64);
 	    nv += sprintf(varlist+nv,    ", "            XSTR(LETRA_UINT64) "%d", ct->n_uint64);
             ct->n_uint64++;
 	    break;
@@ -198,13 +198,16 @@ void generate_body_f(char *argtypes, char *arglist, char *params_f, counters_t *
 {
     int i;
     
-    fprintf(cfile, "void rst_event_%s_ptr_f_(rst_buffer_t *ptr, %s)\n",
+    fprintf(cfile, "void rst_event_%s_f_( %s)\n",
                         argtypes, arglist);
     fprintf(cfile, "{\n");
 
-    fprintf(cfile, "\t" "rst_event_%s_ptr( ptr, %s);"  "\n", argtypes, params_f);
+    fprintf(cfile, "\t" "rst_event_%s(  %s);"  "\n", argtypes, params_f);
     fprintf(cfile, "}\n");
+
 }
+
+
 
 void generate_function(char *argtypes, FILE *hfile, FILE *cfile, FILE *ffile)
 {
@@ -217,7 +220,9 @@ void generate_function(char *argtypes, FILE *hfile, FILE *cfile, FILE *ffile)
     if(cfile)
       generate_body(argtypes, arglist, &ct, cfile);
     if(ffile)
+    {
       generate_body_f(argtypes,arglist_f, params_f, &ct,ffile);
+    }
 }
 
 void generate_hfile_start(FILE *hfile, char *hfilename)
@@ -351,9 +356,19 @@ int main(int argc, char **argv)
     }
     
     generate_hfile_end(hfile);
+
+    if (ffile) {
+      fprintf(ffile, "void rst_init_f_(int64_t * id1, int64_t * id2) { \n");
+      fprintf(ffile, " rst_init((u_int64_t)*id1, (u_int64_t)*id2);\n}\n\n");
+      fprintf(ffile, "void rst_finalize_f_ () {  rst_finalize(); }\n");
+    }
     
     fclose(entrada);
-    fclose(cfile);
-    fclose(hfile);
+    if (cfile)
+      fclose(cfile);
+    if (hfile)
+      fclose(hfile);
+    if (ffile)
+      fclose(ffile);
     return 0;
 }
