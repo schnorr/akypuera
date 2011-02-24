@@ -14,6 +14,7 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
+#define _GNU_SOURCE
 #include <aky.h>
 #include <stdio.h>
 #include <rastro.h>
@@ -21,87 +22,114 @@
 #include <stdlib.h>
 #include <search.h>
 
-static void *root = NULL;
-
 typedef struct elem {
-  struct elem *back;
-  struct elem *forw;
-  void *data;
-}elem_t;
+  char *data;
+  struct elem *head;
+  struct elem *tail;
+} elem_t;
 
-static elem_t *enqueue (elem_t *first, elem_t *new)
+typedef struct description {
+  elem_t *first;
+  elem_t *last;
+  int n;
+} desc_t;
+
+static void enqueue(desc_t * desc, elem_t * new)
 {
-  if (first == NULL){
-    new->back = NULL;
-    new->forw = NULL;
-    return new;
+  if (desc->first == NULL) {
+    desc->n = 1;
+    desc->first = new;
+    desc->last = new;
+    new->head = NULL;
+    new->tail = NULL;
+  } else {
+    desc->n++;
+    new->head = NULL;
+    new->tail = desc->first;
+
+    desc->first->head = new;
+    desc->first = new;
   }
-  first->back = new;
-  new->back = NULL;
-  new->forw = first;
-  return new;
 }
 
-static elem_t *dequeue (elem_t *first)
+static elem_t *dequeue(desc_t * desc)
 {
-  elem_t *ret = first;
-  while (ret){
-    if (ret->forw == NULL) break;
-    ret = ret->forw;
+  if (desc->n == 0) {
+    return NULL;
+  } else {
+    elem_t *ret = desc->last;
+    if (ret->head) {
+      ret->head->tail = NULL;
+    }
+    desc->last = ret->head;
+    desc->n--;
+    if (desc->n == 0) {
+      desc->first = NULL;
+    }
+
+    ret->head = NULL;
+    ret->tail = NULL;
+
+    return ret;
   }
-  if (ret->back){
-    ret->back->forw = NULL;
-  }
-  return ret;
 }
 
-char *aky_put_key (int src, int dst, char *key, int n)
+static elem_t *new_element(int src, int dst, char *key, int n)
 {
-  //get the dynar for src#dst
-  ENTRY e, *ep;
-  char aux[100];
-  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%d#%d", src, dst);
-  e.key = aux;
-  e.data = NULL;
-  
-  ep = hsearch (e, FIND);
-  if (ep == NULL){
-    ep = hsearch (e, ENTER);
-  }
-
   //generate the key
   static unsigned long long counter = 0;
   snprintf(key, n, "%d%d%lld", src, dst, counter++);
 
-  int len = strlen(key)+1;
-  elem_t *elem = (elem_t*)malloc(sizeof(elem_t));
-  elem->data = (char*)malloc(len*sizeof(char));
-  elem->forw = NULL;
-  elem->back = NULL;
-  strncpy (elem->data, key, len);
+  elem_t *new = (elem_t *) malloc(sizeof(elem_t));
+  new->data = strdup(key);
+  new->head = NULL;
+  new->tail = NULL;
+  return new;
+}
 
-  //put on queue
-  ep->data = enqueue (ep->data, elem);
-  while (elem){
-    elem = elem->forw;
+static void free_element(elem_t * elem)
+{
+  free(elem->data);
+  free(elem);
+}
+
+char *aky_put_key(const char *type, int src, int dst, char *key, int n)
+{
+  char aux[100];
+  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  ENTRY e, *ep;
+  e.key = aux;
+  e.data = NULL;
+
+  ep = hsearch(e, FIND);
+  if (ep == NULL) {
+    e.data = malloc(sizeof(desc_t));
+    ((desc_t *) e.data)->first = NULL;
+    ((desc_t *) e.data)->last = NULL;
+    ((desc_t *) e.data)->n = 0;
+    ep = hsearch(e, ENTER);
   }
+  elem_t *new = new_element(src, dst, key, n);
+  enqueue(ep->data, new);
   return key;
 }
 
-char *aky_get_key (int src, int dst, char *key, int n)
+char *aky_get_key(const char *type, int src, int dst, char *key, int n)
 {
-  ENTRY e, *ep;
-  //get the dynar for src#dst
   char aux[100];
-  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%d#%d", src, dst);
+  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  ENTRY e, *ep;
   e.key = aux;
-  ep = hsearch (e, FIND);
-  elem_t *elem = dequeue (ep->data);
-  snprintf (key, n, "%s", (char*)elem->data);
-  if (ep->data == elem){
-    ep->data = NULL;
+  e.data = NULL;
+  ep = hsearch(e, FIND);
+  if (ep == NULL) {
+    return NULL;
   }
-  free (elem->data);
-  free (elem);
+  elem_t *elem = dequeue(ep->data);
+  if (elem == NULL) {
+    return NULL;
+  }
+  snprintf(key, n, "%s", elem->data);
+  free_element(elem);
   return key;
 }
