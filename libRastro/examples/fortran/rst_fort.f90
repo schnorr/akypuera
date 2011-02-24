@@ -16,16 +16,16 @@
         CHARACTER(20) :: a_string !s , variable lenght string (non null
                                   !terminated on fortran)
 
-        INTEGER*2, PARAMETER :: EVTTYPE        = Z'beef'
-        INTEGER*2, PARAMETER :: EVTTYPE_INT8   = Z'ab00'
-        INTEGER*2, PARAMETER :: EVTTYPE_INT16  = Z'ab01'
-        INTEGER*2, PARAMETER :: EVTTYPE_INT32  = Z'ab02'
-        INTEGER*2, PARAMETER :: EVTTYPE_INT64  = Z'ab03'
-        INTEGER*2, PARAMETER :: EVTTYPE_FLOAT  = Z'ab04'
-        INTEGER*2, PARAMETER :: EVTTYPE_DOUBLE = Z'ab05'
-        INTEGER*2, PARAMETER :: EVTTYPE_STR    = Z'ab06'
+        INTEGER*2, PARAMETER :: EVTTYPE        = 1
+        INTEGER*2, PARAMETER :: EVTTYPE_INT8   = 10
+        INTEGER*2, PARAMETER :: EVTTYPE_INT16  = 11
+        INTEGER*2, PARAMETER :: EVTTYPE_INT32  = 12
+        INTEGER*2, PARAMETER :: EVTTYPE_INT64  = 13
+        INTEGER*2, PARAMETER :: EVTTYPE_FLOAT  = 14
+        INTEGER*2, PARAMETER :: EVTTYPE_DOUBLE = 15
+        INTEGER*2, PARAMETER :: EVTTYPE_STR    = 16
 
-        int8      = 8
+        int8      = 'a'
         int16     = 16
         int32     = 32
         int64     = 64
@@ -64,7 +64,7 @@
         CALL rst_event_s_f(EVTTYPE_STR,  a_string//CHAR(0))
 
         do 10 a=1,20
-          b = 2000/(2**a)
+          b = 2000/float(2**a)
           WRITE (*,*) "event"
           CALL rst_event_ifs_f(EVTTYPE, a, b, s//CHAR(0))
     10  continue
