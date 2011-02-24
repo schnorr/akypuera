@@ -1,7 +1,15 @@
 cmake_minimum_required (VERSION 2.6)
+if(POLICY CMP0015)
+  cmake_policy(SET CMP0015 NEW)
+endif(POLICY CMP0015)
+
+
 project (aky)
 
-set(CMAKE_BUILD_TYPE Debug)
+#uncomment to enable debugging
+#set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_C_FLAGS "-O0 -g")
+
 
 add_subdirectory(libRastro)
 add_subdirectory(examples)
