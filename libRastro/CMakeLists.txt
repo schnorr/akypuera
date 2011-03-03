@@ -45,4 +45,3 @@ install(FILES ${RASTRO_HEADERS}
         DESTINATION include)
 
 add_subdirectory (examples)
-add_subdirectory (scripts)
