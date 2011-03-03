@@ -273,6 +273,15 @@ FILE *openfile(char *name, char *mode)
     return f;
 }
 
+void usage (char *program)
+{
+  printf("Usage: %s -h file.h -c file.c -f file_f.c inputfile \n"
+         "      where file.c and file.h are header and functions \n"
+         "      for C programs file_f.c contains functions for \n"
+         "      FORTRAN applications, needs file.c and file.c\n", program);
+  exit(0);
+}
+
 /** Inicio do programa
 * @version 0.2
 * @author Gabriela e Lucas
@@ -303,18 +312,13 @@ int main(int argc, char **argv)
           hfilename = strdup(optarg);
           break;
         default:
-          printf("opt is %d\n",opt);
-          printf("Usage: %s -h file.h -c file.c -f file_f.c inputfile\
-              where file.c and file.h are header and functions for C programs\
-              file_f.c contains functions for FORTRAN applications, needs file.c and file.c\n", argv[0]);
-          exit(0);
+          usage (argv[0]);
           break;
       }
     }
 
     if (optind >= argc) {
-      printf("Missing input file\n");
-      return 1;
+      usage(argv[0]);
     }
 
 
