@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (Rastro)
+project (Rastro C)
 
 option(LIBRASTRO_THREADED "Enable if traced applications execute with threads" off)
 
