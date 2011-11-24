@@ -16,6 +16,7 @@ add_subdirectory(examples)
 
 find_package(MPI REQUIRED)
 include(cmake/FindTAU.cmake)
+include(cmake/FindMPI.cmake)
 
 include_directories(${MPI_INCLUDE_PATH} include/)
 include_directories(${MPI_INCLUDE_PATH} libRastro/include/ libRastro/src/)
