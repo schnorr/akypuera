@@ -2,14 +2,21 @@
 # Akypuera installation file
 #
 
-1/ Dependencies
-  - gcc
+1/ Dependencies, recent versions of 
+  - gcc compiler (or the clang compiler)
   - cmake
 
-1/ Compilation
-  - cmake . 
-    - you can optionally configure it with TAU, to get tau2paje converter
-    - for that, type:
-    - cmake . -DTAU_PATH=/path/to/tau/
-  - make
-  - make install
+2/ Out-of-source compilation
+  $ mkdir build
+  $ cmake ..
+  $ make
+  $ make install
+
+  => If you need to customize something, you can use 
+  $ ccmake .. # inside the build directory
+
+  => You can optionally configure it with TAU, to get tau2paje converter
+  $ cmake .. -DTAU_PATH=/path/to/tau/
+
+  => You can optionally configure it to work with SimGrid's SMPI instead of MPI.
+  $ cmake .. -DSMPI_PATH=/path/to/smpi
