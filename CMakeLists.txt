@@ -3,27 +3,53 @@ if(POLICY CMP0015)
   cmake_policy(SET CMP0015 NEW)
 endif(POLICY CMP0015)
 
+PROJECT(aky)
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-project (aky)
+OPTION(SMPI
+  "Enable to trace MPI applications linked against SimGrid's SMPI"
+  OFF)
 
-#uncomment to enable debugging
-#set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_C_FLAGS "-O0 -g")
+OPTION(TAU
+  "Enable to create tau2paje converter"
+  ON)
 
+OPTION(DEBUG
+  "Debug akypuera"
+  OFF)
 
-add_subdirectory(${CMAKE_HOME_DIRECTORY}/libRastro)
-add_subdirectory(${CMAKE_HOME_DIRECTORY}/examples)
+# debugging flags
+IF(DEBUG)
+  set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_C_FLAGS "-O0 -g")
+ENDIF(DEBUG)
 
-find_package(MPI REQUIRED)
-include(cmake/FindTAU.cmake)
-include(cmake/FindMPI.cmake)
+# akypuera configuration for SMPI or MPI (but not both)
+IF(SMPI)
+  FIND_PACKAGE(SMPI REQUIRED)
+  IF(SMPI_FOUND)
+    INCLUDE_DIRECTORIES(${SMPI_INCLUDE_PATH})
+  ENDIF(SMPI_FOUND)
+ELSE(SMPI)
+  FIND_PACKAGE(MPI REQUIRED)
+  IF(MPI_C_FOUND)
+    INCLUDE_DIRECTORIES(${MPI_C_INCLUDE_PATH})
+  ENDIF(MPI_C_FOUND)
+ENDIF(SMPI)
 
-include_directories(${CMAKE_HOME_DIRECTORY}/include/)
-include_directories(${CMAKE_HOME_DIRECTORY}/src/)
-include_directories(${CMAKE_HOME_DIRECTORY}/libRastro/include/)
-include_directories(${CMAKE_HOME_DIRECTORY}/libRastro/src/)
-include_directories(${CMAKE_BINARY_DIR}/include/)
-include_directories(${MPI_INCLUDE_PATH})
+# tau2paje converter
+IF(TAU)
+  FIND_PACKAGE(TAU REQUIRED)
+ENDIF(TAU)
+
+add_subdirectory(libRastro)
+add_subdirectory(examples)
+
+include_directories(${PROJECT_SOURCE_DIR}/include/)
+include_directories(${PROJECT_SOURCE_DIR}/src/)
+include_directories(${PROJECT_SOURCE_DIR}/libRastro/include/)
+include_directories(${PROJECT_SOURCE_DIR}/libRastro/src/)
+include_directories(${PROJECT_BINARY_DIR}/include/)
 
 add_library (aky SHARED src/aky.c src/aky_aux.c src/aky_rastro.c)
 target_link_libraries(aky Rastro)
@@ -32,8 +58,8 @@ add_executable(aky_converter src/aky_converter.c src/aky_paje.c src/aky_names.c 
 target_link_libraries(aky_converter Rastro)
 
 if(TAU_FOUND)
-  include_directories(${TAU_INCLUDE_PATH})
-  link_directories(${TAU_LIBRARY_PATH})
+  INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
+  LINK_DIRECTORIES(${TAU_LIBRARY_PATH})
   add_executable (tau2paje src/tau2paje.c src/aky_paje.c src/aky_keys.c)
   target_link_libraries (tau2paje TAU TAU_tf)
   install(PROGRAMS tau2paje
@@ -46,6 +72,8 @@ install(FILES include/aky.h
         DESTINATION include)
 install(PROGRAMS aky_converter
         DESTINATION bin)
+
+MARK_AS_ADVANCED(CMAKE_BUILD_TYPE)
 
 #packaging
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
