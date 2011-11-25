@@ -19,7 +19,8 @@ rst_event_X where a X can be one or a combination of:
   d - double
   s - string
 
-An undefined number of X can be added. Example:
+The size of each event is unlimited, so users can
+provide many parameters at once. Example:
   rst_event_iicilf(...)
   rst_event_siicicffll(...)
 
