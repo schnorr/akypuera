@@ -32,6 +32,8 @@ pthread_key_t rst_key;
 #endif
 
 static char rst_dirname[FILENAME_MAX];
+static void rst_event_lls_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0, u_int64_t l1, char *s0);
+
 
 void rst_destroy_buffer(void *p)
 {
@@ -235,4 +237,14 @@ void rst_event_ptr(rst_buffer_t *ptr, u_int16_t type)
     rst_startevent(ptr, type << 18 | 0x20000);
     rst_endevent(ptr);
 }
+
+static void rst_event_lls_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0, u_int64_t l1, char *s0)
+{
+        rst_startevent(ptr, type<<18|0x24410);
+        RST_PUT(ptr, u_int64_t, l0); 
+        RST_PUT(ptr, u_int64_t, l1);
+        RST_PUT_STR(ptr, s0);
+        rst_endevent(ptr);
+}
+
 
