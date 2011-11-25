@@ -27,8 +27,6 @@
 
 /* Estrutura de dados Lista duplamente encadeada .c */
 
-
-
 #include <stdio.h>
 #include "list.h"
 

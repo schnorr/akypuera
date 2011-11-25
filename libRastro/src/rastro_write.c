@@ -21,6 +21,7 @@
 
 
 #include "rastro_write_functions.h"
+#include "rastro_config.h"
 
 #include <unistd.h>
 #include <stdlib.h>

@@ -5,14 +5,17 @@ OPTION(THREADED
   "Thread support"
   OFF)
 
+IF(THREADED)
+  SET(LIBRASTRO_THREADED ON)
+ENDIF(THREADED)
+
 CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/include/rastro_config.h.in"
-               "${CMAKE_BINARY_DIR}/include/rastro_config.h")
+               "${CMAKE_BINARY_DIR}/include/rastro_config.h" @ONLY IMMEDIATE)
 
 SET(RASTRO_SRC
-  src/list.c
+  src/rastro_list.c
   src/rastro_read.c 
   src/rastro_write.c
-  src/rastro_write_functions.c
 )
 
 SET(RASTRO_HEADERS
@@ -40,9 +43,9 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/libRastro/src/)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/include/)
 
 ADD_LIBRARY(Rastro SHARED ${RASTRO_SRC})
-IF(LIBRASTRO_THREADED)
+IF(THREADED)
   TARGET_LINK_LIBRARIES(Rastro pthread)
-ENDIF(LIBRASTRO_THREADED)
+ENDIF(THREADED)
 ADD_EXECUTABLE(rastro_generate ${RASTRO_GENERATE_SRC})
 TARGET_LINK_LIBRARIES(rastro_generate Rastro)
 ADD_EXECUTABLE(rastro_timesync ${RASTRO_TIMESYNC_SRC})

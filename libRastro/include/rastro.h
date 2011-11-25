@@ -23,6 +23,8 @@
 #ifndef _RASTRO_PUBLIC_H_
 #define _RASTRO_PUBLIC_H_
 
+#include "rastro_config.h"
+
 #define RST_CLOCK_RESOLUTION 1000000
 
 #define RST_EVENT_TYPE_MASK 0x3fff  /* 14 bits */
@@ -166,7 +168,5 @@ void rst_print_event(rst_event_t *event);
 void reorganize_bottom_up (rst_file_t *f_data, int son);
 void reorganize_top_down (rst_file_t *f_data, int dead);
 void smallest_first (rst_file_t *f_data, int dead, int son);
-
-#include "rastro_config.h"
 
 #endif //_RASTRO_PUBLIC_H_
