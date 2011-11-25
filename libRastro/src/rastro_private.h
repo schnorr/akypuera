@@ -17,16 +17,13 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
-
-
-
 #ifndef _RASTRO_PRIVATE_H_
 #define _RASTRO_PRIVATE_H_
-
 #include <sys/time.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "rastro.h"
+#include "rastro_config.h"
+#include "rastro_list.h"
 
 // Aligns pointer p to 4-byte-aligned address
 #define ALIGN_PTR(p) ((void *)(((intptr_t)(p)+(4-1))&(~(4-1))))
@@ -104,7 +101,7 @@ extern pthread_key_t rst_key;
 
 void rst_flush(rst_buffer_t * ptr);
 
-// Termina um evento
+// finishes an event
 static inline void rst_endevent(rst_buffer_t * ptr)
 {
     ptr->rst_buffer_ptr = ALIGN_PTR(ptr->rst_buffer_ptr);
@@ -113,7 +110,7 @@ static inline void rst_endevent(rst_buffer_t * ptr)
     }
 }
 
-// Inicia um evento
+// starts an event
 static inline void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
 {
     struct timeval tp;
@@ -131,7 +128,4 @@ static inline void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     }
     RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_usec);
 }
-
-
-
 #endif  /*    _RASTRO_PRIVATE_H_   */

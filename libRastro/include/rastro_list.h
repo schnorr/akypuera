@@ -16,26 +16,17 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
+        
+    Author: Geovani Ricardo Wiedenhoft
+    Email: grw@inf.ufsm.br
 */
-
-
-//////////////////////////////////////////////////
-/*      Author: Geovani Ricardo Wiedenhoft      */
-/*      Email: grw@inf.ufsm.br                  */
-//////////////////////////////////////////////////
-
-
-/* Estrutura de dados Lista duplamente encadeada .h */
-
-
-
-#ifndef _LIST_H_
-#define _LIST_H_
-
+#ifndef _RASTRO_LIST_H_
+#define _RASTRO_LIST_H_
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 /**Dado da lista**/
 typedef void * list_data_t;
@@ -119,4 +110,4 @@ int list_quantity (list_t * list);
 
 
 
-#endif 		//_LIST_H_
+#endif 		//_RASTRO_LIST_H_

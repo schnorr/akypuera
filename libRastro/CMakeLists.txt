@@ -20,6 +20,7 @@ SET(RASTRO_SRC
 
 SET(RASTRO_HEADERS
   include/rastro.h
+  include/rastro_list.h
   include/rastro_config.h
 )
 

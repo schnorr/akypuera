@@ -17,13 +17,20 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
-
-
-
-#ifndef _RASTRO_PUBLIC_H_
-#define _RASTRO_PUBLIC_H_
-
-#include "rastro_config.h"
+#ifndef _RASTRO_H_
+#define _RASTRO_H_
+#include <sys/time.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/param.h>  /* for MAXHOSTNAMELEN */
+#include <sys/types.h>
+#include <dirent.h>
 
 #define RST_CLOCK_RESOLUTION 1000000
 
@@ -132,8 +139,6 @@ typedef struct {
         int rst_buffer_size;
 } rst_buffer_t;
 
-extern int rst_debug_mask;
-
 #define RST_OK  (1==1)
 #define RST_NOK (0==1)
 
@@ -156,17 +161,19 @@ int rst_open_file(char *f_name, rst_file_t *f_data, char *syncfilename, int buff
 void rst_close_file(rst_file_t *f_data);
 int rst_decode_event(rst_file_t *f_data, rst_event_t *event);
 
-/*Funcoes para leitura de um unico arquivo de rastro*/
-int rst_open_one_file(char *f_name, rst_one_file_t *of_data, char *syncfilename, int buffer_size);
-void rst_close_one_file(rst_one_file_t *of_data);
-int rst_decode_one_event(rst_one_file_t *of_data, rst_event_t *event);
 
 /*Imprime um evento*/
 void rst_print_event(rst_event_t *event);
 
 /*Funcoes internas*/
-void reorganize_bottom_up (rst_file_t *f_data, int son);
-void reorganize_top_down (rst_file_t *f_data, int dead);
-void smallest_first (rst_file_t *f_data, int dead, int son);
 
-#endif //_RASTRO_PUBLIC_H_
+/*Funcoes para leitura de um unico arquivo de rastro*/
+/* int rst_open_one_file(char *f_name, rst_one_file_t *of_data, char *syncfilename, int buffer_size); */
+/* void rst_close_one_file(rst_one_file_t *of_data); */
+/* int rst_decode_one_event(rst_one_file_t *of_data, rst_event_t *event); */
+
+/* void reorganize_bottom_up (rst_file_t *f_data, int son); */
+/* void reorganize_top_down (rst_file_t *f_data, int dead); */
+/* void smallest_first (rst_file_t *f_data, int dead, int son); */
+
+#endif //_RASTRO_H_

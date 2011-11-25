@@ -16,19 +16,11 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
+
+    Author: Geovani Ricardo Wiedenhoft
+    Email: grw@inf.ufsm.br
 */
-
-
-//////////////////////////////////////////////////
-/*      Author: Geovani Ricardo Wiedenhoft      */
-/*      Email: grw@inf.ufsm.br                  */
-//////////////////////////////////////////////////
-
-
-/* Estrutura de dados Lista duplamente encadeada .c */
-
-#include <stdio.h>
-#include "list.h"
+#include "rastro_list.h"
 
 void list_null(void *p)
 {

@@ -17,27 +17,12 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
+#include "rastro.h"
+#include "rastro_private.h"
+#include "rastro_list.h"
 
-
-
-#include "rastro_write_functions.h"
-#include "rastro_config.h"
-
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/time.h>
-#include <errno.h>
-#include <sys/param.h>  /* for MAXHOSTNAMELEN */
-#include "list.h"
-
-list_t list;
-bool list_init=false;
+static list_t list;
+static bool list_init=false;
 
 #ifndef LIBRASTRO_THREADED
 rst_buffer_t *rst_global_buffer;
@@ -46,8 +31,7 @@ int rst_key_initialized = 0;
 pthread_key_t rst_key;
 #endif
 
-int rst_debug_mask = 0;
-char rst_dirname[FILENAME_MAX];
+static char rst_dirname[FILENAME_MAX];
 
 void rst_destroy_buffer(void *p)
 {
@@ -90,9 +74,6 @@ void extract_arguments(int *argcp, char ***argvp)
                 }
                 if ( (rst_dirname[strlen(rst_dirname) - 1] != '/') )
                     rst_dirname[strlen(rst_dirname)] = '/';
-            }
-            if ( !strcmp(cepar, "dm") ) {
-                rst_debug_mask = atoi(argv[++arg]);
             }
             unused = ++arg;
         }

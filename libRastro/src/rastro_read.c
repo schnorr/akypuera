@@ -17,27 +17,14 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
-
-
-
-#include <sys/time.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/param.h>  /* for MAXHOSTNAMELEN */
-
 #include "rastro.h"
 #include "rastro_private.h"
 
+/*
+  Internal functions
+ */
 
-/************************FUNCOES INTERNAS DA BIBLIOTECA*****************************/
-
-// Le um evento do buffer
+// read an event from the buffer
 static char *trd_event(timestamp_t *hora_global, rst_event_t *evento, char *ptr)
 {
     u_int32_t header;
@@ -113,7 +100,7 @@ static char *trd_event(timestamp_t *hora_global, rst_event_t *evento, char *ptr)
     return ptr;
 }
 
-// Corrige tempo t a partir da estrutura de correcao
+// correct a timestamp according to synchronization data 
 static timestamp_t rst_correct_time(timestamp_t remote, ct_t *ct)
 {
     timestamp_t local;
@@ -195,10 +182,37 @@ void rst_fill_buffer(rst_one_file_t *of_data)
 }
 
 
-/*FUNCOES RELATIVAS A LEITURA DE UM UNICO ARQUIVO DE RASTRO*/
+/*
+  Functions to read a single trace file
+ */
 
-//Abre um arquivo de rastro
-int rst_open_one_file(char *f_name, rst_one_file_t *of_data, char *syncfilename, int buffer_size)
+
+// Reads the buffer and decodes an event
+static int rst_decode_one_event(rst_one_file_t *of_data, rst_event_t *event)
+{
+    int bytes_remaining, bytes_processed;
+
+    rst_fill_buffer(of_data);
+
+    bytes_processed = of_data->rst_buffer_ptr - of_data->rst_buffer;
+    bytes_remaining = of_data->rst_buffer_used - bytes_processed;
+    if (bytes_remaining <= 0) {
+        return RST_NOK;
+    }
+
+    of_data->rst_buffer_ptr = trd_event(&of_data->hora_global, event, of_data->rst_buffer_ptr);
+
+    event->timestamp = rst_correct_time(event->timestamp, &of_data->sync_time);
+    event->id1 = of_data->id1;
+    event->id2 = of_data->id2;
+    if (event->type == RST_EVENT_STOP) {
+        return RST_NOK;
+    }
+    return RST_OK;
+}
+
+//Open one trace file
+static int rst_open_one_file(char *f_name, rst_one_file_t *of_data, char *syncfilename, int buffer_size)
 {
     of_data->fd = open(f_name, O_RDONLY);
     if (of_data->fd == -1) {
@@ -242,13 +256,13 @@ int rst_open_one_file(char *f_name, rst_one_file_t *of_data, char *syncfilename,
     of_data->event.id2 = of_data->id2;
     find_timesync_data(syncfilename, of_data);
 
-    /*Sincroniza o primeiro evento*/
+    /* Synchronize the first event */
     of_data->event.timestamp = rst_correct_time(of_data->event.timestamp, &of_data->sync_time);
     return RST_OK;
 }
 
-//Finaliza um arquivo de rastro
-void rst_close_one_file(rst_one_file_t *of_data)
+//End a trace file
+static void rst_close_one_file(rst_one_file_t *of_data)
 {
     close(of_data->fd);
     of_data->fd = -1;
@@ -258,37 +272,24 @@ void rst_close_one_file(rst_one_file_t *of_data)
     of_data->hostname = NULL;
 }
 
-// Le buffer e decodifica um evento
-int rst_decode_one_event(rst_one_file_t *of_data, rst_event_t *event)
+
+/* 
+   Functions related to the reading of multiple trace files
+ */
+
+static void smallest_first (rst_file_t *f_data, int dead, int son)
 {
-    int bytes_remaining, bytes_processed;
-
-    rst_fill_buffer(of_data);
-
-    bytes_processed = of_data->rst_buffer_ptr - of_data->rst_buffer;
-    bytes_remaining = of_data->rst_buffer_used - bytes_processed;
-    if (bytes_remaining <= 0) {
-        return RST_NOK;
+    rst_one_file_t *aux;
+    if (f_data->of_data[dead - 1]->event.timestamp > f_data->of_data[son - 1]->event.timestamp){
+        aux = f_data->of_data[dead - 1];
+        f_data->of_data[dead - 1] = f_data->of_data[son - 1];
+        f_data->of_data[son - 1] = aux;
     }
-
-    of_data->rst_buffer_ptr = trd_event(&of_data->hora_global, event, of_data->rst_buffer_ptr);
-
-    event->timestamp = rst_correct_time(event->timestamp, &of_data->sync_time);
-    event->id1 = of_data->id1;
-    event->id2 = of_data->id2;
-    if (event->type == RST_EVENT_STOP) {
-        return RST_NOK;
-    }
-    return RST_OK;
 }
-/*FIM*/
 
 
 
-/*FUNCOES DE AUXLIO A LEITURA DE MULTIPLOS ARQUIVOS*/
-
-//Reorganiza a fila de traz pra frente          
-void reorganize_bottom_up (rst_file_t *f_data, int son)
+static void reorganize_bottom_up (rst_file_t *f_data, int son)
 {
     int dead;
     dead = son/2;
@@ -299,24 +300,23 @@ void reorganize_bottom_up (rst_file_t *f_data, int son)
     reorganize_bottom_up (f_data, dead);
 }
 
-//Reorganiza a fila do primeiro pra traz
-void reorganize_top_down (rst_file_t *f_data, int dead)
+static void reorganize_top_down (rst_file_t *f_data, int dead)
 {
     int son1, son2;
     son1 = dead * 2;
     son2 = (dead * 2) + 1;
 
-    //fila vazia
+    //empty
     if (dead > f_data->quantity)
         return;
-    //filho1 nao pertence a fila
+    //son1 does not belong
     if (son1 > f_data->quantity)
         return;
-    //filho2 nao pertence a fila
+    //son2 does not belong
     if (son2 > f_data->quantity)
         smallest_first (f_data, dead, son1);
 
-    //ambos filhos pertencem a fila
+    //both belong
     else {
         if (f_data->of_data[son1 - 1]->event.timestamp < f_data->of_data[son2 - 1]->event.timestamp) {
             smallest_first (f_data, dead, son1);
@@ -328,26 +328,12 @@ void reorganize_top_down (rst_file_t *f_data, int dead)
     }
 }
 
-//Se o filho for menor que o pai, troca os dois
-void smallest_first (rst_file_t *f_data, int dead, int son)
-{
-    rst_one_file_t *aux;
-    if (f_data->of_data[dead - 1]->event.timestamp > f_data->of_data[son - 1]->event.timestamp){
-        aux = f_data->of_data[dead - 1];
-        f_data->of_data[dead - 1] = f_data->of_data[son - 1];
-        f_data->of_data[son - 1] = aux;
-    }
-}
-
-/*FIM*/
 
 
+/*
+  Public functions
+ */
 
-/*********************************FUNCOES DISPONIVEIS AO USUARIO************************************************/
-
-/*FUNCOES RELATIVAS A LEITURA DE MULTIPLOS CODIGOS*/
-
-//Adiciona um arquivo de rastro na fila de prioridades 'f_data'
 int rst_open_file(char *f_name, rst_file_t *f_data, char 
 *syncfilename, int buffer_size)
 {
@@ -384,21 +370,17 @@ int rst_open_file(char *f_name, rst_file_t *f_data, char
         return RST_NOK;
 }
 
-
-
-//Finaliza fila de prioridades
 void rst_close_file (rst_file_t *f_data)
 {
     free(f_data->of_data);
     f_data->quantity = 0;
 }
 
-//Le proximo evento do espaco temporal
 int rst_decode_event (rst_file_t *f_data, rst_event_t *event)
 {
     rst_one_file_t *aux;
 
-    //nao tem nada na fila
+    //empty
     if (f_data->quantity < 1)
         return RST_NOK;
 
@@ -407,12 +389,12 @@ int rst_decode_event (rst_file_t *f_data, rst_event_t *event)
 
         f_data->quantity--;
 
-        //troca o ultimo pelo primeiro(removido)                
+        //switch the last and the first
         aux = f_data->of_data[0];
         f_data->of_data[0] = f_data->of_data[f_data->quantity];
         f_data->of_data[f_data->quantity] = aux;
 
-        //reorganiza a fila
+        //reorganize
         reorganize_top_down (f_data, 1);
 
         if ( !rst_decode_one_event (f_data->of_data[f_data->quantity], &f_data->of_data[f_data->quantity]->event) ) {
@@ -421,16 +403,14 @@ int rst_decode_event (rst_file_t *f_data, rst_event_t *event)
             free(f_data->of_data[f_data->quantity]);
         } else {
             f_data->quantity++;
-            //reorganiza a fila     
+            //reorganize
             reorganize_bottom_up (f_data, f_data->quantity);
         }
         return RST_OK;
     }
 }
-/*FIM*/
 
 
-//Imprime um evento
 void rst_print_event(rst_event_t *event)
 {
     int i;
