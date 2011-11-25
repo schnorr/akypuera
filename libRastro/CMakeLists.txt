@@ -1,9 +1,9 @@
 cmake_minimum_required (VERSION 2.6)
-project (Rastro C)
+project (Rastro)
 
 option(LIBRASTRO_THREADED "Enable if traced applications execute with threads" off)
 
-configure_file("include/rastro_config.h.in" "include/rastro_config.h" @ONLY IMMEDIATE)
+configure_file("include/rastro_config.h.in" "${CMAKE_BINARY_DIR}/include/rastro_config.h")
 
 set(RASTRO_SRC
   src/list.c
@@ -30,7 +30,11 @@ set(RASTRO_TIMESYNC_SRC
   src/timesync/rastro_timesync_f.c
 )
 
-include_directories(include/ src/)
+include_directories(${CMAKE_HOME_DIRECTORY}/include/)
+include_directories(${CMAKE_HOME_DIRECTORY}/src/)
+include_directories(${CMAKE_HOME_DIRECTORY}/libRastro/include/)
+include_directories(${CMAKE_HOME_DIRECTORY}/libRastro/src/)
+include_directories(${CMAKE_BINARY_DIR}/include/)
 
 add_library(Rastro SHARED ${RASTRO_SRC})
 if(LIBRASTRO_THREADED)

@@ -11,15 +11,20 @@ project (aky)
 #set(CMAKE_C_FLAGS "-O0 -g")
 
 
-add_subdirectory(libRastro)
-add_subdirectory(examples)
+add_subdirectory(${CMAKE_HOME_DIRECTORY}/libRastro)
+add_subdirectory(${CMAKE_HOME_DIRECTORY}/examples)
 
 find_package(MPI REQUIRED)
 include(cmake/FindTAU.cmake)
 include(cmake/FindMPI.cmake)
 
-include_directories(${MPI_INCLUDE_PATH} include/)
-include_directories(${MPI_INCLUDE_PATH} libRastro/include/ libRastro/src/)
+include_directories(${CMAKE_HOME_DIRECTORY}/include/)
+include_directories(${CMAKE_HOME_DIRECTORY}/src/)
+include_directories(${CMAKE_HOME_DIRECTORY}/libRastro/include/)
+include_directories(${CMAKE_HOME_DIRECTORY}/libRastro/src/)
+include_directories(${CMAKE_BINARY_DIR}/include/)
+include_directories(${MPI_INCLUDE_PATH})
+
 add_library (aky SHARED src/aky.c src/aky_aux.c src/aky_rastro.c)
 target_link_libraries(aky Rastro)
 
