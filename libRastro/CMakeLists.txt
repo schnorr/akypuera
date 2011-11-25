@@ -20,8 +20,6 @@ SET(RASTRO_SRC
 
 SET(RASTRO_HEADERS
   include/rastro.h
-  include/rastro_list.h
-  include/rastro_config.h
 )
 
 SET(RASTRO_GENERATE_SRC
@@ -54,7 +52,9 @@ TARGET_LINK_LIBRARIES(rastro_timesync Rastro)
 ADD_EXECUTABLE(rastro_read ${RASTRO_READ_SRC})
 TARGET_LINK_LIBRARIES(rastro_read Rastro)
 
-INSTALL(PROGRAMS rastro_generate rastro_timesync rastro_read
+INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/rastro_generate
+                 ${CMAKE_BINARY_DIR}/rastro_timesync
+                 ${CMAKE_BINARY_DIR}/rastro_read
         DESTINATION bin)
 INSTALL(TARGETS Rastro
         DESTINATION lib)
