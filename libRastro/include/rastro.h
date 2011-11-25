@@ -28,6 +28,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <sys/param.h>          /* for MAXHOSTNAMELEN */
 #include <sys/types.h>
 #include <dirent.h>
