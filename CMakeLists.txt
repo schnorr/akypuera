@@ -61,17 +61,15 @@ if(TAU_FOUND)
   INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
   LINK_DIRECTORIES(${TAU_LIBRARY_PATH})
   add_executable (tau2paje src/tau2paje.c src/aky_paje.c src/aky_keys.c)
-  target_link_libraries (tau2paje TAU TAU_tf)
-  install(PROGRAMS tau2paje
-          DESTINATION bin)
+  target_link_libraries (tau2paje TAU TAU_tf)  
 endif(TAU_FOUND)
 
-install(TARGETS aky
-        DESTINATION lib)
-install(FILES include/aky.h
-        DESTINATION include)
-install(PROGRAMS ${aky_BINARY_DIR}/aky_converter
-        DESTINATION bin)
+# Installation part
+INSTALL(TARGETS aky DESTINATION lib)
+INSTALL(PROGRAMS ${aky_BINARY_DIR}/aky_converter DESTINATION bin)
+IF(TAU_FOUND)
+  INSTALL(PROGRAMS ${aky_BINARY_DIR}/tau2paje DESTINATION bin)
+ENDIF(TAU_FOUND)
 
 MARK_AS_ADVANCED(CMAKE_BUILD_TYPE)
 
