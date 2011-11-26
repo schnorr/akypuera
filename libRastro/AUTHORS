@@ -1,4 +1,10 @@
-These are the authors of libRastro:
-- Benhur Stein
-- Gabriela Jacques da Silva
-- Geovani Ricardo Wiedenhoft
+Original authors
+  Benhur de Oliveira Stein
+  Gabriela Jacques da Silva
+  Geovani Ricardo Wiedenhoft
+
+Cmake support
+  Lucas Mello Schnorr
+
+Fortran support
+  Rodrigo Kassick

@@ -1,8 +1,16 @@
-libRastro INSTALL file
+librastro.so INSTALL file
+=========================
 
-libRastro uses cmake to keep makefiles and the compilation chain.
-Just install a recent version of cmake and type in the root directory
-of libRastro:
+We recommend compile librastro in an out-of-source fashion. Install
+a recent version of cmake and follow these instructions:
 
-$ cmake .
+(while in the root directory of the library)
+$ mkdir build
+$ cmake -DCMAKE_INSTALL_PREFIX=/tmp/local ..
 $ make
+$ make install
+
+You may also use ccmake (or any other graphical interface to cmake
+configuration) to customize your installation. The rastro's THREADED
+option should only be activated if you need to trace an application
+that uses pthreads.
