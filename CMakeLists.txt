@@ -45,11 +45,11 @@ ENDIF(TAU)
 add_subdirectory(librastro)
 add_subdirectory(examples)
 
-include_directories(${PROJECT_SOURCE_DIR}/include/)
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/librastro/include/)
-include_directories(${PROJECT_SOURCE_DIR}/librastro/src/)
-include_directories(${PROJECT_BINARY_DIR}/include/)
+include_directories(${aky_SOURCE_DIR}/include/)
+include_directories(${aky_SOURCE_DIR}/src/)
+include_directories(${rastro_SOURCE_DIR}/include/)
+include_directories(${rastro_SOURCE_DIR}/src/)
+include_directories(${aky_BINARY_DIR}/include/)
 
 add_library (aky SHARED src/aky.c src/aky_aux.c src/aky_rastro.c)
 target_link_libraries(aky rastro)
@@ -70,7 +70,7 @@ install(TARGETS aky
         DESTINATION lib)
 install(FILES include/aky.h
         DESTINATION include)
-install(PROGRAMS aky_converter
+install(PROGRAMS ${aky_BINARY_DIR}/aky_converter
         DESTINATION bin)
 
 MARK_AS_ADVANCED(CMAKE_BUILD_TYPE)

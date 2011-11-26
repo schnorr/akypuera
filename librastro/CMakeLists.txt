@@ -35,8 +35,8 @@ SET(RASTRO_TIMESYNC_SRC
   src/timesync/rastro_timesync_f.c
 )
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src/)
+INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/include/)
+INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/include/)
 
 ADD_LIBRARY(rastro SHARED ${RASTRO_SRC})
@@ -50,9 +50,9 @@ TARGET_LINK_LIBRARIES(rastro_timesync rastro)
 ADD_EXECUTABLE(rastro_read ${RASTRO_READ_SRC})
 TARGET_LINK_LIBRARIES(rastro_read rastro)
 
-INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/rastro_generate
-                 ${CMAKE_BINARY_DIR}/rastro_timesync
-                 ${CMAKE_BINARY_DIR}/rastro_read
+INSTALL(PROGRAMS ${rastro_BINARY_DIR}/rastro_generate
+                 ${rastro_BINARY_DIR}/rastro_timesync
+                 ${rastro_BINARY_DIR}/rastro_read
         DESTINATION bin)
 INSTALL(TARGETS rastro
         DESTINATION lib)
