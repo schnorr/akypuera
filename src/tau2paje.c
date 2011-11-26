@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <search.h>
-#include <aky.h>
+#include "aky_private.h"
 
 #define MAX_MPI_STATE 10000
 static char **state_name = NULL;
