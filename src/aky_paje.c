@@ -14,9 +14,7 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdio.h>
-#include <aky.h>
-#include <rastro.h>
+#include "aky_private.h"
 
 //static timestamp_t first_timestamp = -1;
 static double first_timestamp = -1;

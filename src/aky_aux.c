@@ -14,13 +14,7 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <mpi.h>
-#include <stdio.h>
-#include <search.h>
-#include <stdlib.h>
-#include "rastro.h"
-#include "aky.h"
-#include "aky_rastro.h"
+#include "aky_private.h"
 
 void *aky_ptp_root = NULL;
 

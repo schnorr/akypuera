@@ -14,12 +14,7 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <aky.h>
-#include <stdio.h>
-#include <rastro.h>
-#include <string.h>
-#include <stdlib.h>
-#include <search.h>
+#include "aky_private.h"
 
 int main(int argc, char **argv)
 {
