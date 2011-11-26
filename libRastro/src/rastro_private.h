@@ -56,7 +56,7 @@ extern pthread_key_t rst_key;
 #define RST_PUT_STR(ptr, str) 						\
 	do {                  						\
 		char *__s1 = (char *)ptr->rst_buffer_ptr;		\
-		char *__s2 = str;					\
+		char *__s2 = (char *)str;                               \
 		while ((*__s1++ = *__s2++) != '\0') 			\
 			;						\
 		ptr->rst_buffer_ptr = ALIGN_PTR(__s1); 	\

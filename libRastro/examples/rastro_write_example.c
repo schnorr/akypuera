@@ -16,24 +16,19 @@
     You should have received a copy of the GNU Lesser General Public License
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
+
+      Author: Geovani Ricardo Wiedenhoft
+      Email: grw@inf.ufsm.fr
 */
-
-
-//////////////////////////////////////////////////
-/*      Author: Geovani Ricardo Wiedenhoft      */
-/*      Email: grw@inf.ufsm.br                  */
-//////////////////////////////////////////////////
-
-
 #include "saida.h"
 
 int main(int argc, char *argv[])
 {
 	rst_init(10, 20);
 	rst_event(1);
-	rst_event_lws(2, 1, 2, "3");
-	rst_event_wlsfcd(3, 1, 2, "3", 4, '5', 6);
-	rst_event_iwlsifcd(4, 1, 2, 3, "4", 5, 6, '7', 8);
+	rst_event_lws(2, 1, 2, (u_int8_t*)"string_3");
+	rst_event_wlsfcd(3, 1, 2, (u_int8_t*)"string_3", 4, '5', 6);
+	rst_event_iwlsifcd(4, 1, 2, 3, (u_int8_t*)"string_4", 5, 6, '7', 8);
 	rst_finalize();
 	return 0;
 }
