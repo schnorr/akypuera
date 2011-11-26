@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-PROJECT(Rastro)
+PROJECT(rastro)
 
 OPTION(THREADED
   "Thread support"
@@ -41,22 +41,22 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/libRastro/include/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/libRastro/src/)
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/include/)
 
-ADD_LIBRARY(Rastro SHARED ${RASTRO_SRC})
+ADD_LIBRARY(rastro SHARED ${RASTRO_SRC})
 IF(THREADED)
-  TARGET_LINK_LIBRARIES(Rastro pthread)
+  TARGET_LINK_LIBRARIES(rastro pthread)
 ENDIF(THREADED)
 ADD_EXECUTABLE(rastro_generate ${RASTRO_GENERATE_SRC})
-TARGET_LINK_LIBRARIES(rastro_generate Rastro)
+TARGET_LINK_LIBRARIES(rastro_generate rastro)
 ADD_EXECUTABLE(rastro_timesync ${RASTRO_TIMESYNC_SRC})
-TARGET_LINK_LIBRARIES(rastro_timesync Rastro)
+TARGET_LINK_LIBRARIES(rastro_timesync rastro)
 ADD_EXECUTABLE(rastro_read ${RASTRO_READ_SRC})
-TARGET_LINK_LIBRARIES(rastro_read Rastro)
+TARGET_LINK_LIBRARIES(rastro_read rastro)
 
 INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/rastro_generate
                  ${CMAKE_BINARY_DIR}/rastro_timesync
                  ${CMAKE_BINARY_DIR}/rastro_read
         DESTINATION bin)
-INSTALL(TARGETS Rastro
+INSTALL(TARGETS rastro
         DESTINATION lib)
 INSTALL(FILES ${RASTRO_HEADERS}
         DESTINATION include)
