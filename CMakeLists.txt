@@ -42,20 +42,20 @@ IF(TAU)
   FIND_PACKAGE(TAU REQUIRED)
 ENDIF(TAU)
 
-add_subdirectory(libRastro)
+add_subdirectory(librastro)
 add_subdirectory(examples)
 
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 include_directories(${PROJECT_SOURCE_DIR}/src/)
-include_directories(${PROJECT_SOURCE_DIR}/libRastro/include/)
-include_directories(${PROJECT_SOURCE_DIR}/libRastro/src/)
+include_directories(${PROJECT_SOURCE_DIR}/librastro/include/)
+include_directories(${PROJECT_SOURCE_DIR}/librastro/src/)
 include_directories(${PROJECT_BINARY_DIR}/include/)
 
 add_library (aky SHARED src/aky.c src/aky_aux.c src/aky_rastro.c)
-target_link_libraries(aky Rastro)
+target_link_libraries(aky rastro)
 
 add_executable(aky_converter src/aky_converter.c src/aky_paje.c src/aky_names.c src/aky_keys.c)
-target_link_libraries(aky_converter Rastro)
+target_link_libraries(aky_converter rastro)
 
 if(TAU_FOUND)
   INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
