@@ -32,20 +32,18 @@
 #include <inttypes.h>
 #include <sys/param.h>          /* for MAXHOSTNAMELEN */
 #include <sys/types.h>
+#include <sys/types.h>
+#include <pthread.h>
 #include <dirent.h>
 
 #define RST_CLOCK_RESOLUTION 1000000
-
 #define RST_EVENT_TYPE_MASK 0x3fff      /* 14 bits */
 #define RST_EVENT_INIT (-1 & RST_EVENT_TYPE_MASK)
 #define RST_EVENT_STOP (-2 & RST_EVENT_TYPE_MASK)
 
-#include <sys/types.h>
-#include <pthread.h>
-
-/*Se for mudar alguma letra deve-se mudar tambem no script*/
-/* ./bin/.rastro_names.sh tirando a letra mudada e colocando a nova*/
-
+/*
+  Basic keywords for event generation
+*/
 #define LETRA_UINT8 c
 #define LETRA_UINT16 w
 #define LETRA_UINT32 i
@@ -53,7 +51,6 @@
 #define LETRA_FLOAT f
 #define LETRA_DOUBLE d
 #define LETRA_STRING s
-
 
 #define LETRA_UINT8_ASPA 'c'
 #define LETRA_UINT16_ASPA 'w'
@@ -63,15 +60,15 @@
 #define LETRA_DOUBLE_ASPA 'd'
 #define LETRA_STRING_ASPA 's'
 
-
-/*CAT concatena a funcao rst_event_+LETRA_UINT64+LETRA_UINT64+LETRA_STRING+_ptr */
+/*
+  CAT concatenates the function
+      rst_event_+LETRA_UINT64+LETRA_UINT64+LETRA_STRING+_ptr
+*/
 #define CAT(x,y,z,w) x##y##y##z##w
 #define XCAT(x,y,z,w) CAT(x,y,z,w)
 #define STR(x) #x
 #define XSTR(x) STR(x)
 
-
-/* defines utilizado para a inicializacao de uma estrutura do tipo rst_file_t */
 #define FDATAINITIALIZED -239847237
 
 typedef u_int16_t type_t;
@@ -87,6 +84,9 @@ typedef struct {
   int n_string;
 } counters_t;
 
+/*
+  The Event structure
+*/
 #define RST_MAX_FIELDS_PER_TYPE 15
 #define RST_MAX_STRLEN 100
 
@@ -131,8 +131,6 @@ typedef struct {
   int initialized;
 } rst_file_t;
 
-
-
 typedef struct {
   long rst_t0;
   int rst_fd;
@@ -144,8 +142,9 @@ typedef struct {
 #define RST_OK  (1==1)
 #define RST_NOK (0==1)
 
-/*****************FUNCOES DE GERACAO DE RASTRO********************/
-/*Funcoes de inicializacao*/
+/*
+  Writing Interface
+*/
 void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv);
 void rst_init(u_int64_t id1, u_int64_t id2);
 void rst_init_ptr(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2);
@@ -156,27 +155,13 @@ void rst_flush_all(void);
 void rst_event(u_int16_t type);
 void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type);
 
-/****************FUNCOES DE LEITURA DE RASTRO*******************/
-
-/*Funcoes para leitura de multiplos arquivos de rastro*/
+/* 
+  Reading Interface
+*/
 int rst_open_file(char *f_name, rst_file_t * f_data, char *syncfilename,
                   int buffer_size);
 void rst_close_file(rst_file_t * f_data);
 int rst_decode_event(rst_file_t * f_data, rst_event_t * event);
-
-
-/*Imprime um evento*/
 void rst_print_event(rst_event_t * event);
-
-/*Funcoes internas*/
-
-/*Funcoes para leitura de um unico arquivo de rastro*/
-/* int rst_open_one_file(char *f_name, rst_one_file_t *of_data, char *syncfilename, int buffer_size); */
-/* void rst_close_one_file(rst_one_file_t *of_data); */
-/* int rst_decode_one_event(rst_one_file_t *of_data, rst_event_t *event); */
-
-/* void reorganize_bottom_up (rst_file_t *f_data, int son); */
-/* void reorganize_top_down (rst_file_t *f_data, int dead); */
-/* void smallest_first (rst_file_t *f_data, int dead, int son); */
 
 #endif                          //_RASTRO_H_
