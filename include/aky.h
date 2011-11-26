@@ -309,46 +309,4 @@
 #define AKY_PTP_SEND 5000
 #define AKY_PTP_RECV 5001
 
-typedef struct paje_event {
-  const char *name;
-  const char *description;
-  int id;
-} s_paje_event_t, *paje_event_t;
-
-//prototypes for aky_paje.c
-void pajeDefineContainerType (const char *alias,
-    const char *containerType,
-    const char *name);
-void pajeDefineStateType (const char *alias,
-    const char *containerType,
-    const char *name);
-void pajeCreateContainer (double timestamp,
-    const char *alias,
-    const char *type,
-    const char *container,
-    const char *name);
-void pajeDestroyContainer (double timestamp,
-    const char *type,
-    const char *container);
-void pajeSetState (double timestamp,
-    const char *container,
-    const char *type,
-    const char *value);
-void pajePushState (double timestamp,
-    const char *container,
-    const char *type,
-    const char *value);
-void pajePopState (double timestamp,
-    const char *container,
-    const char *type);
-
-void paje_header (void);
-void paje_hierarchy (void);
-
-//prototypes for aky_names.c
-void name_init (void);
-char *name_get (int id);
-
-#define AKY_DEFAULT_STR_SIZE 200
-
 #endif //__AKY_H

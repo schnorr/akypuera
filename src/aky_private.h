@@ -68,4 +68,17 @@ void pajeEndLink(double timestamp,
 void paje_header(void);
 void paje_hierarchy(void);
 
+
+typedef struct paje_event {
+  const char *name;
+  const char *description;
+  int id;
+} s_paje_event_t, *paje_event_t;
+
+//prototypes for aky_names.c
+void name_init (void);
+char *name_get (int id);
+
+#define AKY_DEFAULT_STR_SIZE 200
+
 #endif //__AKY_PRIVATE_H_
