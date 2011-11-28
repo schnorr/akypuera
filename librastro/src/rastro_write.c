@@ -33,6 +33,7 @@ static char rst_dirname[FILENAME_MAX];
 static void rst_event_lls_ptr(rst_buffer_t * ptr, u_int16_t type,
                               u_int64_t l0, u_int64_t l1, char *s0);
 
+int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz) = NULL;
 
 void rst_destroy_buffer(void *p)
 {
@@ -108,15 +109,25 @@ void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv)
 // Inicializa a biblioteca em uma thread
 void rst_init(u_int64_t id1, u_int64_t id2)
 {
+  rst_init_timestamp (id1, id2, &gettimeofday);
+}
+
+void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz))
+{
   rst_buffer_t *ptr;
   ptr = (rst_buffer_t *) malloc(sizeof(rst_buffer_t));
 
-  rst_init_ptr(ptr, id1, id2);
+  rst_init_ptr_timestamp (ptr, id1, id2, timestamp);
 }
 
 
 // Inicializacao com buffer pre-alocado
-void rst_init_ptr(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2)
+void rst_init_ptr(rst_buffer_t *ptr, u_int64_t id1, u_int64_t id2)
+{
+  rst_init_ptr_timestamp(ptr, id1, id2, &gettimeofday);
+}
+
+void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz))
 {
   int fd;
   char fname[30];
@@ -132,6 +143,9 @@ void rst_init_ptr(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2)
     rst_key_initialized = 1;
   }
 #endif
+
+  //define the timestamp function to be used by librastro
+  rastro_gettimeofday = timestamp;
 
   if (!list_init) {
     list_initialize(&list, list_copy, list_cmp, list_destroy);

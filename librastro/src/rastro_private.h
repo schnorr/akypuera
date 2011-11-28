@@ -23,6 +23,9 @@
 #include "rastro_list.h"
 #include "rastro_config.h"
 
+//the timestamp function used by librastro
+extern int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz);
+
 // Aligns pointer p to 4-byte-aligned address
 #define ALIGN_PTR(p) ((void *)(((intptr_t)(p)+(4-1))&(~(4-1))))
 
@@ -114,7 +117,7 @@ static inline void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     struct timeval tp;
     u_int32_t deltasec;
 
-    gettimeofday(&tp, NULL);
+    rastro_gettimeofday(&tp, NULL);
     deltasec = tp.tv_sec - RST_T0(ptr);
     if (deltasec > 3600) {
         RST_SET_T0(ptr, tp.tv_sec);

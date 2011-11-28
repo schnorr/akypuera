@@ -147,7 +147,9 @@ typedef struct {
 */
 void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv);
 void rst_init(u_int64_t id1, u_int64_t id2);
+void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz));
 void rst_init_ptr(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2);
+void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz));
 void rst_finalize(void);
 void rst_finalize_ptr(rst_buffer_t * ptr);
 void rst_flush_all(void);
