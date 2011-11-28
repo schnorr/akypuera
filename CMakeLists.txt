@@ -18,6 +18,10 @@ OPTION(DEBUG
   "Debug akypuera"
   OFF)
 
+# aky_config.h.in file
+CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
+               "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
+
 # debugging flags
 IF(DEBUG)
   set(CMAKE_BUILD_TYPE Debug)

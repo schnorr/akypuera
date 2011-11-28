@@ -23,6 +23,7 @@
 #include <string.h>
 #include <search.h>
 #include "aky.h"
+#include "aky_config.h"
 #include "aky_rastro.h"
 
 void aky_insert(MPI_Request * req);

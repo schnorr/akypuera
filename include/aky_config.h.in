@@ -1,0 +1,6 @@
+#ifndef _AKY_CONFIG_H
+#define _AKY_CONFIG_H
+
+#cmakedefine SMPI @SMPI@
+
+#endif
