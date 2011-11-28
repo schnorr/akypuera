@@ -20,3 +20,9 @@
 
   => You can optionally configure it to work with SimGrid's SMPI instead of MPI.
   $ cmake .. -DSMPI_PATH=/path/to/smpi
+
+Note: Akypuera has support for both OMPI (a real MPI implementation)
+and SMPI (the SimGrid's MPI interface to simulate MPI applications),
+but not at the same time. So if you want to trace OMPI, you need to
+-DSMPI=OFF and use mpicc to compile your application. If you want to
+trace SMPI, you need to -DSMPI=ON and then use smpicc.
