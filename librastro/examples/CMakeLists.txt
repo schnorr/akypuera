@@ -9,3 +9,6 @@ target_link_libraries(read rastro)
 
 add_executable(write rastro_write_example.c saida.c)
 target_link_libraries(write rastro)
+
+add_executable(write2 write2.c saida.c)
+target_link_libraries(write2 rastro)
