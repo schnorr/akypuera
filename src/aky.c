@@ -693,7 +693,11 @@ char ***argv;
   int returnVal = PMPI_Init(argc, argv);
   int rank;
   PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#ifdef SMPI
+  rst_init_timestamp(rank, 0, &smpi_gettimeofday);
+#else
   rst_init(rank, 0);
+#endif
   rst_event(MPI_INIT);
   return returnVal;
 }
