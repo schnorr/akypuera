@@ -15,6 +15,12 @@
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "aky_private.h"
+#define _GNU_SOURCE
+#define __USE_GNU
+#include <search.h>
+
+static struct hsearch_data hash;
+
 
 typedef struct elem {
   char *data;
@@ -114,21 +120,38 @@ static void free_element(elem_t * elem)
   free(elem);
 }
 
+int aky_key_init (void)
+{
+  if (hcreate_r (1000, &hash) == 0){
+    fprintf (stderr,
+             "[aky_converter] at %s,"
+             "hash table allocation failed.",
+             __FUNCTION__);
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+void aky_key_free (void)
+{
+  hdestroy_r (&hash);
+}
 char *aky_put_key(const char *type, int src, int dst, char *key, int n)
 {
   char aux[100];
   snprintf(aux, 100, "%s#%d#%d", type, src, dst);
-  ENTRY e, *ep;
+  ENTRY e, *ep = NULL;
   e.key = aux;
   e.data = NULL;
 
-  ep = hsearch(e, FIND);
+  hsearch_r (e, FIND, &ep, &hash);
   if (ep == NULL) {
     e.data = malloc(sizeof(desc_t));
     ((desc_t *) e.data)->first = NULL;
     ((desc_t *) e.data)->last = NULL;
     ((desc_t *) e.data)->n = 0;
-    ep = hsearch(e, ENTER);
+    hsearch_r (e, ENTER, &ep, &hash);
   }
   elem_t *new = new_element(src, dst, key, n);
   enqueue(ep->data, new);
@@ -142,7 +165,8 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
   ENTRY e, *ep;
   e.key = aux;
   e.data = NULL;
-  ep = hsearch(e, FIND);
+
+  hsearch_r (e, FIND, &ep, &hash);
   if (ep == NULL) {
     fprintf (stderr,
              "[aky_converter] at %s (no queue), there is no key available\n"

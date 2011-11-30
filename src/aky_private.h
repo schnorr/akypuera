@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <rastro.h>
 #include <string.h>
-#include <search.h>
 #include "aky.h"
 #include "aky_config.h"
 #include "aky_rastro.h"
@@ -31,6 +30,8 @@ int aky_check(MPI_Request * req);
 void aky_remove(MPI_Request * req);
 int AKY_translate_rank(MPI_Comm comm, int rank);
 
+int aky_key_init(void);
+void aky_key_free(void);
 char *aky_put_key(const char *type, int src, int dst, char *key, int n);
 char *aky_get_key(const char *type, int src, int dst, char *key, int n);
 

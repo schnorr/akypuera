@@ -71,7 +71,9 @@ int main(int argc, char **argv)
   struct arguments arguments;
   parse (argc, (char**)argv, &arguments);
 
-  hcreate(1000000);
+  if (aky_key_init() == 1){
+    return 1;
+  }
 
   rst_file_t data;
   rst_event_t event;
@@ -402,6 +404,6 @@ int main(int argc, char **argv)
   }
 
   rst_close_file(&data);
-  hdestroy();
+  aky_key_free();
   return 0;
 }

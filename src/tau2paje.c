@@ -14,12 +14,10 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#define _GNU_SOURCE
 #include <TAU_tf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <search.h>
 #include "aky_private.h"
 
 #define MAX_MPI_STATE 10000
@@ -251,7 +249,9 @@ int main(int argc, char **argv)
 
   state_name = (char **) malloc(sizeof(char *) * MAX_MPI_STATE);
 
-  hcreate(1000000);
+  if (aky_key_init() == 1){
+    return 1;
+  }
 
   int recs_read, pos;
   Ttf_CallbacksT cb;
@@ -291,6 +291,6 @@ int main(int argc, char **argv)
   } while (recs_read >= 0 && !EndOfTrace);
 
   Ttf_CloseFile(fh);
-  hdestroy();
+  aky_key_free();
   return 0;
 }
