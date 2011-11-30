@@ -121,7 +121,9 @@ int main(int argc, char **argv)
                    "[aky_converter] but no send for this receive yet,\n"
                    "[aky_converter] do you synchronize your input traces?\n",
                    __FUNCTION__, event.id1, event.v_uint32[0]);
-          fail = 1;
+          if (!arguments.ignore_errors){
+            fail = 1;
+          }
         }
         pajeEndLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
       }
