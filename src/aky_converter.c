@@ -16,7 +16,6 @@
 */
 #include "aky_private.h"
 #include <argp.h>
-#define MAX_INPUT_SIZE 10000
 
 const char *program = "aky_converter";
 const char *program_address = "http://github.com/schnorr/akypuera";
@@ -29,7 +28,7 @@ static struct argp_option options[] = {
 };
 
 struct arguments {
-  char *input[MAX_INPUT_SIZE];
+  char *input[AKY_INPUT_SIZE];
   int input_size;
   int ignore_errors;
 };
@@ -40,7 +39,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   switch (key){
   case 'i': arguments->ignore_errors = 1; break;
   case ARGP_KEY_ARG:
-    if (arguments->input_size == MAX_INPUT_SIZE) {
+    if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
       argp_usage (state);
     }

@@ -81,5 +81,7 @@ void name_init (void);
 char *name_get (int id);
 
 #define AKY_DEFAULT_STR_SIZE 200
+#define AKY_INPUT_SIZE 10000
+
 
 #endif //__AKY_PRIVATE_H_
