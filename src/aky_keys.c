@@ -49,6 +49,10 @@ static void enqueue(desc_t * desc, elem_t * new)
 static elem_t *dequeue(desc_t * desc)
 {
   if (desc->n == 0) {
+    /* queue is empty, but someone needs a key */
+    fprintf (stderr,
+             "[aky_converter] at %s, the queue is empty.\n",
+             __FUNCTION__);
     return NULL;
   } else {
     elem_t *ret = desc->last;
@@ -121,6 +125,10 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
   }
   elem_t *elem = dequeue(ep->data);
   if (elem == NULL) {
+    fprintf (stderr,
+             "[aky_converter] at %s, there is no key available\n"
+             "[aky_converter] when type = %s, src = %d, dst = %d.\n",
+             __FUNCTION__, type, src, dst);
     return NULL;
   }
   snprintf(key, n, "%s", elem->data);

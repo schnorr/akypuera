@@ -28,6 +28,7 @@ int main(int argc, char **argv)
   rst_file_t data;
   rst_event_t event;
   int i;
+  int fail = 0;
 
   for (i = 1; i < argc; i++) {
     int ret = rst_open_file(argv[i], &data, NULL, 100000);
@@ -41,7 +42,7 @@ int main(int argc, char **argv)
   paje_header();
   paje_hierarchy();
 
-  while (rst_decode_event(&data, &event)) {
+  while (rst_decode_event(&data, &event) && !fail) {
     char mpi_process[100];
     char value[100];
     snprintf(mpi_process, 100, "rank%ld", event.id1);
@@ -59,8 +60,17 @@ int main(int argc, char **argv)
     case AKY_PTP_RECV:
       {
         char key[AKY_DEFAULT_STR_SIZE];
-        aky_get_key("n", event.v_uint32[0], event.id1, key,
-                    AKY_DEFAULT_STR_SIZE);
+        char *result = aky_get_key("n", event.v_uint32[0], event.id1, key,
+                                   AKY_DEFAULT_STR_SIZE);
+        if (result == NULL){
+          fprintf (stderr,
+                   "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
+                   "[aky_converter] got a receive at dst = %lu from src = %d\n"
+                   "[aky_converter] but no send for this receive yet,\n"
+                   "[aky_converter] do you synchronize your input traces?\n",
+                   __FUNCTION__, event.id1, event.v_uint32[0]);
+          fail = 1;
+        }
         pajeEndLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
       }
       break;
