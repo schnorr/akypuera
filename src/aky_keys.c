@@ -144,12 +144,19 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
   e.data = NULL;
   ep = hsearch(e, FIND);
   if (ep == NULL) {
+    fprintf (stderr,
+             "[aky_converter] at %s (no queue), there is no key available\n"
+             "[aky_converter] when type = %s, src = %d, dst = %d.\n",
+             __FUNCTION__, type, src, dst);
     return NULL;
+  }
+  if (src == 3 && dst == 2){
+    printf ("GET\n");
   }
   elem_t *elem = dequeue(ep->data);
   if (elem == NULL) {
     fprintf (stderr,
-             "[aky_converter] at %s, there is no key available\n"
+             "[aky_converter] at %s (no key), there is no key available\n"
              "[aky_converter] when type = %s, src = %d, dst = %d.\n",
              __FUNCTION__, type, src, dst);
     return NULL;
