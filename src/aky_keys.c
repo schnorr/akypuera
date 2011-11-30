@@ -151,6 +151,7 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
 
   hsearch_r (e, FIND, &ep, &hash);
   if (ep == NULL) {
+    e.key = strdup(aux);
     e.data = malloc(sizeof(desc_t));
     ((desc_t *) e.data)->first = NULL;
     ((desc_t *) e.data)->last = NULL;
