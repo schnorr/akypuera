@@ -150,9 +150,6 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
              __FUNCTION__, type, src, dst);
     return NULL;
   }
-  if (src == 3 && dst == 2){
-    printf ("GET\n");
-  }
   elem_t *elem = dequeue(ep->data);
   if (elem == NULL) {
     fprintf (stderr,
