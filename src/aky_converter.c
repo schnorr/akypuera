@@ -15,13 +15,62 @@
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "aky_private.h"
+#include <argp.h>
+#define MAX_INPUT_SIZE 10000
+
+const char *program = "aky_converter";
+const char *program_address = "http://github.com/schnorr/akypuera";
+static char doc[] = "Converts aky trace files to the Paje file format";
+static char args_doc[] = "{rastro-0-0.rst rastro-1-0.rst ...}";
+
+static struct argp_option options[] = {
+  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors"},
+  { 0 }
+};
+
+struct arguments {
+  char *input[MAX_INPUT_SIZE];
+  int input_size;
+  int ignore_errors;
+};
+
+static int parse_options (int key, char *arg, struct argp_state *state)
+{
+  struct arguments *arguments = state->input;
+  switch (key){
+  case 'i': arguments->ignore_errors = 1; break;
+  case ARGP_KEY_ARG:
+    if (arguments->input_size == MAX_INPUT_SIZE) {
+      /* Too many arguments. */
+      argp_usage (state);
+    }
+    arguments->input[state->arg_num] = arg;
+    arguments->input_size++;
+    break;
+  case ARGP_KEY_END:
+    if (state->arg_num < 1)
+      /* Not enough arguments. */
+      argp_usage (state);
+    break;
+  default: return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
+}
+
+static struct argp argp = { options, parse_options, args_doc, doc };
+
+int parse (int argc, char **argv, struct arguments *arg)
+{
+  arg->input_size = 0;
+  arg->ignore_errors = 0;
+  int ret = argp_parse (&argp, argc, argv, 0, 0, arg);
+  return ret;
+}
 
 int main(int argc, char **argv)
 {
-  if (argc == 1) {
-    printf("%s {rastro-0-0.rst rastro-1-0.rst ...}\n", argv[0]);
-    return 1;
-  }
+  struct arguments arguments;
+  parse (argc, (char**)argv, &arguments);
 
   hcreate(1000000);
 
@@ -30,10 +79,13 @@ int main(int argc, char **argv)
   int i;
   int fail = 0;
 
-  for (i = 1; i < argc; i++) {
-    int ret = rst_open_file(argv[i], &data, NULL, 100000);
+  for (i = 0; i < arguments.input_size; i++){
+    int ret = rst_open_file(arguments.input[i], &data, NULL, 100000);
     if (ret == -1) {
-      printf("%s: trace %s could not be opened\n", argv[0], argv[i]);
+      fprintf(stderr,
+              "[aky_converter] at %s,"
+              "trace file %s could not be opened\n",
+              __FUNCTION__, arguments.input[i]);
       return 1;
     }
   }
