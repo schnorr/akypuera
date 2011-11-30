@@ -139,7 +139,11 @@ void aky_key_free (void)
 }
 char *aky_put_key(const char *type, int src, int dst, char *key, int n)
 {
+  //zeroe key
+  bzero (key, n);
+
   char aux[100];
+  bzero (aux, 100);
   snprintf(aux, 100, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep = NULL;
   e.key = aux;
@@ -160,7 +164,11 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
 
 char *aky_get_key(const char *type, int src, int dst, char *key, int n)
 {
+  //zeroe key
+  bzero (key, n);
+
   char aux[100];
+  bzero (aux, 100);
   snprintf(aux, 100, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep;
   e.key = aux;
@@ -182,9 +190,6 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
              __FUNCTION__, type, src, dst);
     return NULL;
   }
-
-  //zeroe key
-  bzero (key, n);
 
   //copy key into output
   snprintf(key, n, "%s", elem->data);
