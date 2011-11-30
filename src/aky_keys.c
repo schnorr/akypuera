@@ -87,12 +87,15 @@ static elem_t *dequeue(desc_t * desc)
 
 static elem_t *new_element(int src, int dst, char *key, int n)
 {
+  //zeroe the key
+  bzero (key, n);
+
   //generate the key
   static unsigned long long counter = 0;
   snprintf(key, n, "%d%d%lld", src, dst, counter++);
 
   elem_t *new = (elem_t *) malloc(sizeof(elem_t));
-  new->data = strdup(key);
+  new->data = strndup(key, strlen(key));
   new->head = NULL;
   new->tail = NULL;
   return new;
@@ -144,6 +147,11 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
              __FUNCTION__, type, src, dst);
     return NULL;
   }
+
+  //zeroe key
+  bzero (key, n);
+
+  //copy key into output
   snprintf(key, n, "%s", elem->data);
   free_element(elem);
   return key;
