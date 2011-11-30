@@ -28,6 +28,19 @@ typedef struct description {
   int n;
 } desc_t;
 
+static void print_queue (desc_t *desc)
+{
+  /* debug list elements */
+  elem_t *it = desc->first;
+  while (it != NULL){
+    fprintf (stderr,
+             "  desc=%p (first=%p, last=%p) it=%p (head=%p, tail=%p)\n",
+             desc, desc->first, desc->last,
+             it, it->head, it->tail);
+    it = it->tail;
+  }
+}
+
 static void enqueue(desc_t * desc, elem_t * new)
 {
   if (desc->first == NULL) {
