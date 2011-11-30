@@ -43,19 +43,24 @@ static void print_queue (desc_t *desc)
 
 static void enqueue(desc_t * desc, elem_t * new)
 {
-  if (desc->first == NULL) {
-    desc->n = 1;
+  if (desc->n == 0){
+    /* queue is empty, add in the beginning */
+    desc->n++;
     desc->first = new;
     desc->last = new;
+
+    /* new element is not linked with others elements (because it is alone) */
     new->head = NULL;
     new->tail = NULL;
-  } else {
+  }else{
+    /* queue is NOT empty, add at the end */
     desc->n++;
-    new->head = NULL;
-    new->tail = desc->first;
 
-    desc->first->head = new;
-    desc->first = new;
+    elem_t *old_last = desc->last;
+    old_last->tail = new;
+    new->head = old_last;
+    new->tail = NULL;
+    desc->last = new;
   }
 }
 
@@ -68,15 +73,17 @@ static elem_t *dequeue(desc_t * desc)
              __FUNCTION__);
     return NULL;
   } else {
-    elem_t *ret = desc->last;
-    if (ret->head) {
-      ret->head->tail = NULL;
-    }
-    desc->last = ret->head;
-    desc->n--;
-    if (desc->n == 0) {
+    /* queue is NOT empty, that's good, get the first element */
+    elem_t *ret = desc->first;
+    elem_t *new_first = desc->first->tail;
+    if (new_first){
+      new_first->head = NULL;
+      desc->first = new_first;
+    }else{
       desc->first = NULL;
+      desc->last = NULL;
     }
+    desc->n--;
 
     ret->head = NULL;
     ret->tail = NULL;
