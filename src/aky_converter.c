@@ -62,20 +62,17 @@ static int parse_options (int key, char *arg, struct argp_state *state)
 
 static struct argp argp = { options, parse_options, args_doc, doc };
 
-int parse (int argc, char **argv, struct arguments *arg)
-{
-  arg->input_size = 0;
-  arg->ignore_errors = 0;
-  arg->no_links = 0;
-  arg->no_states = 0;
-  int ret = argp_parse (&argp, argc, argv, 0, 0, arg);
-  return ret;
-}
-
 int main(int argc, char **argv)
 {
   struct arguments arguments;
-  parse (argc, (char**)argv, &arguments);
+  bzero (&arguments, sizeof(struct arguments));
+  if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
+    fprintf(stderr,
+            "[aky_converter] at %s,"
+            "error during the parsing of parameters\n",
+            __FUNCTION__);
+    return 1;
+  }
 
   if (aky_key_init() == 1){
     return 1;
