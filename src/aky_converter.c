@@ -24,13 +24,14 @@ static char args_doc[] = "{rastro-0-0.rst rastro-1-0.rst ...}";
 
 static struct argp_option options[] = {
   {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors"},
+  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
   { 0 }
 };
 
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors;
+  int ignore_errors, no_links;
 };
 
 static int parse_options (int key, char *arg, struct argp_state *state)
@@ -38,6 +39,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   struct arguments *arguments = state->input;
   switch (key){
   case 'i': arguments->ignore_errors = 1; break;
+  case 'l': arguments->no_links = 1; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
@@ -62,6 +64,7 @@ int parse (int argc, char **argv, struct arguments *arg)
 {
   arg->input_size = 0;
   arg->ignore_errors = 0;
+  arg->no_links = 0;
   int ret = argp_parse (&argp, argc, argv, 0, 0, arg);
   return ret;
 }
@@ -103,7 +106,7 @@ int main(int argc, char **argv)
     double timestamp = (double) event.timestamp / 1000000;
     switch (event.type) {
     case AKY_PTP_SEND:
-      {
+      if (!arguments.no_links){
         char key[AKY_DEFAULT_STR_SIZE];
         aky_put_key("n", event.id1, event.v_uint32[0], key,
                     AKY_DEFAULT_STR_SIZE);
@@ -111,7 +114,7 @@ int main(int argc, char **argv)
       }
       break;
     case AKY_PTP_RECV:
-      {
+      if (!arguments.no_links){
         char key[AKY_DEFAULT_STR_SIZE];
         char *result = aky_get_key("n", event.v_uint32[0], event.id1, key,
                                    AKY_DEFAULT_STR_SIZE);
