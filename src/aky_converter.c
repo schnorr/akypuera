@@ -25,13 +25,14 @@ static char args_doc[] = "{rastro-0-0.rst rastro-1-0.rst ...}";
 static struct argp_option options[] = {
   {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors"},
   {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
+  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
   { 0 }
 };
 
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors, no_links;
+  int ignore_errors, no_links, no_states;
 };
 
 static int parse_options (int key, char *arg, struct argp_state *state)
@@ -40,6 +41,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   switch (key){
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
+  case 's': arguments->no_states = 1; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
@@ -65,6 +67,7 @@ int parse (int argc, char **argv, struct arguments *arg)
   arg->input_size = 0;
   arg->ignore_errors = 0;
   arg->no_links = 0;
+  arg->no_states = 0;
   int ret = argp_parse (&argp, argc, argv, 0, 0, arg);
   return ret;
 }
@@ -266,7 +269,9 @@ int main(int argc, char **argv)
     case MPI_CART_RANK_IN:
     case MPI_CART_SUB_IN:
     case MPI_FINALIZE_IN:
-      pajePushState(timestamp, mpi_process, "STATE", value);
+      if (!arguments.no_states){
+        pajePushState(timestamp, mpi_process, "STATE", value);
+      }
       break;
     case MPI_COMM_SPAWN_OUT:
     case MPI_COMM_GET_NAME_OUT:
@@ -397,10 +402,14 @@ int main(int argc, char **argv)
     case MPI_RECV_IDLE_OUT:
     case MPI_CART_RANK_OUT:
     case MPI_CART_SUB_OUT:
-      pajePopState(timestamp, mpi_process, "STATE");
+      if (!arguments.no_states){
+        pajePopState(timestamp, mpi_process, "STATE");
+      }
       break;
     case MPI_FINALIZE_OUT:
-      pajePopState(timestamp, mpi_process, "STATE");
+      if (!arguments.no_states){
+        pajePopState(timestamp, mpi_process, "STATE");
+      }
       pajeDestroyContainer(timestamp, "PROCESS", mpi_process);
       break;
     }
