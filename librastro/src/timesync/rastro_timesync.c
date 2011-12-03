@@ -1,25 +1,19 @@
 /*
-    Copyright (c) 1998--2006 Benhur Stein
+    This file is part of librastro
 
-    This file is part of Pajé.
+    librastro is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-    Pajé is free software; you can redistribute it and/or modify it under
-    the terms of the GNU Lesser General Public License as published by the
-    Free Software Foundation; either version 2 of the License, or (at your
-    option) any later version.
+    librastro is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Public License for more details.
 
-    Pajé is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-    FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
-    for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with Pajé; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
+    You should have received a copy of the GNU Public License
+    along with librastro. If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -33,250 +27,292 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/param.h>  /* for MAXHOSTNAMELEN */
+#include <argp.h>
 
-#define MAX_HOSTS 256
-#define PORT 3000
-#define SZ_SAMPLE 1000
-
-char hosttable[MAX_HOSTS][MAXHOSTNAMELEN];
-int num_hosts;
-FILE *hostfile, *rastro;
-char *myname;
+/* configuration structure */
+#define RASTRO_INPUT_SIZE 300
+struct arguments {
+  char *slaves[RASTRO_INPUT_SIZE];
+  int number_of_slaves;
+  int slave_mode;
+  char *master_port;
+  int sample_size;
+  char *master_host;
+  char *remote_login;
+  char *program_name;
+};
 
 /* return current time */
 long long getCurrentTime(void)
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (long long) tv.tv_sec * 1000000 +  (long long) tv.tv_usec;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (long long) tv.tv_sec * 1000000 +  (long long) tv.tv_usec;
 }
 
 long long timerabs(struct timeval a)
 {
-    return (long long)a.tv_sec * 1000000 + a.tv_usec;
+  return (long long)a.tv_sec * 1000000 + a.tv_usec;
 }
 
 long timerdiff(struct timeval a, struct timeval b)
 {
-    return (a.tv_sec - b.tv_sec) * 1000000 + (a.tv_usec - b.tv_usec);
+  return (a.tv_sec - b.tv_sec) * 1000000 + (a.tv_usec - b.tv_usec);
 }
 
-void recebe_mesmo(int socket, char *buffer, int tamanho)
+void receive_data(int socket, char *buffer, int size)
 {
-	int recebidos = 0;
-	while (recebidos != tamanho){
-		recebidos = recv(socket, (void *) buffer, tamanho, 0);
-		if (recebidos < tamanho){
-			fprintf(stdout, "received less...\n");
-			buffer += recebidos;
-			tamanho -= recebidos;
-			recebidos = 0;
-		}
-	}
+  int received = 0;
+  while (received != size){
+    received = recv(socket, (void *) buffer, size, 0);
+    if (received < size){
+      fprintf(stdout, "received less...\n");
+      buffer += received;
+      size -= received;
+      received = 0;
+    }
+  }
 }
 
 void ping1(int socket, long long *local, long long *remote, long *delta)
 {
-    struct timeval t0, t1, tremote;
-    int teste;
-    gettimeofday(&t0, NULL);
-    teste = send(socket, (void *) &t0, sizeof(t0), 0);
-    if (teste == -1) {
-        fprintf(stderr, "[ping]: send failed at socket %d!\n", socket);
-        exit(1);
-    }
-    recebe_mesmo(socket, (char *) &tremote, sizeof(tremote));
-    gettimeofday(&t1, NULL);
-    *delta = timerdiff(t1, t0);
-    *local = timerabs(t0) + *delta / 2;
-    *remote = timerabs(tremote);
+  struct timeval t0, t1, tremote;
+  int test;
+  gettimeofday(&t0, NULL);
+  test = send(socket, (void *) &t0, sizeof(t0), 0);
+  if (test == -1) {
+    fprintf(stderr, "[ping]: send failed at socket %d!\n", socket);
+    exit(1);
+  }
+  receive_data(socket, (char *) &tremote, sizeof(tremote));
+  gettimeofday(&t1, NULL);
+  *delta = timerdiff(t1, t0);
+  *local = timerabs(t0) + *delta / 2;
+  *remote = timerabs(tremote);
 }
 
-void ping(int socket, long long *mlocal, long long *mremote, char *remotename)
+void ping(int socket, long long *mlocal, long long *mremote,
+          char *remotename, int sample_size)
 {
-    long delta;
-    long long local, remote;
-    long mdelta = 1e9;
-    int i;
-    struct timeval t0 = {0, 0};
-    int remotenamelen;
+  long delta;
+  long long local, remote;
+  long mdelta = 1e9;
+  int i;
+  struct timeval t0 = {0, 0};
+  int remotenamelen;
     
-    recebe_mesmo(socket, (char *) &remotenamelen, sizeof(remotenamelen));
-    recebe_mesmo(socket, remotename, remotenamelen);
-    remotename[remotenamelen] = '\0';
+  receive_data(socket, (char *) &remotenamelen, sizeof(remotenamelen));
+  receive_data(socket, remotename, remotenamelen);
+  remotename[remotenamelen] = '\0';
 
-    for (i = 0; i < SZ_SAMPLE; i++) {
-        ping1(socket, &local, &remote, &delta);
-        if (delta <= mdelta) {
-            mdelta = delta;
-            *mlocal = local;
-            *mremote = remote;
-        }
+  for (i = 0; i < sample_size; i++) {
+    ping1(socket, &local, &remote, &delta);
+    if (delta <= mdelta) {
+      mdelta = delta;
+      *mlocal = local;
+      *mremote = remote;
     }
-    send(socket, (void *) &t0, sizeof(t0), 0);
+  }
+  send(socket, (void *) &t0, sizeof(t0), 0);
 }
 
 
 void pong(int socket)
 {
-	struct timeval tvi, tvo;
-	int teste;
-        int namesize;
-        char hostname[MAXHOSTNAMELEN];
+  struct timeval tvi, tvo;
+  int teste;
+  int namesize;
+  char hostname[MAXHOSTNAMELEN];
 
-        gethostname(hostname, sizeof(hostname));
-        namesize = strlen(hostname);
-        send(socket, (char *)&namesize, sizeof(namesize), 0);
-        send(socket, hostname, namesize, 0);
-	do {
-		recebe_mesmo(socket, (char *) &tvi, sizeof(tvi));
-		gettimeofday(&tvo, NULL); 
-		teste = send(socket, (void *) &tvo, sizeof(tvo), 0);
-		if (teste == -1) {
-			fprintf(stderr, "[pong]: send failed at socket %d!\n", socket);
-			exit(1);
-		}
-	} while (tvi.tv_sec != 0);
+  gethostname(hostname, sizeof(hostname));
+  namesize = strlen(hostname);
+  send(socket, (char *)&namesize, sizeof(namesize), 0);
+  send(socket, hostname, namesize, 0);
+  do {
+    receive_data(socket, (char *) &tvi, sizeof(tvi));
+    gettimeofday(&tvo, NULL); 
+    teste = send(socket, (void *) &tvo, sizeof(tvo), 0);
+    if (teste == -1) {
+      fprintf(stderr, "[pong]: send failed at socket %d!\n", socket);
+      exit(1);
+    }
+  } while (tvi.tv_sec != 0);
 }
 
-int abre_conexao(int *pporta)
+static int open_connection(int *pport)
 {
-	struct sockaddr_in connection;
-	int sock, resultado;
-	int porta = 1024;
+  struct sockaddr_in connection;
+  int sock, result;
+  int port = 1024;
 	
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-	do {
-		porta++;
-		connection.sin_family = AF_INET;
-		connection.sin_port = htons(porta);
-		connection.sin_addr.s_addr = htons(INADDR_ANY);
-		bzero(connection.sin_zero, 8);
-		resultado = bind(sock, (struct sockaddr *) &connection,
-		            sizeof(connection)); 
-	} while (resultado != 0);
-	listen(sock, 2);
-	*pporta = porta;
-	return sock;
+  sock = socket(AF_INET, SOCK_STREAM, 0);
+  do {
+    port++;
+    connection.sin_family = AF_INET;
+    connection.sin_port = htons(port);
+    connection.sin_addr.s_addr = htons(INADDR_ANY);
+    bzero(connection.sin_zero, 8);
+    result = bind(sock, (struct sockaddr *) &connection,
+                  sizeof(connection)); 
+  } while (result != 0);
+  listen(sock, 2);
+  *pport = port;
+  return sock;
 }
 
-int wait_connection(int sock)
+static int wait_connection(int sock)
 {
-	struct sockaddr_in connection;
-	int new_socket;
-	socklen_t size;
-	size = sizeof(connection);
-	new_socket = accept(sock, (struct sockaddr *) &connection, &size);
-	return new_socket;
+  struct sockaddr_in connection;
+  int new_socket;
+  socklen_t size;
+  size = sizeof(connection);
+  new_socket = accept(sock, (struct sockaddr *) &connection, &size);
+  return new_socket;
 }
 
-int establish_connection(char *host, int porta)
+static int establish_connection(char *host, char *port)
 {
-	struct hostent *h;
-	struct sockaddr_in connection;
-	int new_socket;
-	h = gethostbyname(host); // deveria ser o nome do mestre, recebido como parametro
-	new_socket = socket(AF_INET, SOCK_STREAM, 0);
-	connection.sin_family = AF_INET;
-	connection.sin_port = htons(porta);
-	memcpy(&connection.sin_addr.s_addr, h->h_addr, 4);
-	bzero(connection.sin_zero, 8);
-	while ( (connect(new_socket, (struct sockaddr *) 
-			&connection,sizeof(connection)) ) != 0); 
-	return new_socket;
+  struct hostent *h;
+  struct sockaddr_in connection;
+  int new_socket;
+  h = gethostbyname(host);
+  new_socket = socket(AF_INET, SOCK_STREAM, 0);
+  connection.sin_family = AF_INET;
+  connection.sin_port = htons(atoi(port));
+  memcpy(&connection.sin_addr.s_addr, h->h_addr, 4);
+  bzero(connection.sin_zero, 8);
+  while ( (connect(new_socket, (struct sockaddr *) 
+                   &connection,sizeof(connection)) ) != 0); 
+  return new_socket;
 }
 
 
-void create_slave(char *remotehost, char *localhost, int port) 
+void create_slave(struct arguments *arg, char *remote_host, int master_port)
 {
-	char sport[10];
-	char *arg[] = {
-		"rsh",
-		remotehost,
-		myname,
-		"slave",
-                localhost,
-		sport,
-		NULL
-	};
+  char str[10];
+  snprintf (str, 10, "%d", master_port);
+  char *command_arg[] = {
+    arg->remote_login, remote_host, //connect to the remote host
+    arg->program_name,
+    "-s", //program to execute and parameters
+    "-m", arg->master_host,
+    "-p", str,
+    NULL
+  };
 
-	sprintf(sport, "%d", port);
-
-	if ( fork() == 0 ) {
-		//fprintf(stdout, "Launching process at %s... ", remotehost);
-		//fprintf(stdout, "Passed!\n");
-		if ( execvp(arg[0], arg) == -1 )  { 
-			fprintf(stderr, "ERROR: %s\n", strerror(errno));
-			exit(-1);
-		}
-	}
+  if (fork()==0){
+    if (execvp(command_arg[0], command_arg)==-1){
+    }
+  }
 }
 
-// Leitura de arquivo de hosts
-void read_hostfile(char *fn)
+void synchronize_slave (struct arguments *arg, char *remote_host)
 {
-	char buffer[MAXHOSTNAMELEN];
-	
-	num_hosts = 0;
-	hostfile = fopen(fn, "r");
-	while ( !feof(hostfile) ) {
-		bzero(buffer, MAXHOSTNAMELEN);
-		if ( fgets(buffer, MAXHOSTNAMELEN, hostfile) != NULL ) {
-			buffer[strlen(buffer) - 1] = '\0';
-			strcpy(hosttable[num_hosts++], buffer);
-		}
-	}
-	fclose(hostfile);
+  long long local_time;
+  long long remote_time;
+  int port;
+  int com_socket;
+  int new_socket;
+  char localname[MAXHOSTNAMELEN];
+  char remotename[MAXHOSTNAMELEN];
+
+  gethostname(arg->master_host, sizeof(arg->master_host));
+  com_socket = open_connection (&port);
+  create_slave (arg, remote_host, port);
+  new_socket = wait_connection(com_socket);
+  ping(new_socket,
+       &local_time,
+       &remote_time,
+       remote_host,
+       arg->sample_size);
+  printf("%s %lld %s %lld\n",
+         arg->master_host, local_time,
+         remote_host, remote_time);
+  close(new_socket);
+  close(com_socket);
 }
 
-void sincroniza(char *localhost, char *remotehost)
+void slave (char *master_host, char *master_port)
 {
-    long long local;
-    long long remote;
-    int porta;
-    int com_socket;
-    int new_socket;
-    char localname[MAXHOSTNAMELEN];
-    char remotename[MAXHOSTNAMELEN];
-
-    gethostname(localname, sizeof(localname));
-    com_socket = abre_conexao(&porta);
-    create_slave(remotehost, localhost, porta);
-    new_socket = wait_connection(com_socket);
-    ping(new_socket, &local, &remote, remotename);
-    printf("%s %lld %s %lld\n", localname, local, remotename, remote);
-    close(new_socket);
-    close(com_socket);
+  int com_socket = establish_connection (master_host, master_port);
+  pong(com_socket);
+  close(com_socket);
 }
 
-void slave(char *mastername, char *sport)
+/* parameters */
+static char doc[] = "Calculate the clock difference with other hosts";
+static char args_doc[] = "{hostname_1 hostname_2 ...}";
+
+static struct argp_option options[] = {
+  {"slave", 's', 0, OPTION_HIDDEN, NULL},
+  {"master_host", 'm', "MASTER", OPTION_HIDDEN, NULL},
+  {"master_port", 'p', "PORT", OPTION_HIDDEN, NULL}, 
+  {"sample", 'z', "SIZE", 0, "Sampling size (Default is 1000)"},
+  {"remote", 'r', "RSH", 0, "Remote login program"},
+  { 0 }
+};
+
+static int parse_options (int key, char *arg, struct argp_state *state)
 {
-    int com_socket;
-    int port;
-
-    port = atoi(sport);
-    com_socket = establish_connection(mastername, port);
-    pong(com_socket);
-    close(com_socket);
+  struct arguments *arguments = state->input;
+  switch (key){
+  case 's': arguments->slave_mode = 1; break;
+  case 'm': arguments->master_host = arg; break;
+  case 'p': arguments->master_port = arg; break;
+  case 'r': arguments->remote_login = arg; break;
+  case 'z': arguments->sample_size = atoi(arg); break;
+  case ARGP_KEY_ARG:
+    if (arguments->number_of_slaves == RASTRO_INPUT_SIZE) {
+      /* Too many arguments. */
+      argp_usage (state);
+    }
+    arguments->slaves[state->arg_num] = arg;
+    arguments->number_of_slaves++;
+    break;
+  case ARGP_KEY_END:
+    if (state->arg_num < 1 && arguments->slave_mode == 0){
+      /* Not enough arguments. */
+      argp_usage (state);
+    }
+    break;
+  default: return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
 }
 
+static struct argp argp = { options, parse_options, args_doc, doc };
 
+/* main */
 int main(int argc, char *argv[])
 {
-    myname = argv[0];
+  struct arguments arguments;
+  bzero (&arguments, sizeof(struct arguments));
+  if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
+    fprintf(stderr,
+            "[rastro_timesync] at %s,"
+            "error during the parsing of parameters\n",
+            __FUNCTION__);
+    return 1;
+  }else{
+    arguments.program_name = argv[0];
+  }
 
-    if (argc < 3) {
-        fprintf(stdout, "%s localhostname remotehostname ...\n", argv[0]);
-        return -1;
+  if (arguments.slave_mode){
+    slave (arguments.master_host, arguments.master_port);
+  }else{
+    //since this reference host, find my hostname
+    char hostname[MAXHOSTNAMELEN];
+    gethostname(hostname, sizeof(hostname));
+    arguments.master_host = strndup (hostname, sizeof(hostname));
+
+    //define the default sampling size
+    if (arguments.sample_size == 0)
+      arguments.sample_size = 1000;
+
+    int i;
+    for (i = 0; i < arguments.number_of_slaves; i++) {
+      synchronize_slave (&arguments, arguments.slaves[i]);
     }
-    if (strcmp(argv[1], "slave") == 0 ) {
-        slave(argv[2], argv[3]);
-    } else {
-        int i;
-        for (i = 2; i < argc; i++) {
-            sincroniza(argv[1], argv[i]);
-        }
-    }
-    exit(0);
+  }
 }
 
