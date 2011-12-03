@@ -259,7 +259,9 @@ void slave (char *master_host, char *master_port)
 }
 
 /* parameters */
-static char doc[] = "Calculate the clock difference with other hosts";
+static char doc[] = "Calculate the clock difference with other hosts.\n\n"
+  "To avoid PATH problems, you might prefer running this program like this:\n"
+  "`which rastro_timesync` {hostname_1 hostname_2 ...}\n";
 static char args_doc[] = "{hostname_1 hostname_2 ...}";
 
 static struct argp_option options[] = {
