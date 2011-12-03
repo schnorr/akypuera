@@ -201,8 +201,27 @@ void create_slave(struct arguments *arg, char *remote_host, int master_port)
   };
 
   if (fork()==0){
-    if (execvp(command_arg[0], command_arg)==-1){
+    execvp(command_arg[0], command_arg);
+    fprintf (stderr,
+             "[rastro_timesync] at %s, "
+             "slave not created, error on exec.\n",
+             __FUNCTION__);
+    fprintf (stderr,
+             "[rastro_timesync] tried to launch slave on\n"
+             "[rastro_timesync] (%s)\n"
+             "[rastro_timesync] using the following parameters:\n", remote_host);
+    int i;
+    char *a = NULL;
+    for (i = 0, a = command_arg[0]; a; i++, a = command_arg[i]){
+      fprintf (stderr,
+               "[rastro_timesync] \t%s\n", a);
     }
+    fprintf (stderr,
+             "[rastro_timesync] check if %s is capable of executing\n"
+             "[rastro_timesync] something on (%s) with this command.\n"
+             "[rastro_timesync] $ %s %s ls\n",
+             arg->remote_login, remote_host, arg->remote_login, remote_host);
+    fprintf (stderr, "\n[rastro_timesync] Type CRTL + C to abort now.\n");
   }
 }
 
