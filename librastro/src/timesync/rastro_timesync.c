@@ -328,10 +328,17 @@ int main(int argc, char *argv[])
     if (arguments.sample_size == 0)
       arguments.sample_size = 1000;
 
+    //define default for remote login
+    if (arguments.remote_login == NULL)
+      arguments.remote_login = strdup ("ssh");
+
     int i;
     for (i = 0; i < arguments.number_of_slaves; i++) {
       synchronize_slave (&arguments, arguments.slaves[i]);
     }
+
+    free (arguments.master_host);
+    free (arguments.remote_login);
   }
 }
 
