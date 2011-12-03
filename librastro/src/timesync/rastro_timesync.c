@@ -280,7 +280,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 's': arguments->slave_mode = 1; break;
   case 'm': arguments->master_host = arg; break;
   case 'p': arguments->master_port = arg; break;
-  case 'r': arguments->remote_login = arg; break;
+  case 'r': arguments->remote_login = strdup(arg); break;
   case 'z': arguments->sample_size = atoi(arg); break;
   case ARGP_KEY_ARG:
     if (arguments->number_of_slaves == RASTRO_INPUT_SIZE) {
