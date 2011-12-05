@@ -15,6 +15,7 @@
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "aky_private.h"
+#include <search.h>
 
 void *aky_ptp_root = NULL;
 
