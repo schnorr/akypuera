@@ -102,9 +102,7 @@ int main(int argc, char **argv)
 
   while (rst_decode_event(&data, &event) && !fail) {
     char mpi_process[100];
-    char value[100];
     snprintf(mpi_process, 100, "rank%ld", event.id1);
-    snprintf(value, 100, "%s", name_get(event.type));
     double timestamp = (double) event.timestamp / 1000000;
     switch (event.type) {
     case AKY_PTP_SEND:
@@ -269,6 +267,8 @@ int main(int argc, char **argv)
     case MPI_CART_SUB_IN:
     case MPI_FINALIZE_IN:
       if (!arguments.no_states){
+        char value[100];
+        snprintf(value, 100, "%s", name_get(event.type));
         pajePushState(timestamp, mpi_process, "STATE", value);
       }
       break;
