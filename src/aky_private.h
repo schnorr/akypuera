@@ -79,7 +79,7 @@ typedef struct paje_event {
 
 //prototypes for aky_names.c
 void name_init (void);
-char *name_get (int id);
+char *name_get (u_int16_t id);
 
 #define AKY_DEFAULT_STR_SIZE 200
 #define AKY_INPUT_SIZE 10000

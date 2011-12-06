@@ -173,7 +173,7 @@ void name_init(void)
   mpi_names[MPI_FINALIZE_IN] = strdup("MPI_Finalize");
 }
 
-char *name_get(int id)
+char *name_get(u_int16_t id)
 {
   return mpi_names[id];
 }
