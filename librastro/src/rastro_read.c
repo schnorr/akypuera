@@ -364,6 +364,7 @@ int rst_open_file(char *f_name, rst_file_t * f_data, char
 
   f_data->of_data[f_data->quantity] =
       (rst_one_file_t *) malloc(sizeof(rst_one_file_t));
+  bzero(f_data->of_data[f_data->quantity], sizeof(rst_one_file_t));
   if (f_data->of_data[f_data->quantity] == NULL) {
     fprintf(stderr, "[rastro] cannot allocate memory");
     return RST_NOK;

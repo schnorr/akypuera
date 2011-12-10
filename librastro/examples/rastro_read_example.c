@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 	rst_file_t data;
 	rst_event_t ev;
         int i;
+        bzero(&data,sizeof(rst_file_t));
         for (i=2; i<argc; i++) {
   	   if (rst_open_file(argv[i], &data, argv[1], 100000) == -1) {
 		fprintf(stderr, "could not open rastro file %s\n", argv[i]);
