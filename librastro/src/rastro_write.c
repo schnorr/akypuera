@@ -147,6 +147,7 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, in
   RST_SET_PTR(ptr);
   ptr->rst_buffer_size = 100000;
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
+  bzero(ptr->rst_buffer, ptr->rst_buffer_size);
   RST_RESET(ptr);
 
   sprintf(fname, "rastro-%" PRIu64 "-%" PRIu64 ".rst", /* dirname, */ id1,
