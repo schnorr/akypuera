@@ -42,7 +42,7 @@ void rst_destroy_buffer(void *p)
     free(ptr->rst_buffer);
     fd = RST_FD(ptr);
     close(fd);
-    //free(ptr);
+    free(ptr);
   }
 }
 
@@ -136,7 +136,7 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, in
 #ifdef LIBRASTRO_THREADED
   static int rst_key_initialized = 0;
   if (!rst_key_initialized) {
-    pthread_key_create(&rst_key, rst_destroy_buffer);
+    pthread_key_create(&rst_key, NULL);
     rst_key_initialized = 1;
   }
 #endif
@@ -187,15 +187,8 @@ void rst_flush(rst_buffer_t * ptr)
 // Termina biblioteca em nodo ou thread
 void rst_finalize(void)
 {
-#ifndef LIBRASTRO_THREADED
   rst_buffer_t *ptr = RST_PTR;
-
   rst_destroy_buffer(ptr);
-  free(ptr);
-#else
-  //nothing to do in thread mode, rst_destroy_buffer was already
-  //set as a destructor in pthread_key_create
-#endif
 }
 
 // Termina biblioteca em nodo ou thread com ptr
