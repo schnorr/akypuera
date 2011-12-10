@@ -20,7 +20,6 @@
 #ifndef _RASTRO_PRIVATE_H_
 #define _RASTRO_PRIVATE_H_
 #include "rastro.h"
-#include "rastro_list.h"
 #include "rastro_config.h"
 
 //the timestamp function used by librastro

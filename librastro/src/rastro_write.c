@@ -19,9 +19,6 @@
 */
 #include "rastro_private.h"
 
-static list_t list;
-static bool list_init = false;
-
 #ifndef LIBRASTRO_THREADED
 rst_buffer_t *rst_global_buffer;
 #else
@@ -147,11 +144,6 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, in
   //define the timestamp function to be used by librastro
   rastro_gettimeofday = timestamp;
 
-  if (!list_init) {
-    list_initialize(&list, list_copy, list_cmp, list_destroy);
-    list_init = true;
-  }
-
   RST_SET_PTR(ptr);
   ptr->rst_buffer_size = 100000;
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
@@ -165,8 +157,6 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, in
             fname, strerror(errno));
     return;
   }
-
-  list_insert_after(&list, NULL, (void *) ptr);
 
   RST_SET_FD(ptr, fd);
 
@@ -199,8 +189,6 @@ void rst_finalize(void)
 #ifndef LIBRASTRO_THREADED
   rst_buffer_t *ptr = RST_PTR;
 
-  list_remove(&list, (void *) ptr);
-
   rst_destroy_buffer(ptr);
   free(ptr);
 #else
@@ -212,21 +200,7 @@ void rst_finalize(void)
 // Termina biblioteca em nodo ou thread com ptr
 void rst_finalize_ptr(rst_buffer_t * ptr)
 {
-  list_remove(&list, (void *) ptr);
   rst_destroy_buffer(ptr);
-}
-
-void rst_flush_all(void)
-{
-  position_t pos;
-  rst_buffer_t *ptr;
-  for (pos = list.sent->next; pos != list.sent; pos = pos->next) {
-
-    ptr = (rst_buffer_t *) pos->data;
-
-    rst_flush(ptr);
-  }
-  //list_finalize(&list);
 }
 
 // Registra evento somente com tipo

@@ -13,7 +13,6 @@ CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/include/rastro_config.h.in"
                "${CMAKE_BINARY_DIR}/include/rastro_config.h" @ONLY IMMEDIATE)
 
 SET(RASTRO_SRC
-  src/rastro_list.c
   src/rastro_read.c 
   src/rastro_write.c
 )
