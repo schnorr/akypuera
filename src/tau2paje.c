@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <argp.h>
 #include "aky_private.h"
 
 #define MAX_MPI_STATE 10000
@@ -242,30 +243,86 @@ int RecvMessage(void *userData, double time,
   return 0;
 }
 
+/* Parameter handling */
+
+static char doc[] = "Converts _merged_ TAU trace files to the Paje file format";
+static char args_doc[] = "<tau.trc> <tau.edf>";
+
+static struct argp_option options[] = {
+  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"},
+  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
+  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
+  { 0 }
+};
+
+struct arguments {
+  char *input[AKY_INPUT_SIZE];
+  int input_size;
+  int ignore_errors, no_links, no_states;
+};
+
+static int parse_options (int key, char *arg, struct argp_state *state)
+{
+  struct arguments *arguments = state->input;
+  switch (key){
+  case 'i': arguments->ignore_errors = 1; break;
+  case 'l': arguments->no_links = 1; break;
+  case 's': arguments->no_states = 1; break;
+  case ARGP_KEY_ARG:
+    if (arguments->input_size == AKY_INPUT_SIZE) {
+      /* Too many arguments. */
+      argp_usage (state);
+    }
+    arguments->input[state->arg_num] = arg;
+    arguments->input_size++;
+    break;
+  case ARGP_KEY_END:
+    if (state->arg_num < 2)
+      /* Not enough arguments. */
+      argp_usage (state);
+    break;
+  default: return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
+}
+
+static struct argp argp = { options, parse_options, args_doc, doc };
+
 /* Reader module */
 int main(int argc, char **argv)
 {
+  struct arguments arguments;
+  bzero (&arguments, sizeof(struct arguments));
+  if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
+    fprintf(stderr,
+            "[tau2paje] at %s,"
+            "error during the parsing of parameters\n",
+            __FUNCTION__);
+    return 1;
+  }
+
   Ttf_FileHandleT fh;
 
   state_name = (char **) malloc(sizeof(char *) * MAX_MPI_STATE);
 
   if (aky_key_init() == 1){
+    fprintf(stderr,
+            "[tau2paje] at %s,"
+            "error during hash table allocation\n",
+            __FUNCTION__);
     return 1;
   }
 
   int recs_read, pos;
   Ttf_CallbacksT cb;
 
-  /* main program: Usage app <trc> <edf> */
-  if (argc != 3) {
-    printf("Usage: %s <TAU trace> <edf file>\n", argv[0]);
-    return 1;
-  }
-
   /* open trace file */
-  fh = Ttf_OpenFileForInput(argv[1], argv[2]);
+  fh = Ttf_OpenFileForInput(arguments.input[0], arguments.input[1]);
   if (!fh) {
-    printf("ERROR: Ttf_OpenFileForInput fails");
+    fprintf(stderr,
+            "[tau2paje] at %s,"
+            "Ttf_OpenFileForInput fails\n",
+            __FUNCTION__);
     return 1;
   }
 
@@ -276,13 +333,22 @@ int main(int argc, char **argv)
   cb.DefStateGroup = DefStateGroup;
   cb.DefState = DefState;
   cb.EndTrace = EndTrace;
-  cb.EnterState = EnterState;
-  cb.LeaveState = LeaveState;
+  if (arguments.no_states){
+    cb.EnterState = NULL;
+    cb.LeaveState = NULL;
+  }else{
+    cb.EnterState = EnterState;
+    cb.LeaveState = LeaveState;
+  }
   cb.DefUserEvent = DefUserEvent;
   cb.EventTrigger = EventTrigger;
-  cb.SendMessage = SendMessage;
-  cb.RecvMessage = RecvMessage;
-
+  if (arguments.no_links){
+    cb.SendMessage = NULL;
+    cb.RecvMessage = NULL;
+  }else{
+    cb.SendMessage = SendMessage;
+    cb.RecvMessage = RecvMessage;
+  }
   paje_header();
   paje_hierarchy();
 
