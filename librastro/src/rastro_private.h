@@ -45,7 +45,6 @@ extern rst_buffer_t *rst_global_buffer;
 #define RST_PTR (rst_global_buffer)
 #define RST_SET_PTR(ptr) (rst_global_buffer = ptr)
 #else
-extern int rst_key_initialized;
 extern pthread_key_t rst_key;
 #define RST_PTR ((rst_buffer_t *) pthread_getspecific(rst_key))
 #define RST_SET_PTR(ptr) pthread_setspecific(rst_key, (void *) ptr)
