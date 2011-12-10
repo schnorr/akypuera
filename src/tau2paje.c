@@ -20,14 +20,67 @@
 #include <string.h>
 #include <argp.h>
 #include "aky_private.h"
+#define _GNU_SOURCE
+#define __USE_GNU
+#include <search.h>
 
-#define MAX_MPI_STATE 10000
-static char **state_name = NULL;
+static struct hsearch_data state_name_hash;
+static struct hsearch_data state_group_hash;
+
 static double *rank_last_time = NULL;
 static int total_number_of_ranks = 0;
 static int nrank = 0;
 static int EndOfTrace = 0;
 
+/* Parameter handling */
+static char doc[] = "Converts _merged_ TAU trace files to the Paje file format";
+static char args_doc[] = "<tau.trc> <tau.edf>";
+
+struct arguments {
+  char *input[AKY_INPUT_SIZE];
+  int input_size;
+  int ignore_errors, no_links, no_states, only_mpi;
+};
+static struct arguments arguments;
+
+static struct argp_option options[] = {
+  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"},
+  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
+  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
+  {"only-mpi", 'm', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
+  { 0 }
+};
+
+static int parse_options (int key, char *arg, struct argp_state *state)
+{
+  struct arguments *arguments = state->input;
+  switch (key){
+  case 'i': arguments->ignore_errors = 1; break;
+  case 'l': arguments->no_links = 1; break;
+  case 's': arguments->no_states = 1; break;
+  case 'm': arguments->only_mpi = 1; break;
+  case ARGP_KEY_ARG:
+    if (arguments->input_size == AKY_INPUT_SIZE) {
+      /* Too many arguments. */
+      argp_usage (state);
+    }
+    arguments->input[state->arg_num] = arg;
+    arguments->input_size++;
+    break;
+  case ARGP_KEY_END:
+    if (state->arg_num < 2)
+      /* Not enough arguments. */
+      argp_usage (state);
+    break;
+  default: return ARGP_ERR_UNKNOWN;
+  }
+  return 0;
+}
+
+static struct argp argp = { options, parse_options, args_doc, doc };
+
+
+/* Rest */
 static double time_to_seconds(double time)
 {
   return time / 1000000;
@@ -54,22 +107,24 @@ int EnterState(void *userData, double time,
   rank_last_time[nodeid] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  char *state = NULL;
-  state = state_name[stateid - 1];
-  char *y = strstr(state, "addr");
-  if (y)
-    return 0;                   //ignore if it is not a MPI function
-  if (strcmp(state, "MPI_Init") == 0)
-    return 0;                   //ignore MPI_Init state (we don't have it in akypuera
-  if (!strstr(state, "MPI_"))
-    return 0;                   //ignore if the state does not start by a MPI_
 
-  char nstate[1000], nstate2[1000];
-  snprintf(nstate, 1000, "%s", state);
-  xbt_str_subst(nstate, '"', ' ', 0);
-  snprintf(nstate2, 1000, "\"%s\"", nstate);
-  pajePushState(rank_last_time[nodeid], mpi_process, "STATE", nstate2);
-  //printf("Entered state %d(%s) time %g nodeid %d tid %d\n",  stateid, state_name[stateid], time, nodeid, tid);
+  /* Find state name */
+  char *state_name = NULL;
+  {
+    char state_key[100];
+    bzero(state_key, 100);
+    snprintf (state_key, 100, "%d", stateid);
+
+    ENTRY e, *ep = NULL;
+    e.key = state_key;
+    e.data = NULL;
+    hsearch_r (e, FIND, &ep, &state_name_hash);
+    if (ep == NULL){
+      return 1;
+    }
+    state_name = (char*)ep->data;
+  }
+  pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
   return 0;
 }
 
@@ -77,20 +132,9 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
                unsigned int tid, unsigned int stateid)
 {
   rank_last_time[nodeid] = time_to_seconds(time);
-  if (stateid == 1)
-    return 0;
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  char *state = state_name[stateid - 1];
-  char *y = strstr(state, "addr");
-  if (y)
-    return 0;                   //ignore if it is not a MPI function
-  if (strcmp(state, "MPI_Init") == 0)
-    return 0;                   //ignore MPI_Init state (we don't have it in akypuera
-  if (!strstr(state, "MPI_"))
-    return 0;                   //ignore if the state does not start by a MPI_
   pajePopState(rank_last_time[nodeid], mpi_process, "STATE");
-  //printf("Leaving state %d time %g nodeid %d tid %d\n", stateid, time, nodeid, tid);
   return 0;
 }
 
@@ -130,21 +174,60 @@ int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
 int DefStateGroup(void *userData, unsigned int stateGroupToken,
                   const char *stateGroupName)
 {
-  //printf("StateGroup groupid %d, group name %s\n", stateGroupToken,  stateGroupName);
+  char group_key[100];
+  bzero(group_key, 100);
+  snprintf (group_key, 100, "%d", stateGroupToken);
+
+  if (arguments.only_mpi && strcmp(stateGroupName, "MPI")!=0){
+    /* If we are supposed to only convert MPI states,
+       don't register group names different from MPI. */
+    return 0;
+  }
+
+  ENTRY e, *ep = NULL;
+  e.key = group_key;
+  e.data = NULL;
+  hsearch_r (e, FIND, &ep, &state_group_hash);
+  if (ep == NULL){
+    e.key = strdup(group_key);
+    e.data = strdup(stateGroupName);
+    hsearch_r (e, ENTER, &ep, &state_group_hash);
+  }
   return 0;
 }
 
 int DefState(void *userData, unsigned int stateid, const char *statename,
              unsigned int stateGroupToken)
 {
-  char *x = strdup(statename);
-  char *y = strchr(x, '(');
-  if (y)
-    *y = '\0';
-  state_name[stateid - 1] = strdup(x);
-  free(x);
-//  printf("DefState stateid %d stateName %s stategroup id %d\n",
-//                stateid, statename, stateGroupToken);
+  /* group check */
+  {
+    char group_key[100];
+    bzero(group_key, 100);
+    snprintf (group_key, 100, "%d", stateGroupToken);
+
+    ENTRY e, *ep = NULL;
+    e.key = group_key;
+    e.data = NULL;
+    hsearch_r (e, FIND, &ep, &state_group_hash);
+    if (ep == NULL){
+      /* The group is not registered, just ignore its state definitions */
+      return 0;
+    }
+  }
+
+  char state_key[100];
+  bzero(state_key, 100);
+  snprintf (state_key, 100, "%d", stateid);
+
+  ENTRY e, *ep = NULL;
+  e.key = state_key;
+  e.data = NULL;
+  hsearch_r (e, FIND, &ep, &state_name_hash);
+  if (ep == NULL){
+    e.key = strdup(state_key);
+    e.data = strdup(statename);
+    hsearch_r (e, ENTER, &ep, &state_name_hash);
+  }
   return 0;
 }
 
@@ -243,55 +326,11 @@ int RecvMessage(void *userData, double time,
   return 0;
 }
 
-/* Parameter handling */
 
-static char doc[] = "Converts _merged_ TAU trace files to the Paje file format";
-static char args_doc[] = "<tau.trc> <tau.edf>";
-
-static struct argp_option options[] = {
-  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"},
-  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
-  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
-  { 0 }
-};
-
-struct arguments {
-  char *input[AKY_INPUT_SIZE];
-  int input_size;
-  int ignore_errors, no_links, no_states;
-};
-
-static int parse_options (int key, char *arg, struct argp_state *state)
-{
-  struct arguments *arguments = state->input;
-  switch (key){
-  case 'i': arguments->ignore_errors = 1; break;
-  case 'l': arguments->no_links = 1; break;
-  case 's': arguments->no_states = 1; break;
-  case ARGP_KEY_ARG:
-    if (arguments->input_size == AKY_INPUT_SIZE) {
-      /* Too many arguments. */
-      argp_usage (state);
-    }
-    arguments->input[state->arg_num] = arg;
-    arguments->input_size++;
-    break;
-  case ARGP_KEY_END:
-    if (state->arg_num < 2)
-      /* Not enough arguments. */
-      argp_usage (state);
-    break;
-  default: return ARGP_ERR_UNKNOWN;
-  }
-  return 0;
-}
-
-static struct argp argp = { options, parse_options, args_doc, doc };
 
 /* Reader module */
 int main(int argc, char **argv)
 {
-  struct arguments arguments;
   bzero (&arguments, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
@@ -301,10 +340,6 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  Ttf_FileHandleT fh;
-
-  state_name = (char **) malloc(sizeof(char *) * MAX_MPI_STATE);
-
   if (aky_key_init() == 1){
     fprintf(stderr,
             "[tau2paje] at %s,"
@@ -313,10 +348,24 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  int recs_read, pos;
-  Ttf_CallbacksT cb;
+  /* allocating hash tables */
+  if (hcreate_r (1000, &state_name_hash) == 0){
+    fprintf (stderr,
+             "[aky_converter] at %s,"
+             "hash table allocation for state names failed.",
+             __FUNCTION__);
+    return 1;
+  }
+  if (hcreate_r (10, &state_group_hash) == 0){
+    fprintf (stderr,
+             "[aky_converter] at %s,"
+             "hash table allocation for state groups failed.",
+             __FUNCTION__);
+    return 1;
+  }
 
   /* open trace file */
+  Ttf_FileHandleT fh;
   fh = Ttf_OpenFileForInput(arguments.input[0], arguments.input[1]);
   if (!fh) {
     fprintf(stderr,
@@ -327,6 +376,7 @@ int main(int argc, char **argv)
   }
 
   /* Fill the callback struct */
+  Ttf_CallbacksT cb;
   cb.UserData = NULL;
   cb.DefClkPeriod = ClockPeriod;
   cb.DefThread = DefThread;
@@ -352,11 +402,14 @@ int main(int argc, char **argv)
   paje_header();
   paje_hierarchy();
 
+  int recs_read, pos;
   do {
     recs_read = Ttf_ReadNumEvents(fh, cb, 100);
   } while (recs_read >= 0 && !EndOfTrace);
 
   Ttf_CloseFile(fh);
   aky_key_free();
+  hdestroy_r (&state_name_hash);
+  hdestroy_r (&state_group_hash);
   return 0;
 }
