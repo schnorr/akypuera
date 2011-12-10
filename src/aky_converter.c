@@ -76,6 +76,10 @@ int main(int argc, char **argv)
   }
 
   if (aky_key_init() == 1){
+   fprintf(stderr,
+            "[aky_converter] at %s,"
+            "error during hash table allocation\n",
+            __FUNCTION__);
     return 1;
   }
 
