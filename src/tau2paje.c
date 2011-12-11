@@ -279,24 +279,14 @@ int SendMessage(void *userData,
                 unsigned int messageSize,
                 unsigned int messageTag, unsigned int messageComm)
 {
-  rank_last_time[sourceNodeToken] = time_to_seconds(time);
-  rank_last_time[destinationNodeToken] = time_to_seconds(time);
-
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
-
   char key[AKY_DEFAULT_STR_SIZE];
   bzero(key, AKY_DEFAULT_STR_SIZE);
-
-  //try to get a "u" (unusual) key
-  char *found =
-      aky_get_key("u", sourceNodeToken, destinationNodeToken, key,
-                  AKY_DEFAULT_STR_SIZE);
-  if (!found) {
-    //generate a "n" (normal) key
-    aky_put_key("n", sourceNodeToken, destinationNodeToken, key,
-                AKY_DEFAULT_STR_SIZE);
-  }
+  aky_put_key("n", sourceNodeToken, destinationNodeToken, key,
+              AKY_DEFAULT_STR_SIZE);
+  rank_last_time[sourceNodeToken] = time_to_seconds(time);
+  rank_last_time[destinationNodeToken] = time_to_seconds(time);
+  char mpi_process[100];
+  snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
   pajeStartLink(rank_last_time[sourceNodeToken], "0", "LINK", mpi_process,
                 "PTP", key);
 
@@ -311,32 +301,34 @@ int RecvMessage(void *userData, double time,
                 unsigned int messageSize,
                 unsigned int messageTag, unsigned int messageComm)
 {
-  rank_last_time[sourceNodeToken] = time_to_seconds(time);
-  rank_last_time[destinationNodeToken] = time_to_seconds(time);
-
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
-
   char key[AKY_DEFAULT_STR_SIZE];
   bzero(key, AKY_DEFAULT_STR_SIZE);
+  char *result = aky_get_key("n", sourceNodeToken, destinationNodeToken, key,
+                             AKY_DEFAULT_STR_SIZE);
+  if (result == NULL){
+    fprintf (stderr,
+             "[tau2paje] at %s, no key to generate a pajeEndLink,\n"
+             "[tau2paje] got a receive at dst = %u from src = %d\n"
+             "[tau2paje] but no send for this receive yet,\n"
+             "[tau2paje] do you synchronize your input traces?\n",
+             __FUNCTION__, destinationNodeToken, sourceNodeToken);
 
-  //try to get a "n" (normal) key
-  char *found =
-      aky_get_key("n", sourceNodeToken, destinationNodeToken, key,
-                  AKY_DEFAULT_STR_SIZE);
-  if (!found) {
-    //generate a "u" (unusual) key
-    aky_put_key("u", sourceNodeToken, destinationNodeToken, key,
-                AKY_DEFAULT_STR_SIZE);
+    /* should we ignore this error */
+    if (arguments.ignore_errors){
+      return 0;
+    }else{
+      exit(1);
+      return 1;
+    }
   }
+  rank_last_time[sourceNodeToken] = time_to_seconds(time);
+  rank_last_time[destinationNodeToken] = time_to_seconds(time);
+  char mpi_process[100];
+  snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
   pajeEndLink(rank_last_time[destinationNodeToken], "0", "LINK",
               mpi_process, "PTP", key);
-
-
   return 0;
 }
-
-
 
 /* Reader module */
 int main(int argc, char **argv)
