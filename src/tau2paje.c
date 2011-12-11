@@ -86,20 +86,6 @@ static double time_to_seconds(double time)
   return time / 1000000;
 }
 
-static void xbt_str_subst(char *str, char from, char to, int occurence)
-{
-  char *p = str;
-  while (*p != '\0') {
-    if (*p == from) {
-      *p = to;
-      if (occurence == 1)
-        return;
-      occurence--;
-    }
-    p++;
-  }
-}
-
 /* implementation of callback routines */
 int EnterState(void *userData, double time,
                unsigned int nodeid, unsigned int tid, unsigned int stateid)
