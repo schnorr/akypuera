@@ -14,6 +14,10 @@ OPTION(TAU
   "Enable to create tau2paje converter"
   ON)
 
+OPTION(OTF2
+  "Enable to create otf2paje converter"
+  ON)
+
 OPTION(DEBUG
   "Debug akypuera"
   OFF)
@@ -46,6 +50,11 @@ IF(TAU)
   FIND_PACKAGE(TAU REQUIRED)
 ENDIF(TAU)
 
+# otf2paje converter
+IF(OTF2)
+  FIND_PACKAGE(OTF2 REQUIRED)
+ENDIF(OTF2)
+
 add_subdirectory(librastro)
 add_subdirectory(examples)
 
@@ -60,6 +69,15 @@ target_link_libraries(aky rastro)
 
 add_executable(aky_converter src/aky_converter.c src/aky_paje.c src/aky_names.c src/aky_keys.c)
 target_link_libraries(aky_converter rastro)
+
+if(OTF2_FOUND)
+  INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
+  LINK_DIRECTORIES(${OTF2_LIBRARY_PATH})
+  add_executable(otf2paje src/otf2paje.c)
+  target_link_libraries(otf2paje otf2)
+  target_link_libraries(otf2paje scorep_utilities)
+  target_link_libraries(otf2paje m)
+endif(OTF2_FOUND)
 
 if(TAU_FOUND)
   INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
