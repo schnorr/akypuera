@@ -168,7 +168,6 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
 
 int ClockPeriod(void *userData, double clkPeriod)
 {
-  //printf("Clock period %g\n", clkPeriod);
   return 0;
 }
 
@@ -184,7 +183,6 @@ int DefThread(void *userData, unsigned int nodeid,
         realloc(rank_last_time, sizeof(double) * total_number_of_ranks);
   }
   rank_last_time[nodeid] = 0;
-  //printf("DefThread nodeid %d tid %d, thread name %s\n", nodeid, threadToken, threadName);
   return 0;
 }
 
@@ -193,7 +191,6 @@ int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
   pajeDestroyContainer(rank_last_time[nodeid], "PROCESS", mpi_process);
-  //printf("EndTrace nodeid %d tid %d\n", nodeid, threadid);
   EndOfTrace = 1;
   return 0;
 }
@@ -261,9 +258,6 @@ int DefState(void *userData, unsigned int stateid, const char *statename,
 int DefUserEvent(void *userData, unsigned int userEventToken,
                  const char *userEventName, int monotonicallyIncreasing)
 {
-
-  //printf("DefUserEvent event id %d user event name %s, monotonically increasing = %d\n", userEventToken,
-  //        userEventName, monotonicallyIncreasing);
   return 0;
 }
 
@@ -273,8 +267,6 @@ int EventTrigger(void *userData, double time,
                  unsigned int userEventToken, long long userEventValue)
 {
   rank_last_time[nodeToken] = time_to_seconds(time);
-
-  //printf("EventTrigger: time %g, nodeid %d tid %d event id %d triggered value %lld \n", time, nodeToken, threadToken, userEventToken, userEventValue);
   return 0;
 }
 
@@ -308,11 +300,6 @@ int SendMessage(void *userData,
   pajeStartLink(rank_last_time[sourceNodeToken], "0", "LINK", mpi_process,
                 "PTP", key);
 
-/*
-    printf("Message Send: time %g, nodeid %d, tid %d dest nodeid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
-    sourceThreadToken, destinationNodeToken,
-    destinationThreadToken, messageSize, messageComm, messageTag);
-*/
   return 0;
 }
 
@@ -345,11 +332,7 @@ int RecvMessage(void *userData, double time,
   pajeEndLink(rank_last_time[destinationNodeToken], "0", "LINK",
               mpi_process, "PTP", key);
 
-/*
-    printf("Message Recv: time %g, nodeid %d, tid %d dest nodeid %d dest tid %d messageSize %d messageComm %d messageTag %d \n", time, sourceNodeToken,
-    sourceThreadToken, destinationNodeToken,
-    destinationThreadToken, messageSize, messageComm, messageTag);
-*/
+
   return 0;
 }
 
@@ -378,14 +361,14 @@ int main(int argc, char **argv)
   /* allocating hash tables */
   if (hcreate_r (1000, &state_name_hash) == 0){
     fprintf (stderr,
-             "[aky_converter] at %s,"
+             "[tau2paje] at %s,"
              "hash table allocation for state names failed.",
              __FUNCTION__);
     return 1;
   }
   if (hcreate_r (10, &state_group_hash) == 0){
     fprintf (stderr,
-             "[aky_converter] at %s,"
+             "[tau2paje] at %s,"
              "hash table allocation for state groups failed.",
              __FUNCTION__);
     return 1;
