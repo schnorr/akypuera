@@ -75,7 +75,7 @@ static elem_t *dequeue(desc_t * desc)
   if (desc->n == 0) {
     /* queue is empty, but someone needs a key */
     fprintf (stderr,
-             "[aky_converter] at %s, the queue is empty.\n",
+             "[aky_keys] at %s, the queue is empty.\n",
              __FUNCTION__);
     return NULL;
   } else {
@@ -124,7 +124,7 @@ int aky_key_init (void)
 {
   if (hcreate_r (1000, &hash) == 0){
     fprintf (stderr,
-             "[aky_converter] at %s,"
+             "[aky_keys] at %s,"
              "hash table allocation failed.",
              __FUNCTION__);
     return 1;
@@ -178,16 +178,16 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
   hsearch_r (e, FIND, &ep, &hash);
   if (ep == NULL) {
     fprintf (stderr,
-             "[aky_converter] at %s (no queue), there is no key available\n"
-             "[aky_converter] when type = %s, src = %d, dst = %d.\n",
+             "[aky_keys] at %s (no queue), there is no key available\n"
+             "[aky_keys] when type = %s, src = %d, dst = %d.\n",
              __FUNCTION__, type, src, dst);
     return NULL;
   }
   elem_t *elem = dequeue(ep->data);
   if (elem == NULL) {
     fprintf (stderr,
-             "[aky_converter] at %s (no key), there is no key available\n"
-             "[aky_converter] when type = %s, src = %d, dst = %d.\n",
+             "[aky_keys] at %s (no key), there is no key available\n"
+             "[aky_keys] when type = %s, src = %d, dst = %d.\n",
              __FUNCTION__, type, src, dst);
     return NULL;
   }
