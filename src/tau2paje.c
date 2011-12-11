@@ -104,10 +104,6 @@ static void xbt_str_subst(char *str, char from, char to, int occurence)
 int EnterState(void *userData, double time,
                unsigned int nodeid, unsigned int tid, unsigned int stateid)
 {
-  rank_last_time[nodeid] = time_to_seconds(time);
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", nodeid);
-
   /* Find state name */
   char *state_name = NULL;
   {
@@ -124,6 +120,14 @@ int EnterState(void *userData, double time,
     }
     state_name = (char*)ep->data;
   }
+
+  /* if state name is not defined, don't convert it */
+  if (state_name == NULL){
+    return 0;
+  }
+  rank_last_time[nodeid] = time_to_seconds(time);
+  char mpi_process[100];
+  snprintf(mpi_process, 100, "rank%d", nodeid);
   pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
   return 0;
 }
@@ -131,6 +135,27 @@ int EnterState(void *userData, double time,
 int LeaveState(void *userData, double time, unsigned int nodeid,
                unsigned int tid, unsigned int stateid)
 {
+  /* Find state name */
+  char *state_name = NULL;
+  {
+    char state_key[100];
+    bzero(state_key, 100);
+    snprintf (state_key, 100, "%d", stateid);
+
+    ENTRY e, *ep = NULL;
+    e.key = state_key;
+    e.data = NULL;
+    hsearch_r (e, FIND, &ep, &state_name_hash);
+    if (ep == NULL){
+      return 1;
+    }
+    state_name = (char*)ep->data;
+  }
+
+  /* if state name is not defined, don't convert it */
+  if (state_name == NULL){  
+    return 0;
+  }
   rank_last_time[nodeid] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
