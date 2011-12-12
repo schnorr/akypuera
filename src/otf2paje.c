@@ -30,7 +30,7 @@ static double time_to_seconds(double time)
   if (first_time == -1){
     first_time = time;
   }
-  return (time - first_time) / 1000000;
+  return (time - first_time) / 1000000000;
 }
 
 /* Parameter handling */
