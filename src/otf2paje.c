@@ -86,11 +86,12 @@ static struct argp argp = { options, parse_options, args_doc, doc };
 /* Data utilities for convertion */
 struct otf2paje_s
 {
-    OTF2_Reader*    reader;
-    SCOREP_Vector*  locations;
-    SCOREP_Hashtab* regions;
-    SCOREP_Hashtab* strings;
-    SCOREP_Hashtab* groups;
+  OTF2_Reader*    reader;
+  SCOREP_Vector*  locations;
+  SCOREP_Hashtab* regions;
+  SCOREP_Hashtab* strings;
+  SCOREP_Hashtab* groups;
+  double last_timestamp;
 };
 typedef struct otf2paje_s otf2paje_t;
 
@@ -182,6 +183,7 @@ static SCOREP_Error_Code Enter_print (uint64_t locationID,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
   pajePushState(time_to_seconds(time), mpi_process, "STATE", state_name);
+  data->last_timestamp = time_to_seconds(time);
   return SCOREP_SUCCESS;
 }
 
@@ -205,6 +207,7 @@ static SCOREP_Error_Code Leave_print (uint64_t locationID,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
   pajePopState(time_to_seconds(time), mpi_process, "STATE");
+  data->last_timestamp = time_to_seconds(time);
   return SCOREP_SUCCESS;
 }
 
@@ -246,12 +249,8 @@ int main (int argc, char **argv)
   /* Define definition callbacks. */
   OTF2_GlobDefReaderCallbacks register_defs;
   bzero(&register_defs, sizeof (OTF2_GlobDefReaderCallbacks));
-  register_defs.GlobDefString         = GlobDefString_print;
-  /* register_defs.GlobDefLocation       = GlobDefLocation_print; */
-  register_defs.GlobDefRegion         = GlobDefRegion_print;
-  /* register_defs.GlobDefGroup          = GlobDefGroup_print; */
-  /* register_defs.GlobDefSystemTreeNode = GlobDefSystemTreeNode_print; */
-  /* register_defs.GlobDefLocationGroup  = GlobDefLocationGroup_print; */
+  register_defs.GlobDefString = GlobDefString_print;
+  register_defs.GlobDefRegion = GlobDefRegion_print;
 
   /* Read global definitions. */
   OTF2_GlobDefReader* glob_def_reader  = OTF2_Reader_GetGlobDefReader (reader);
@@ -324,7 +323,8 @@ int main (int argc, char **argv)
   for (size_t i = 0; i < num_locations; i++){
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
-    /* pajeDestroyContainer(0, "PROCESS", mpi_process); */
+    pajeDestroyContainer(user_data->last_timestamp,
+                         "PROCESS", mpi_process);
   }
 
   OTF2_Reader_Delete (reader);
