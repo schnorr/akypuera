@@ -70,6 +70,28 @@ static int parse_options (int key, char *arg, struct argp_state *state)
 
 static struct argp argp = { options, parse_options, args_doc, doc };
 
+static SCOREP_Error_Code Enter_print (uint64_t locationID,
+                                      uint64_t time,
+                                      void *userData,
+                                      OTF2_AttributeList* attributes,
+                                      uint32_t regionID)
+{
+  printf ("ENTER %lu %lu %p %p %d\n", locationID, time, userData, attributes, regionID);
+  return SCOREP_SUCCESS;
+}
+
+
+static SCOREP_Error_Code Leave_print (uint64_t locationID,
+                                      uint64_t time,
+                                      void *userData,
+                                      OTF2_AttributeList* attributes,
+                                      uint32_t regionID)
+{
+  printf ("LEAVE %lu %lu %p %p %d\n", locationID, time, userData, attributes, regionID);
+  return SCOREP_SUCCESS;
+}
+
+
 int main (int argc, char **argv)
 {
   bzero (&arguments, sizeof(struct arguments));
@@ -90,6 +112,42 @@ int main (int argc, char **argv)
     return 1;
   }
 
+
+  /* Get number of locations from the anchor file. */
+  uint64_t          num_locations = 0;
+  SCOREP_Error_Code status = OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
+  for ( size_t i = 0; i < num_locations; i++ ){
+    OTF2_EvtReader *evt_reader = OTF2_Reader_GetEvtReader (reader, i);
+    OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, i);
+    uint64_t definitions_read = 0;
+    OTF2_Reader_ReadAllLocalDefinitions (reader, def_reader, &definitions_read);
+    OTF2_Reader_CloseDefReader (reader, def_reader);
+  }
+
+  /* Define event callbacks. */
+  OTF2_GlobEvtReaderCallbacks print;
+  bzero(&print, sizeof(OTF2_GlobEvtReaderCallbacks));
+  print.Enter                = Enter_print;
+  print.Leave                = Leave_print;
+
+  /* Get global event reader. */
+  OTF2_GlobEvtReader *glob_evt_reader = OTF2_Reader_GetGlobEvtReader (reader);
+
+  /* Register the above defined callbacks to the global event reader. */
+  OTF2_Reader_RegisterGlobEvtCallbacks (reader,
+                                        glob_evt_reader,
+                                        &print,
+                                        sizeof (print),
+                                        NULL);
+
+  /* Read until events are all read. */
+  uint64_t events_read = UINT64_MAX;
+  while (events_read == UINT64_MAX){
+    SCOREP_Error_Code status = OTF2_Reader_ReadGlobalEvents (reader,
+                                                             glob_evt_reader,
+                                                             UINT64_MAX,
+                                                             &events_read );
+  }
 
   OTF2_Reader_Delete (reader);
   return 0;
