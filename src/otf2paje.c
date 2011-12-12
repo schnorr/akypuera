@@ -49,7 +49,7 @@ static struct argp_option options[] = {
   /* {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"}, */
   /* {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"}, */
   /* {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"}, */
-  /* {"only-mpi", 'm', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"}, */
+  {"only-mpi", 'm', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
   /* {"normalize-mpi", 'n', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"}, */
   { 0 }
 };
@@ -175,6 +175,10 @@ static SCOREP_Error_Code Enter_print (uint64_t locationID,
   otf2paje_string_t *string = (otf2paje_string_t*) e2->value;
   char *state_name = string->content;
 
+  if (arguments.only_mpi && strstr(state_name, "MPI_") == NULL){
+    return SCOREP_SUCCESS;
+  }
+
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
   pajePushState(time_to_seconds(time), mpi_process, "STATE", state_name);
@@ -187,6 +191,17 @@ static SCOREP_Error_Code Leave_print (uint64_t locationID,
                                       OTF2_AttributeList* attributes,
                                       uint32_t regionID)
 {
+  otf2paje_t* data = (otf2paje_t*) userData;
+  SCOREP_Hashtab_Entry *e1 = SCOREP_Hashtab_Find (data->regions, &regionID, NULL);
+  otf2paje_region_t *region = (otf2paje_region_t*) e1->value;
+  SCOREP_Hashtab_Entry *e2 = SCOREP_Hashtab_Find (data->strings, &region->string_id,NULL);
+  otf2paje_string_t *string = (otf2paje_string_t*) e2->value;
+  char *state_name = string->content;
+
+  if (arguments.only_mpi && strstr(state_name, "MPI_") == NULL){
+    return SCOREP_SUCCESS;
+  }
+
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
   pajePopState(time_to_seconds(time), mpi_process, "STATE");
