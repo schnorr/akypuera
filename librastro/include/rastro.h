@@ -166,4 +166,11 @@ void rst_close_file(rst_file_t * f_data);
 int rst_decode_event(rst_file_t * f_data, rst_event_t * event);
 void rst_print_event(rst_event_t * event);
 
+/*
+ Generate Interface 
+*/
+int rst_generate_function_header (char *types, char *header, int header_len);
+int rst_generate_header (char *types[], int types_len, char *header, int header_len);
+
+
 #endif                          //_RASTRO_H_

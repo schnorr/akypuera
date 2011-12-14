@@ -15,6 +15,7 @@ CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/include/rastro_config.h.in"
 SET(RASTRO_SRC
   src/rastro_read.c 
   src/rastro_write.c
+  src/rst_generate.c
 )
 
 SET(RASTRO_HEADERS
