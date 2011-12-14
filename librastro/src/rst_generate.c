@@ -154,7 +154,7 @@ static int rst_generate_arg_fortran_types (char *types, char *str, int len)
   bzero (&ct, sizeof(counters_t));
   n += snprintf (str+n, len-n, "int16_t *type");
   for (index = types; *index != '\0'; index++){
-    n += rst_add_comma (str+n, len-strlen(str));
+    n += rst_add_comma (str+n, len-n);
     n += rst_add_type_and_var (*index, fortran_types, &ct, str+n, len-strlen(str));
     rst_add_id (*index, &ct);
   }
