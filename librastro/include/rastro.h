@@ -173,6 +173,6 @@ int rst_generate_function_header (char *types, char *header, int header_len);
 int rst_generate_function_implementation (char *types, char *implem, int implem_len);
 int rst_generate_header (char *types[], int types_len, char *header, int header_len);
 int rst_generate_functions (char *types[], int types_len, char *implem, int implem_len, char *header_filename);
-
+int rst_generate (char *types[], int types_len, FILE *header, FILE *implem, char *header_name);
 
 #endif                          //_RASTRO_H_

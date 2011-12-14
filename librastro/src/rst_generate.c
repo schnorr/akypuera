@@ -414,3 +414,23 @@ int rst_generate_functions (char *types[], int types_len, char *implem, int impl
                  "}\n");
   return n;
 }
+
+int rst_generate (char *types[], int types_len, FILE *header, FILE *implem, char *header_name)
+{
+  int len = 50000; /* 50 Kbytes, should work for most librastro use cases */
+  char *str = (char*) malloc (len*sizeof(char));
+  int n = rst_generate_header (types, types_len, str, len);
+  size_t written = fwrite (str, sizeof(char), n, header);
+  if (written != n){
+    return 1;
+  }
+
+  n = rst_generate_functions (types, types_len, str, len, header_name);
+  written = fwrite (str, sizeof(char), n, implem);
+  if (written != n){
+    return 1;
+  }
+
+  free (str);
+  return 0;
+}
