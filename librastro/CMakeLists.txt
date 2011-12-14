@@ -20,7 +20,7 @@ SET(RASTRO_SRC
 
 SET(RASTRO_HEADERS
   include/rastro.h
-  ${CMAKE_CURRENT_BINARY_DIR}/include/rastro_config.h
+  ${CMAKE_BINARY_DIR}/include/rastro_config.h
 )
 
 SET(RASTRO_GENERATE_SRC
