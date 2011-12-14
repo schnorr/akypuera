@@ -26,17 +26,25 @@ provide as many parameters as desired. Example:
 
 2 - Instrumentation Functions Generation
 
-librastro has a script to automatically implement functions defined by the
-user and that are not present in the library. For that, the user has to create
-a textual file with one combination of X (as described above) per line. This
-file is the passed to the rastro_generate tool that implements the corresponding
-functions in a source/header file. Here's a basic usage of this script:
+librastro has a program to automatically implement functions defined by the
+user and that are not present in the library. The user is encouraged to launch
+the program with the help parameter to obtain more information:
+
+$ rastro_generate --help
+
+One possible way to pass the functions to be implemented to
+rastro_generate is to create a textual file with one combination of X
+(as described above) per line, like this:
 
 $ cat used_functions.txt
 ii
 fl
 ds
-$ rastro_generate used_functions.txt my_functions.c my_functions.h
+
+Then, the user can call rastro_generate passing the -i parameter and
+the corresponding file:
+
+$ rastro_generate -h code.h -c code.c -i used_functions.txt
 
 3 - Compiling generated functions and librastro linking
 
