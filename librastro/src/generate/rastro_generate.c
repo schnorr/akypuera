@@ -26,6 +26,7 @@ static char args_doc[] = "{iii sfd ssii}";
 static struct argp_option options[] = {
   {"header", 'h', "HEADER_FILE", 0, "Name of the new header file"},
   {"implementation", 'c', "CODE_FILE", 0, "Name of the new implementation file"},
+  {"from-file", 'i', "INPUT_FILE", 0, "Implement functions from INPUT_FILE, one per line"},
   {0},
 };
 
@@ -35,6 +36,7 @@ struct arguments {
   int input_size;
   char *header_file;
   char *implementation_file;
+  char *from_file;
 };
 
 static int parse_options (int key, char *arg, struct argp_state *state)
@@ -43,6 +45,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   switch (key){
   case 'h': arguments->header_file = arg; break;
   case 'c': arguments->implementation_file = arg; break;
+  case 'i': arguments->from_file = arg; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == MY_INPUT_SIZE) {
       /* Too many arguments. */
@@ -52,7 +55,9 @@ static int parse_options (int key, char *arg, struct argp_state *state)
     arguments->input_size++;
     break;
   case ARGP_KEY_END:
-    if (!arguments->header_file || !arguments->implementation_file){
+    if ((!arguments->header_file ||
+         !arguments->implementation_file) &&
+        !arguments->from_file){
       /* Not enough arguments. */
       argp_usage (state);
     }
@@ -92,14 +97,35 @@ int main(int argc, char *argv[])
             "[rastro_generate] at %s,"
             "could not open file %s for writing\n",
             __FUNCTION__, arguments.implementation_file);
+    fclose (header);
     return 1;
+  }
+
+  if (arguments.from_file){
+    FILE *file = fopen (arguments.from_file, "r");
+    if (!file){
+      fprintf(stderr,
+              "[rastro_generate] at %s,"
+              "could not open file %s for reading\n",
+              __FUNCTION__, arguments.from_file);
+      fclose (header);
+      fclose (implem);
+      return 1;
+    }
+    while (feof(file)==0){
+      char read_str[100];
+      fscanf (file, "%s", read_str);
+      if (feof(file)) break;
+
+      arguments.input[arguments.input_size] = strdup (read_str);
+      arguments.input_size++;
+    }
+    fclose (file);
   }
 
   rst_generate (arguments.input, arguments.input_size, header, implem, arguments.header_file);
 
   fclose (header);
   fclose (implem);
-  return 0;
-
   return 0;
 }
