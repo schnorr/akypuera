@@ -38,10 +38,10 @@ static char *c_types[] = {
 };
 
 static char *fortran_types[] = {
-  "int8*",
-  "int16*",
-  "int32*",
-  "int64*",
+  "int8_t*",
+  "int16_t*",
+  "int32_t*",
+  "int64_t*",
   "float*",
   "double*",
   "char*"
@@ -152,7 +152,7 @@ static int rst_generate_arg_fortran_types (char *types, char *str, int len)
   counters_t ct;
   char *index = NULL;
   bzero (&ct, sizeof(counters_t));
-  n += snprintf (str+n, len-n, "u_int16_t type");
+  n += snprintf (str+n, len-n, "int16_t *type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
     n += rst_add_type_and_var (*index, fortran_types, &ct, str+n, len-strlen(str));
