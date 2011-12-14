@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <dirent.h>
+#include <rastro_config.h>
 
 #define RST_CLOCK_RESOLUTION 1000000
 #define RST_EVENT_TYPE_MASK 0x3fff      /* 14 bits */
