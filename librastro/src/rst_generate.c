@@ -47,7 +47,7 @@ static char *fortran_types[] = {
   "char*"
 };
 
-static char *fortran_types2[] = {
+static char *fortran_casts[] = {
   "(u_int8_t)*",
   "(u_int16_t)*",
   "(u_int32_t)*",
