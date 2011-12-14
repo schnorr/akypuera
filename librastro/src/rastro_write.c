@@ -197,6 +197,34 @@ void rst_finalize_ptr(rst_buffer_t * ptr)
   rst_destroy_buffer(ptr);
 }
 
+// starts an event
+void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
+{
+    struct timeval tp;
+    u_int32_t deltasec;
+
+    rastro_gettimeofday(&tp, NULL);
+    deltasec = tp.tv_sec - RST_T0(ptr);
+    if (deltasec > 3600) {
+        RST_SET_T0(ptr, tp.tv_sec);
+        deltasec = 0;
+        RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
+        RST_PUT(ptr, u_int32_t, tp.tv_sec);
+    } else {
+        RST_PUT(ptr, u_int32_t, header);
+    }
+    RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_usec);
+}
+
+// finishes an event
+void rst_endevent(rst_buffer_t * ptr)
+{
+    ptr->rst_buffer_ptr = ALIGN_PTR(ptr->rst_buffer_ptr);
+    if (RST_BUF_COUNT(ptr) > (RST_BUF_SIZE(ptr) - RST_MAX_EVENT_SIZE)) {
+        rst_flush(ptr);
+    }
+}
+
 // Registra evento somente com tipo
 void rst_event(u_int16_t type)
 {

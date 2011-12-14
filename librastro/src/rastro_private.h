@@ -25,9 +25,6 @@
 //the timestamp function used by librastro
 extern int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz);
 
-// Aligns pointer p to 4-byte-aligned address
-#define ALIGN_PTR(p) ((void *)(((intptr_t)(p)+(4-1))&(~(4-1))))
-
 #define RST_MAX_EVENT_SIZE 1000
 
 #define RST_RESET(ptr) (ptr->rst_buffer_ptr = ptr->rst_buffer)
@@ -39,30 +36,6 @@ extern int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz);
 #define RST_BUF_DATA(ptr) (ptr->rst_buffer)
 #define RST_BUF_SIZE(ptr) (ptr->rst_buffer_size)
 
-#ifndef LIBRASTRO_THREADED
-extern rst_buffer_t *rst_global_buffer;
-#define RST_PTR (rst_global_buffer)
-#define RST_SET_PTR(ptr) (rst_global_buffer = ptr)
-#else
-extern pthread_key_t rst_key;
-#define RST_PTR ((rst_buffer_t *) pthread_getspecific(rst_key))
-#define RST_SET_PTR(ptr) pthread_setspecific(rst_key, (void *) ptr)
-#endif
-
-#define RST_PUT(ptr, type, val)						\
-	do {								\
-		type *p = (type *)ptr->rst_buffer_ptr;			\
-		*p++ = (type)(val);					\
-		ptr->rst_buffer_ptr = (char *)p;			\
-	} while (0)
-#define RST_PUT_STR(ptr, str) 						\
-	do {                  						\
-		char *__s1 = (char *)ptr->rst_buffer_ptr;		\
-		char *__s2 = (char *)str;                               \
-		while ((*__s1++ = *__s2++) != '\0') 			\
-			;						\
-		ptr->rst_buffer_ptr = ALIGN_PTR(__s1); 	\
-	} while(0)
 
 //#define RST_GET(ptr, type) (*((type *)(ptr))++)
 #define RST_GET(ptr, type) ((ptr += sizeof(type)),			\
@@ -100,31 +73,7 @@ extern pthread_key_t rst_key;
 
 void rst_flush(rst_buffer_t * ptr);
 
-// finishes an event
-static inline void rst_endevent(rst_buffer_t * ptr)
-{
-    ptr->rst_buffer_ptr = ALIGN_PTR(ptr->rst_buffer_ptr);
-    if (RST_BUF_COUNT(ptr) > (RST_BUF_SIZE(ptr) - RST_MAX_EVENT_SIZE)) {
-        rst_flush(ptr);
-    }
-}
 
-// starts an event
-static inline void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
-{
-    struct timeval tp;
-    u_int32_t deltasec;
 
-    rastro_gettimeofday(&tp, NULL);
-    deltasec = tp.tv_sec - RST_T0(ptr);
-    if (deltasec > 3600) {
-        RST_SET_T0(ptr, tp.tv_sec);
-        deltasec = 0;
-        RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
-        RST_PUT(ptr, u_int32_t, tp.tv_sec);
-    } else {
-        RST_PUT(ptr, u_int32_t, header);
-    }
-    RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_usec);
-}
+
 #endif  /*    _RASTRO_PRIVATE_H_   */

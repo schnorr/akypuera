@@ -157,6 +157,8 @@ void rst_flush_all(void);
 
 void rst_event(u_int16_t type);
 void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type);
+void rst_startevent(rst_buffer_t *ptr, u_int32_t header);
+void rst_endevent(rst_buffer_t * ptr);
 
 /* 
   Reading Interface
@@ -175,5 +177,37 @@ int rst_generate_function_implementation (char *types, char *implem, int implem_
 int rst_generate_header (char *types[], int types_len, char *header, int header_len);
 int rst_generate_functions (char *types[], int types_len, char *implem, int implem_len, char *header_filename);
 int rst_generate (char *types[], int types_len, FILE *header, FILE *implem, char *header_name);
+
+/*
+  These are necessary to generated codes
+ */
+
+// Aligns pointer p to 4-byte-aligned address
+#define ALIGN_PTR(p) ((void *)(((intptr_t)(p)+(4-1))&(~(4-1))))
+
+#define RST_PUT(ptr, type, val)						\
+	do {								\
+		type *p = (type *)ptr->rst_buffer_ptr;			\
+		*p++ = (type)(val);					\
+		ptr->rst_buffer_ptr = (char *)p;			\
+	} while (0)
+#define RST_PUT_STR(ptr, str) 						\
+	do {                  						\
+		char *__s1 = (char *)ptr->rst_buffer_ptr;		\
+		char *__s2 = (char *)str;                               \
+		while ((*__s1++ = *__s2++) != '\0') 			\
+			;						\
+		ptr->rst_buffer_ptr = ALIGN_PTR(__s1); 	\
+	} while(0)
+
+#ifndef LIBRASTRO_THREADED
+extern rst_buffer_t *rst_global_buffer;
+#define RST_PTR (rst_global_buffer)
+#define RST_SET_PTR(ptr) (rst_global_buffer = ptr)
+#else
+extern pthread_key_t rst_key;
+#define RST_PTR ((rst_buffer_t *) pthread_getspecific(rst_key))
+#define RST_SET_PTR(ptr) pthread_setspecific(rst_key, (void *) ptr)
+#endif
 
 #endif                          //_RASTRO_H_
