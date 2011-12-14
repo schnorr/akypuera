@@ -128,6 +128,15 @@ static void rst_add_id (char c, counters_t *ct)
   }
 }
 
+static void rst_counters (char *types, counters_t *ct)
+{
+  char *index = NULL;
+  bzero (ct, sizeof(counters_t));
+  for (index = types; *index != '\0'; index++){
+    rst_add_id (*index, ct);
+  }
+}
+
 static int rst_add_type_and_var (char c, char **types, counters_t *ct, char *output, int len)
 {
   int res = 0;
@@ -135,6 +144,66 @@ static int rst_add_type_and_var (char c, char **types, counters_t *ct, char *out
   res += rst_add_space (output+res, len-res);
   res += rst_add_var (c, rst_get_id(c, ct), output+res, len-res);
   return res;
+}
+
+static int rst_generate_arg_fortran_types (char *types, char *str, int len)
+{
+  int n = 0;
+  counters_t ct;
+  char *index = NULL;
+  bzero (&ct, sizeof(counters_t));
+  n += snprintf (str+n, len-n, "u_int16_t type");
+  for (index = types; *index != '\0'; index++){
+    n += rst_add_comma (str+n, len-strlen(str));
+    n += rst_add_type_and_var (*index, fortran_types, &ct, str+n, len-strlen(str));
+    rst_add_id (*index, &ct);
+  }
+  return n;
+}
+
+static int rst_generate_arg_fortran_casts (char *types, char *str, int len)
+{
+  int n = 0;
+  counters_t ct;
+  char *index = NULL;
+  bzero (&ct, sizeof(counters_t));
+  n += snprintf (str+n, len-n, "(u_int16_t)* type");
+  for (index = types; *index != '\0'; index++){
+    n += rst_add_comma (str+n, len-strlen(str));
+    n += rst_add_type_and_var (*index, fortran_casts, &ct, str+n, len-strlen(str));
+    rst_add_id (*index, &ct);
+  }
+  return n;
+}
+
+static int rst_generate_arg_c (char *types, char *str, int len)
+{
+  int n = 0;
+  counters_t ct;
+  char *index = NULL;
+  bzero (&ct, sizeof(counters_t));
+  n += snprintf (str+n, len-n, "u_int16_t type");
+  for (index = types; *index != '\0'; index++){
+    n += rst_add_comma (str+n, len-strlen(str));
+    n += rst_add_type_and_var (*index, c_types, &ct, str+n, len-strlen(str));
+    rst_add_id (*index, &ct);
+  }
+  return n;
+}
+
+static int rst_generate_arg_prep (char *types, char *str, int len)
+{
+  int n = 0;
+  counters_t ct;
+  char *index = NULL;
+  bzero (&ct, sizeof(counters_t));
+  n += snprintf (str+n, len-n, "type");
+  for (index = types; *index != '\0'; index++){
+    n += rst_add_comma (str+n, len-strlen(str));
+    n += rst_add_var (*index, rst_get_id(*index, &ct), str+n, len-strlen(str));
+    rst_add_id (*index, &ct);
+  }
+  return n;
 }
 
 int rst_generate_function_header (char *types, char *header, int header_len)
@@ -147,28 +216,15 @@ int rst_generate_function_header (char *types, char *header, int header_len)
   counters_t ct;
   bzero (&ct, sizeof(counters_t));
 
-  int len = 1000;
+  int len = 1000, res = 0;
   char *af, *ap;
   af = (char*)malloc(len*sizeof(char));
   ap = (char*)malloc(len*sizeof(char));
   bzero (af, 1000);
   bzero (ap, 1000);
-  strncat (af, "u_int16_t type", len);
-  strncat (ap, "type", len);
-  int afn = strlen(af);
-  int apn = strlen(ap);
+  rst_generate_arg_c (types, af, len);
+  rst_generate_arg_prep (types, ap, len);
 
-  char *index = NULL;
-  for (index = types; *index != '\0'; index++){
-    afn += rst_add_comma (af+afn, len-strlen(af));
-    afn += rst_add_type_and_var (*index, c_types, &ct, af+afn, len-strlen(af));
-
-    apn += rst_add_comma (ap+apn, len-strlen(ap));
-    apn += rst_add_var (*index, rst_get_id(*index, &ct), ap+apn, len-strlen(ap));
-    rst_add_id (*index, &ct);
-  }
-
-  int res;
   res = snprintf (header,
                   header_len,
                   "/* Rastro function prototype for '%s' */\n"
@@ -180,6 +236,127 @@ int rst_generate_function_header (char *types, char *header, int header_len)
   free (af);
   free (ap);
   return res;
+}
+
+static int rst_generate_function_start (counters_t *ct, char *implem, int implem_len)
+{
+  counters_t ct_done;
+  bzero (&ct_done, sizeof(counters_t));
+
+  int bits = 16;
+  int done = 0;
+  int n = 0;
+  n += snprintf (implem+n, implem_len-n, "  rst_startevent(ptr, type<<18|");
+  for (;;) {
+    int remaining_bits = bits;
+    int res = 0;
+
+    while (done < RST_TYPE_CTR && remaining_bits > 0) {
+      int nibble_type = 0;
+      switch (done) {
+#define     CASE(n, ctr, type)                                  \
+        case n:                                                 \
+          if (ct_done.ctr < ct->ctr && nibble_type == 0) {      \
+            nibble_type = type;                                 \
+            ct_done.ctr++;                                      \
+          }                                                     \
+          if (ct_done.ctr < ct->ctr)                            \
+            break;                                              \
+          done++
+        CASE(0, n_double, RST_DOUBLE_TYPE);
+        CASE(1, n_uint64, RST_LONG_TYPE);
+        CASE(2, n_float,  RST_FLOAT_TYPE);
+        CASE(3, n_uint32, RST_INT_TYPE);
+        CASE(4, n_uint16, RST_SHORT_TYPE);
+        CASE(5, n_uint8,  RST_CHAR_TYPE);
+        CASE(6, n_string, RST_STRING_TYPE);
+#undef      CASE
+      }
+      if (nibble_type != 0) {
+        res = res << 4 | nibble_type;
+        remaining_bits -= 4;
+      }
+    }
+
+    if (done < RST_TYPE_CTR) {
+      n += snprintf (implem+n, implem_len-n, "0x%x);\n", res);
+      //Verify
+      //n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int64_t, ");
+      n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int32_t, ");
+      bits = 28;
+    } else {
+      n += snprintf (implem+n, implem_len-n, "0x%x);\n", RST_LAST<<bits | res<<remaining_bits);
+      break;
+    }
+  }
+  return n;
+}
+
+int rst_generate_function_implementation (char *types, char *implem, int implem_len)
+{
+  if (!rst_generate_validate_types (types)){
+    /* types are not validated */
+    return -1;
+  }
+
+  counters_t ct;
+  rst_counters (types, &ct);
+
+  int i, n = 0;
+  int len = 1000;
+  char *arg_list = (char*)malloc(len*sizeof(char));
+  rst_generate_arg_c (types, arg_list, len);
+
+  /* C implementation */
+  n += snprintf (implem+n,
+                 implem_len-n,
+                 "/* Rastro function implementation for '%s' */\n"
+                 "void rst_event_%s_ptr(rst_buffer_t *ptr, %s)\n"
+                 "{\n",
+                 types,
+                 types, arg_list);
+  n += rst_generate_function_start (&ct, implem+n, implem_len-n);
+  /* order must be the same as in generate_function_start */
+  for (i = 0; i < ct.n_double; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, double, " XSTR(LETRA_DOUBLE) "%d);\n", i);
+  for (i = 0; i < ct.n_uint64; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int64_t, " XSTR(LETRA_UINT64) "%d);\n", i);
+  for (i = 0; i < ct.n_float; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, float, " XSTR(LETRA_FLOAT) "%d);\n", i);
+  for (i = 0; i < ct.n_uint32; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int32_t, " XSTR(LETRA_UINT32) "%d);\n", i);
+  for (i = 0; i < ct.n_uint16; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int16_t, " XSTR(LETRA_UINT16) "%d);\n", i);
+  for (i = 0; i < ct.n_uint8; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int8_t, " XSTR(LETRA_UINT8) "%d);\n", i);
+  for (i = 0; i < ct.n_string; i++)
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT_STR(ptr, " XSTR(LETRA_STRING) "%d);\n", i);
+  n += snprintf (implem+n, implem_len-n,
+                 "  rst_endevent(ptr);\n"
+                 "}\n");
+
+  /* Fortran implementation */
+  char *arg_list_fortran, *casts_fortran;
+  arg_list_fortran = (char*)malloc(len*sizeof(char));
+  casts_fortran = (char*)malloc(len*sizeof(char));
+  rst_generate_arg_fortran_types (types, arg_list_fortran, len);
+  rst_generate_arg_fortran_casts (types, casts_fortran, len);
+
+  n += snprintf (implem+n, implem_len-n,
+                 "/* Rastro function implementation for '%s' - fortran support */\n"
+                 "void rst_event_%s_f_( %s)\n"
+                 "{\n",
+                 types,
+                 types, arg_list_fortran);
+  n += snprintf (implem+n, implem_len-n,
+                 "  rst_event_%s (%s);\n",
+                 types, casts_fortran);
+  n += snprintf (implem+n, implem_len-n,
+                 "}\n\n");
+  free (arg_list);
+  free (arg_list_fortran);
+  free (casts_fortran);
+  return n;
 }
 
 int rst_generate_header (char *types[], int types_len, char *header, int header_len)
@@ -204,5 +381,36 @@ int rst_generate_header (char *types[], int types_len, char *header, int header_
   n += snprintf (header+n,
                  header_len-strlen(header),
                  "#endif //__AUTO_RASTRO_FILE_H__\n");
+  return n;
+}
+
+int rst_generate_functions (char *types[], int types_len, char *implem, int implem_len, char *header_filename)
+{
+  int i;
+  int n = 0;
+  n += snprintf (implem+n,
+                 implem_len-n,
+                 "/* Do not edit. File generated by rastro. */\n\n"
+                 "#include \"%s\"\n\n", header_filename);
+  for (i = 0; i < types_len; i++){
+    int nt = rst_generate_function_implementation (types[i], implem+n, implem_len-n);
+    if (nt == -1){
+      /* types[i] has some unrecognized letters, ignore */
+      continue;
+    }
+    n += nt;
+  }
+
+  //TODO: this should be incorportated in librastro
+  n += snprintf (implem+n,
+                 implem_len-n,
+                 "void rst_init_f_(int64_t *id1, int64_t *id2)\n"
+                 "{\n"
+                 "  rst_init((u_int64_t)* id1, (u_int64_t)* id2);\n"
+                 "}\n"
+                 "void rst_finalize_f_ ()\n"
+                 "{\n"
+                 "  rst_finalize();\n"
+                 "}\n");
   return n;
 }
