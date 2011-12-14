@@ -232,7 +232,7 @@ int rst_generate_function_header (char *types, char *header, int header_len)
                   "#define rst_event_%s(%s) rst_event_%s_ptr(RST_PTR, %s)\n\n",
                   types,
                   types, af,
-                  types, ap, types, af);
+                  types, ap, types, ap);
   free (af);
   free (ap);
   return res;
