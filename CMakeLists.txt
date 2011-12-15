@@ -12,11 +12,11 @@ OPTION(SMPI
 
 OPTION(TAU
   "Enable to create tau2paje converter"
-  ON)
+  OFF)
 
 OPTION(OTF2
   "Enable to create otf2paje converter"
-  ON)
+  OFF)
 
 OPTION(DEBUG
   "Debug akypuera"
