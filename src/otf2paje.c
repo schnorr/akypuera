@@ -24,13 +24,13 @@
 #include "aky_private.h"
 
 /* time_to_seconds */
-static double time_to_seconds(double time)
+static double time_to_seconds(double time, double resolution)
 {
   static double first_time = -1;
   if (first_time == -1){
     first_time = time;
   }
-  return (time - first_time) / 1000000000;
+  return (time - first_time) / resolution;
 }
 
 /* Parameter handling */
@@ -92,6 +92,7 @@ struct otf2paje_s
   SCOREP_Hashtab* strings;
   SCOREP_Hashtab* groups;
   double last_timestamp;
+  double time_resolution;
 };
 typedef struct otf2paje_s otf2paje_t;
 
@@ -162,6 +163,22 @@ static SCOREP_Error_Code GlobDefRegion_print (void* userData,
   return SCOREP_SUCCESS;
 }
 
+
+static SCOREP_Error_Code GlobDefLocation_print(void* userData,
+                                               uint64_t locationIdentifier,
+                                               uint32_t stringID,
+                                               OTF2_GlobLocationType locType,
+                                               uint64_t numberOfEvents,
+                                               uint64_t numberOfDefinitions,
+                                               uint64_t timerResolution,
+                                               uint64_t locationGroup)
+{
+  otf2paje_t* data = (otf2paje_t*) userData;
+  data->time_resolution = timerResolution;
+  return SCOREP_SUCCESS;
+}
+
+
 /* Events callbacks */
 static SCOREP_Error_Code Enter_print (uint64_t locationID,
                                       uint64_t time,
@@ -182,8 +199,9 @@ static SCOREP_Error_Code Enter_print (uint64_t locationID,
 
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
-  pajePushState(time_to_seconds(time), mpi_process, "STATE", state_name);
-  data->last_timestamp = time_to_seconds(time);
+  pajePushState(time_to_seconds(time, data->time_resolution),
+                mpi_process, "STATE", state_name);
+  data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return SCOREP_SUCCESS;
 }
 
@@ -206,11 +224,11 @@ static SCOREP_Error_Code Leave_print (uint64_t locationID,
 
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
-  pajePopState(time_to_seconds(time), mpi_process, "STATE");
-  data->last_timestamp = time_to_seconds(time);
+  pajePopState(time_to_seconds(time, data->time_resolution),
+               mpi_process, "STATE");
+  data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return SCOREP_SUCCESS;
 }
-
 
 int main (int argc, char **argv)
 {
@@ -251,6 +269,7 @@ int main (int argc, char **argv)
   bzero(&register_defs, sizeof (OTF2_GlobDefReaderCallbacks));
   register_defs.GlobDefString = GlobDefString_print;
   register_defs.GlobDefRegion = GlobDefRegion_print;
+  register_defs.GlobDefLocation = GlobDefLocation_print;
 
   /* Read global definitions. */
   OTF2_GlobDefReader* glob_def_reader  = OTF2_Reader_GetGlobDefReader (reader);
