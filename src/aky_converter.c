@@ -69,7 +69,7 @@ int main(int argc, char **argv)
   bzero (&arguments, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
-            "[aky_converter] at %s,"
+            "[aky_converter] at %s, "
             "error during the parsing of parameters\n",
             __FUNCTION__);
     return 1;
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
                             arguments.synchronization_file, 100000);
     if (ret == -1) {
       fprintf(stderr,
-              "[aky_converter] at %s,"
+              "[aky_converter] at %s, "
               "trace file %s could not be opened\n",
               __FUNCTION__, arguments.input[i]);
       return 1;
