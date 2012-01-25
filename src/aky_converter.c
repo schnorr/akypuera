@@ -25,6 +25,8 @@ static struct argp_option options[] = {
   {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
   {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
   {"sync", 'z', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)"},
+  {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
+  {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
   { 0 }
 };
 
@@ -33,6 +35,8 @@ struct arguments {
   int input_size;
   int ignore_errors, no_links, no_states;
   char *synchronization_file;
+  char *comment;
+  char *comment_file;
 };
 
 static int parse_options (int key, char *arg, struct argp_state *state)
@@ -43,6 +47,8 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'l': arguments->no_links = 1; break;
   case 's': arguments->no_states = 1; break;
   case 'z': arguments->synchronization_file = arg; break;
+  case 'm': arguments->comment = arg; break;
+  case 'n': arguments->comment_file = arg; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
@@ -98,6 +104,33 @@ int main(int argc, char **argv)
               __FUNCTION__, arguments.input[i]);
       return 1;
     }
+  }
+
+  if (arguments.comment){
+    printf ("# %s\n", arguments.comment);
+  }
+  if (arguments.comment_file){
+    FILE *file = fopen (arguments.comment_file, "r");
+    if (file == NULL){
+      fprintf(stderr,
+              "[aky_converter] at %s, "
+              "comment file %s could not be opened for reading\n",
+              __FUNCTION__, arguments.comment_file);
+      return 1;
+    }
+    while (!feof(file)){
+      char c;
+      c = fgetc(file);
+      if (feof(file)) break;
+      printf ("# ");
+      while (c != '\n'){
+        printf ("%c", c);
+        c = fgetc(file);
+        if (feof(file)) break;
+      }
+      printf ("\n");
+    }
+    fclose(file);
   }
 
   name_init();
