@@ -4,7 +4,6 @@
 #define _RASTRO_aky_rastro_H_
 
 #include "rastro.h"
-#include "rastro_private.h"
 
 void rst_event_i_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0);
 #define rst_event_i(type, i0) rst_event_i_ptr(RST_PTR, type, i0)
@@ -16,5 +15,9 @@ void rst_event_iiii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32
 #define rst_event_iiii(type, i0, i1, i2, i3) rst_event_iiii_ptr(RST_PTR, type, i0, i1, i2, i3)
 void rst_event_iiiii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int32_t i2, u_int32_t i3, u_int32_t i4);
 #define rst_event_iiiii(type, i0, i1, i2, i3, i4) rst_event_iiiii_ptr(RST_PTR, type, i0, i1, i2, i3, i4)
+void rst_event_l_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0);
+#define rst_event_l(type, l0) rst_event_l_ptr(RST_PTR, type, l0)
+void rst_event_iil_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int64_t l0);
+#define rst_event_iil(type, i0, i1, l0) rst_event_iil_ptr(RST_PTR, type, i0, i1, l0)
 
 #endif
