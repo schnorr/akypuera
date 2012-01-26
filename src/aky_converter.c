@@ -149,11 +149,16 @@ int main(int argc, char **argv)
         if (event.ct.n_uint32 == 2){
           messageSize = event.v_uint32[1];
         }
+        /* try to find the message mark, otherwise set it to 0 */
+        int mark = 0;
+        if (event.ct.n_uint64 == 1){
+          mark = event.v_uint64[0];
+        }
         char key[AKY_DEFAULT_STR_SIZE];
         aky_put_key("n", event.id1, event.v_uint32[0], key,
                     AKY_DEFAULT_STR_SIZE);
         pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key,
-                      messageSize);
+                      messageSize, mark);
       }
       break;
     case AKY_PTP_RECV:
@@ -310,9 +315,14 @@ int main(int argc, char **argv)
     case MPI_CART_SUB_IN:
     case MPI_FINALIZE_IN:
       if (!arguments.no_states){
+        /* try to find the message mark */
+        int mark = 0;
+        if (event.ct.n_uint64 == 1){
+          mark = event.v_uint64[0];
+        }
         char value[100];
         snprintf(value, 100, "%s", name_get(event.type));
-        pajePushState(timestamp, mpi_process, "STATE", value);
+        pajePushState(timestamp, mpi_process, "STATE", value, mark);
       }
       break;
     case MPI_COMM_SPAWN_OUT:
