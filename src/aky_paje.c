@@ -72,8 +72,8 @@ static s_paje_event_t paje_events[] = {
    "% EntityType string\n"
    "% SourceContainer string\n"
    "% Value string\n"
-   "% Key string"
-   "% MessageSize string\n",
+   "% Key string\n"
+   "% MessageSize string",
    -1},
   {"PajeEndLink",
    "% Time string\n"
