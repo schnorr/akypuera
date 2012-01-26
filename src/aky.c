@@ -915,7 +915,7 @@ MPI_Comm comm;
 MPI_Request *request;
 {
   rst_event(MPI_ISEND_IN);
-  rst_event_i(AKY_PTP_SEND, AKY_translate_rank(comm, dest));
+  rst_event_ii(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count);
   int returnVal =
       PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISEND_OUT);
@@ -1035,7 +1035,7 @@ int tag;
 MPI_Comm comm;
 {
   rst_event(MPI_SEND_IN);
-  rst_event_i(AKY_PTP_SEND, AKY_translate_rank(comm, dest));
+  rst_event_ii(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count);
   int returnVal = PMPI_Send(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SEND_OUT);
   return returnVal;
