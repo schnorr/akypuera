@@ -144,10 +144,16 @@ int main(int argc, char **argv)
     switch (event.type) {
     case AKY_PTP_SEND:
       if (!arguments.no_links){
+        /* try to find message size, otherwise set it to 0 */
+        int messageSize = 0;
+        if (event.ct.n_uint32 == 2){
+          messageSize = event.v_uint32[1];
+        }
         char key[AKY_DEFAULT_STR_SIZE];
         aky_put_key("n", event.id1, event.v_uint32[0], key,
                     AKY_DEFAULT_STR_SIZE);
-        pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
+        pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key,
+                      messageSize);
       }
       break;
     case AKY_PTP_RECV:
