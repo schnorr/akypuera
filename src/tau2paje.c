@@ -288,7 +288,7 @@ int SendMessage(void *userData,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
   pajeStartLink(rank_last_time[sourceNodeToken], "0", "LINK", mpi_process,
-                "PTP", key);
+                "PTP", key, messageSize);
 
   return 0;
 }
