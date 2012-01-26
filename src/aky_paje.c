@@ -21,47 +21,66 @@ static double first_timestamp = -1;
 
 static s_paje_event_t paje_events[] = {
   {"PajeDefineContainerType",
-   "% Alias string\n" "% ContainerType string\n" "% Name string",
+   "% Alias string\n"
+   "% ContainerType string\n"
+   "% Name string",
    -1},
   {"PajeDefineStateType",
-   "% Alias string\n" "% ContainerType string\n" "% Name string",
+   "% Alias string\n"
+   "% ContainerType string\n"
+   "% Name string",
    -1},
   {"PajeDefineLinkType",
    "% Alias string\n"
    "% ContainerType string\n"
    "% SourceContainerType string\n"
-   "% DestContainerType string\n" "% Name string",
+   "% DestContainerType string\n"
+   "% Name string",
    -1},
   {"PajeCreateContainer",
    "% Time string\n"
    "% Alias string\n"
-   "% Type string\n" "% Container string\n" "% Name string",
+   "% Type string\n"
+   "% Container string\n"
+   "% Name string",
    -1},
   {"PajeDestroyContainer",
-   "% Time string\n" "% Type string\n" "% Container string",
+   "% Time string\n"
+   "% Type string\n"
+   "% Container string",
    -1},
   {"PajeSetState",
    "% Time string\n"
-   "% Container string\n" "% EntityType string\n" "% Value string",
+   "% Container string\n"
+   "% EntityType string\n"
+   "% Value string",
    -1},
   {"PajePushState",
    "% Time string\n"
-   "% Container string\n" "% EntityType string\n" "% Value string",
+   "% Container string\n"
+   "% EntityType string\n"
+   "% Value string",
    -1},
   {"PajePopState",
-   "% Time string\n" "% Container string\n" "% EntityType string",
+   "% Time string\n"
+   "% Container string\n"
+   "% EntityType string",
    -1},
   {"PajeStartLink",
    "% Time string\n"
    "% Container string\n"
    "% EntityType string\n"
-   "% SourceContainer string\n" "% Value string\n" "% Key string",
+   "% SourceContainer string\n"
+   "% Value string\n"
+   "% Key string",
    -1},
   {"PajeEndLink",
    "% Time string\n"
    "% Container string\n"
    "% EntityType string\n"
-   "% DestContainer string\n" "% Value string\n" "% Key string",
+   "% DestContainer string\n"
+   "% Value string\n"
+   "% Key string",
    -1},
   {NULL, NULL, -1}
 };
