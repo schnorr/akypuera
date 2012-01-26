@@ -59,7 +59,8 @@ static s_paje_event_t paje_events[] = {
    "% Time string\n"
    "% Container string\n"
    "% EntityType string\n"
-   "% Value string",
+   "% Value string\n"
+   "% Mark string",
    -1},
   {"PajePopState",
    "% Time string\n"
@@ -73,7 +74,8 @@ static s_paje_event_t paje_events[] = {
    "% SourceContainer string\n"
    "% Value string\n"
    "% Key string\n"
-   "% MessageSize string",
+   "% MessageSize string\n"
+   "% Mark string",
    -1},
   {"PajeEndLink",
    "% Time string\n"
@@ -158,11 +160,11 @@ void pajeSetState(double timestamp,
 
 void pajePushState(double timestamp,
                    const char *container,
-                   const char *type, const char *value)
+                   const char *type, const char *value, const int mark)
 {
-  printf("%d %f %s %s %s\n",
+  printf("%d %f %s %s %s %d\n",
          paje_event_id("PajePushState"),
-         paje_event_timestamp(timestamp), container, type, value);
+         paje_event_timestamp(timestamp), container, type, value, mark);
 }
 
 void pajePopState(double timestamp,
@@ -179,12 +181,13 @@ void pajeStartLink(double timestamp,
                    const char *sourceContainer,
                    const char *value,
                    const char *key,
-                   const int messageSize)
+                   const int messageSize,
+                   const int mark)
 {
-  printf("%d %f %s %s %s %s %s %d\n",
+  printf("%d %f %s %s %s %s %s %d %d\n",
          paje_event_id("PajeStartLink"),
          paje_event_timestamp(timestamp),
-         container, type, sourceContainer, value, key, messageSize);
+         container, type, sourceContainer, value, key, messageSize, mark);
 }
 
 void pajeEndLink(double timestamp,

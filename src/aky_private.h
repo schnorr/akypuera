@@ -54,7 +54,7 @@ void pajeSetState(double timestamp,
                   const char *type, const char *value);
 void pajePushState(double timestamp,
                    const char *container,
-                   const char *type, const char *value);
+                   const char *type, const char *value, const int mark);
 void pajePopState(double timestamp,
                   const char *container, const char *type);
 void pajeStartLink(double timestamp,
@@ -62,7 +62,7 @@ void pajeStartLink(double timestamp,
                    const char *type,
                    const char *sourceContainer,
                    const char *value, const char *key,
-                   const int messageSize);
+                   const int messageSize, const int mark);
 void pajeEndLink(double timestamp,
                  const char *container,
                  const char *type,
