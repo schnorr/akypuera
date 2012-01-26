@@ -72,7 +72,8 @@ static s_paje_event_t paje_events[] = {
    "% EntityType string\n"
    "% SourceContainer string\n"
    "% Value string\n"
-   "% Key string",
+   "% Key string"
+   "% MessageSize string\n",
    -1},
   {"PajeEndLink",
    "% Time string\n"
@@ -176,12 +177,14 @@ void pajeStartLink(double timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
-                   const char *value, const char *key)
+                   const char *value,
+                   const char *key,
+                   const int messageSize)
 {
-  printf("%d %f %s %s %s %s %s\n",
+  printf("%d %f %s %s %s %s %s %d\n",
          paje_event_id("PajeStartLink"),
          paje_event_timestamp(timestamp),
-         container, type, sourceContainer, value, key);
+         container, type, sourceContainer, value, key, messageSize);
 }
 
 void pajeEndLink(double timestamp,

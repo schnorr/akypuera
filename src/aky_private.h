@@ -61,7 +61,8 @@ void pajeStartLink(double timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
-                   const char *value, const char *key);
+                   const char *value, const char *key,
+                   const int messageSize);
 void pajeEndLink(double timestamp,
                  const char *container,
                  const char *type,
