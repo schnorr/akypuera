@@ -130,7 +130,7 @@ int EnterState(void *userData, double time,
   rank_last_time[nodeid] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
+  pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name, 0);
   return 0;
 }
 
@@ -288,7 +288,7 @@ int SendMessage(void *userData,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
   pajeStartLink(rank_last_time[sourceNodeToken], "0", "LINK", mpi_process,
-                "PTP", key, messageSize);
+                "PTP", key, messageSize, 0);
 
   return 0;
 }

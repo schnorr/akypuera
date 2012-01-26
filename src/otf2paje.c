@@ -200,7 +200,7 @@ static SCOREP_Error_Code Enter_print (uint64_t locationID,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
   pajePushState(time_to_seconds(time, data->time_resolution),
-                mpi_process, "STATE", state_name);
+                mpi_process, "STATE", state_name, 0);
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return SCOREP_SUCCESS;
 }
