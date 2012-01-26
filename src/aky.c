@@ -16,6 +16,8 @@
 */
 #include "aky_private.h"
 
+static u_int64_t send_mark = 0;
+
 int MPI_Allgather(sendbuf, sendcount, sendtype, recvbuf, recvcount,
                   recvtype, comm)
 void *sendbuf;
@@ -914,11 +916,12 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
-  rst_event(MPI_ISEND_IN);
-  rst_event_ii(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count);
+  rst_event_l(MPI_ISEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal =
       PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -1034,10 +1037,11 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
-  rst_event(MPI_SEND_IN);
-  rst_event_ii(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count);
+  rst_event_l(MPI_SEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal = PMPI_Send(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
