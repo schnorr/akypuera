@@ -149,8 +149,8 @@ int main(int argc, char **argv)
         if (event.ct.n_uint32 == 2){
           messageSize = event.v_uint32[1];
         }
-        /* try to find the message mark, otherwise set it to 0 */
-        int mark = 0;
+        /* try to find the message mark, otherwise set it to -1 */
+        int mark = -1;
         if (event.ct.n_uint64 == 1){
           mark = event.v_uint64[0];
         }
@@ -315,8 +315,8 @@ int main(int argc, char **argv)
     case MPI_CART_SUB_IN:
     case MPI_FINALIZE_IN:
       if (!arguments.no_states){
-        /* try to find the message mark */
-        int mark = 0;
+        /* try to find the message mark, otherwise set it to -1 */
+        int mark = -1;
         if (event.ct.n_uint64 == 1){
           mark = event.v_uint64[0];
         }
