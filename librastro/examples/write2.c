@@ -19,7 +19,7 @@
 */
 #include "saida.h"
 
-int my_gettimeofday(struct timeval *tv, struct timezone *tz)
+static int my_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
   if (tv) {
     tv->tv_sec = 1;

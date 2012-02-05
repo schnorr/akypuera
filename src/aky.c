@@ -1410,7 +1410,6 @@ MPI_Status *status;
 {
   MPI_Status stat2;
   rst_event(MPI_WAITANY_IN);
-  int i;
   int returnVal = PMPI_Waitany(count, array_of_requests, index, &stat2);
   if (status != MPI_STATUS_IGNORE) {
     *status = stat2;

@@ -43,24 +43,24 @@ struct arguments {
 };
 
 /* return current time */
-long long getCurrentTime(void)
+static long long getCurrentTime(void)
 {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return (long long) tv.tv_sec * 1000000 +  (long long) tv.tv_usec;
 }
 
-long long timerabs(struct timeval a)
+static long long timerabs(struct timeval a)
 {
   return (long long)a.tv_sec * 1000000 + a.tv_usec;
 }
 
-long timerdiff(struct timeval a, struct timeval b)
+static long timerdiff(struct timeval a, struct timeval b)
 {
   return (a.tv_sec - b.tv_sec) * 1000000 + (a.tv_usec - b.tv_usec);
 }
 
-void receive_data(int socket, char *buffer, int size)
+static void receive_data(int socket, char *buffer, int size)
 {
   int received = 0;
   while (received != size){
@@ -74,7 +74,7 @@ void receive_data(int socket, char *buffer, int size)
   }
 }
 
-void ping1(int socket, long long *local, long long *remote, long *delta)
+static void ping1(int socket, long long *local, long long *remote, long *delta)
 {
   struct timeval t0, t1, tremote;
   int test;
@@ -91,7 +91,7 @@ void ping1(int socket, long long *local, long long *remote, long *delta)
   *remote = timerabs(tremote);
 }
 
-void ping(int socket, long long *mlocal, long long *mremote,
+static void ping(int socket, long long *mlocal, long long *mremote,
           char *remotename, int sample_size)
 {
   long delta;
@@ -117,7 +117,7 @@ void ping(int socket, long long *mlocal, long long *mremote,
 }
 
 
-void pong(int socket)
+static void pong(int socket)
 {
   struct timeval tvi, tvo;
   int teste;
@@ -187,16 +187,19 @@ static int establish_connection(char *host, char *port)
 }
 
 
-void create_slave(struct arguments *arg, char *remote_host, int master_port)
+static void create_slave(struct arguments *arg, char *remote_host, int master_port)
 {
   char str[10];
   snprintf (str, 10, "%d", master_port);
-  char *command_arg[] = {
+  char par1[] = "-s";
+  char par2[] = "-m";
+  char par3[] = "-p";
+  char *const command_arg[] = {
     arg->remote_login, remote_host, //connect to the remote host
     arg->program_name,
-    "-s", //program to execute and parameters
-    "-m", arg->master_host,
-    "-p", str,
+    par1, //program to execute and parameters
+    par2, arg->master_host,
+    par3, str,
     NULL
   };
 
@@ -211,7 +214,7 @@ void create_slave(struct arguments *arg, char *remote_host, int master_port)
              "[rastro_timesync] (%s)\n"
              "[rastro_timesync] using the following parameters:\n", remote_host);
     int i;
-    char *a = NULL;
+    const char *a = NULL;
     for (i = 0, a = command_arg[0]; a; i++, a = command_arg[i]){
       fprintf (stderr,
                "[rastro_timesync] \t%s\n", a);
@@ -225,15 +228,13 @@ void create_slave(struct arguments *arg, char *remote_host, int master_port)
   }
 }
 
-void synchronize_slave (struct arguments *arg, char *remote_host)
+static void synchronize_slave (struct arguments *arg, char *remote_host)
 {
   long long local_time;
   long long remote_time;
   int port;
   int com_socket;
   int new_socket;
-  char localname[MAXHOSTNAMELEN];
-  char remotename[MAXHOSTNAMELEN];
 
   gethostname(arg->master_host, sizeof(arg->master_host));
   com_socket = open_connection (&port);
@@ -251,7 +252,7 @@ void synchronize_slave (struct arguments *arg, char *remote_host)
   close(com_socket);
 }
 
-void slave (char *master_host, char *master_port)
+static void slave (char *master_host, char *master_port)
 {
   int com_socket = establish_connection (master_host, master_port);
   pong(com_socket);

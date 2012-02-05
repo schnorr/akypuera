@@ -300,9 +300,8 @@ int main (int argc, char **argv)
 
   /* Get number of locations from the anchor file. */
   uint64_t          num_locations = 0;
-  SCOREP_Error_Code status = OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
+  OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
   for ( size_t i = 0; i < num_locations; i++ ){
-    OTF2_EvtReader *evt_reader = OTF2_Reader_GetEvtReader (reader, i);
     OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, i);
     uint64_t definitions_read = 0;
     OTF2_Reader_ReadAllLocalDefinitions (reader, def_reader, &definitions_read);
@@ -333,10 +332,10 @@ int main (int argc, char **argv)
   /* Read until events are all read. */
   uint64_t events_read = UINT64_MAX;
   while (events_read == UINT64_MAX){
-    SCOREP_Error_Code status = OTF2_Reader_ReadGlobalEvents (reader,
-                                                             glob_evt_reader,
-                                                             UINT64_MAX,
-                                                             &events_read );
+    OTF2_Reader_ReadGlobalEvents (reader,
+                                  glob_evt_reader,
+                                  UINT64_MAX,
+                                  &events_read );
   }
 
   for (size_t i = 0; i < num_locations; i++){

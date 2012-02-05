@@ -22,6 +22,8 @@ OPTION(DEBUG
   "Debug akypuera"
   OFF)
 
+SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith -Wchar-subscripts -Wcomment -Wformat -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -Wno-strict-aliasing -Wno-format-nonliteral -Werror ")
+
 # aky_config.h.in file
 CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
                "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
@@ -29,7 +31,7 @@ CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
 # debugging flags
 IF(DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
-  set(CMAKE_C_FLAGS "-O0 -g")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
 ENDIF(DEBUG)
 
 # akypuera configuration for SMPI or MPI (but not both)

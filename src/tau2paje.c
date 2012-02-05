@@ -29,7 +29,6 @@ static struct hsearch_data state_group_hash;
 
 static double *rank_last_time = NULL;
 static int total_number_of_ranks = 0;
-static int nrank = 0;
 static int EndOfTrace = 0;
 
 /* Parameter handling */
@@ -89,7 +88,7 @@ static double time_to_seconds(double time)
 }
 
 /* implementation of callback routines */
-int EnterState(void *userData, double time,
+static int EnterState(void *userData, double time,
                unsigned int nodeid, unsigned int tid, unsigned int stateid)
 {
   /* Find state name */
@@ -134,7 +133,7 @@ int EnterState(void *userData, double time,
   return 0;
 }
 
-int LeaveState(void *userData, double time, unsigned int nodeid,
+static int LeaveState(void *userData, double time, unsigned int nodeid,
                unsigned int tid, unsigned int stateid)
 {
   /* Find state name */
@@ -166,12 +165,12 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
 }
 
 
-int ClockPeriod(void *userData, double clkPeriod)
+static int ClockPeriod(void *userData, double clkPeriod)
 {
   return 0;
 }
 
-int DefThread(void *userData, unsigned int nodeid,
+static int DefThread(void *userData, unsigned int nodeid,
               unsigned int threadToken, const char *threadName)
 {
   char mpi_process[100];
@@ -186,7 +185,7 @@ int DefThread(void *userData, unsigned int nodeid,
   return 0;
 }
 
-int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
+static int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
 {
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
@@ -195,7 +194,7 @@ int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
   return 0;
 }
 
-int DefStateGroup(void *userData, unsigned int stateGroupToken,
+static int DefStateGroup(void *userData, unsigned int stateGroupToken,
                   const char *stateGroupName)
 {
   char group_key[100];
@@ -220,7 +219,7 @@ int DefStateGroup(void *userData, unsigned int stateGroupToken,
   return 0;
 }
 
-int DefState(void *userData, unsigned int stateid, const char *statename,
+static int DefState(void *userData, unsigned int stateid, const char *statename,
              unsigned int stateGroupToken)
 {
   /* group check */
@@ -255,13 +254,13 @@ int DefState(void *userData, unsigned int stateid, const char *statename,
   return 0;
 }
 
-int DefUserEvent(void *userData, unsigned int userEventToken,
+static int DefUserEvent(void *userData, unsigned int userEventToken,
                  const char *userEventName, int monotonicallyIncreasing)
 {
   return 0;
 }
 
-int EventTrigger(void *userData, double time,
+static int EventTrigger(void *userData, double time,
                  unsigned int nodeToken,
                  unsigned int threadToken,
                  unsigned int userEventToken, long long userEventValue)
@@ -270,7 +269,7 @@ int EventTrigger(void *userData, double time,
   return 0;
 }
 
-int SendMessage(void *userData,
+static int SendMessage(void *userData,
                 double time,
                 unsigned int sourceNodeToken,
                 unsigned int sourceThreadToken,
@@ -293,7 +292,7 @@ int SendMessage(void *userData,
   return 0;
 }
 
-int RecvMessage(void *userData, double time,
+static int RecvMessage(void *userData, double time,
                 unsigned int sourceNodeToken,
                 unsigned int sourceThreadToken,
                 unsigned int destinationNodeToken,
@@ -404,7 +403,7 @@ int main(int argc, char **argv)
   paje_header();
   paje_hierarchy();
 
-  int recs_read, pos;
+  int recs_read;
   do {
     recs_read = Ttf_ReadNumEvents(fh, cb, 100);
   } while (recs_read >= 0 && !EndOfTrace);

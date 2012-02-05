@@ -27,7 +27,7 @@
 #define RST_DOUBLE_ID 5
 #define RST_STRING_ID 6
 
-static char *c_types[] = {
+static const char *c_types[] = {
   "u_int8_t",
   "u_int16_t",
   "u_int32_t",
@@ -37,7 +37,7 @@ static char *c_types[] = {
   "char*"
 };
 
-static char *fortran_types[] = {
+static const char *fortran_types[] = {
   "int8_t*",
   "int16_t*",
   "int32_t*",
@@ -47,7 +47,7 @@ static char *fortran_types[] = {
   "char*"
 };
 
-static char *fortran_casts[] = {
+static const char *fortran_casts[] = {
   "(u_int8_t)*",
   "(u_int16_t)*",
   "(u_int32_t)*",
@@ -86,7 +86,7 @@ static int rst_add_var (char c, int id, char *output, int len)
   return snprintf (output, len, "%c%d", c, id);
 }
 
-static int rst_add_type (char c, char **types, char *output, int len)
+static int rst_add_type (char c, const char **types, char *output, int len)
 {
   int res = 0;
   switch (c){
@@ -137,7 +137,7 @@ static void rst_counters (char *types, counters_t *ct)
   }
 }
 
-static int rst_add_type_and_var (char c, char **types, counters_t *ct, char *output, int len)
+static int rst_add_type_and_var (char c, const char **types, counters_t *ct, char *output, int len)
 {
   int res = 0;
   res += rst_add_type (c, types, output+res, len-res);

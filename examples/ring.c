@@ -3,7 +3,7 @@
 
 #define SIZE 10
 
-void func(int me, int proc) {
+static void func(int me, int proc) {
   int i;
   int field[SIZE];
   MPI_Status status;
@@ -37,4 +37,5 @@ int main(int argc, char **argv) {
   func(me, proc);
     
   MPI_Finalize ();
+  return 0;
 }

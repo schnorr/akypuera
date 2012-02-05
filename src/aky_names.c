@@ -14,10 +14,7 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <aky.h>
+#include "aky_private.h"
 
 static char **mpi_names = NULL;
 
