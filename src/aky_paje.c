@@ -19,84 +19,6 @@
 //static timestamp_t first_timestamp = -1;
 static double first_timestamp = -1;
 
-static s_paje_event_t paje_events[] = {
-  {"PajeDefineContainerType",
-   "% Alias string\n"
-   "% ContainerType string\n"
-   "% Name string",
-   -1},
-  {"PajeDefineStateType",
-   "% Alias string\n"
-   "% ContainerType string\n"
-   "% Name string",
-   -1},
-  {"PajeDefineLinkType",
-   "% Alias string\n"
-   "% ContainerType string\n"
-   "% SourceContainerType string\n"
-   "% DestContainerType string\n"
-   "% Name string",
-   -1},
-  {"PajeCreateContainer",
-   "% Time string\n"
-   "% Alias string\n"
-   "% Type string\n"
-   "% Container string\n"
-   "% Name string",
-   -1},
-  {"PajeDestroyContainer",
-   "% Time string\n"
-   "% Type string\n"
-   "% Container string",
-   -1},
-  {"PajeSetState",
-   "% Time string\n"
-   "% Container string\n"
-   "% EntityType string\n"
-   "% Value string",
-   -1},
-  {"PajePushState",
-   "% Time string\n"
-   "% Container string\n"
-   "% EntityType string\n"
-   "% Value string\n"
-   "% Mark string",
-   -1},
-  {"PajePopState",
-   "% Time string\n"
-   "% Container string\n"
-   "% EntityType string",
-   -1},
-  {"PajeStartLink",
-   "% Time string\n"
-   "% Container string\n"
-   "% EntityType string\n"
-   "% SourceContainer string\n"
-   "% Value string\n"
-   "% Key string\n"
-   "% MessageSize string\n"
-   "% Mark string",
-   -1},
-  {"PajeEndLink",
-   "% Time string\n"
-   "% Container string\n"
-   "% EntityType string\n"
-   "% DestContainer string\n"
-   "% Value string\n"
-   "% Key string",
-   -1},
-  {NULL, NULL, -1}
-};
-
-static int paje_event_id(const char *name)
-{
-  int i;
-  for (i = 0; paje_events[i].name; i++)
-    if (strcmp(name, paje_events[i].name) == 0)
-      return paje_events[i].id;
-  return -1;
-}
-
 static double paje_event_timestamp(double timestamp)
 {
   if (first_timestamp == -1) {
@@ -108,16 +30,14 @@ static double paje_event_timestamp(double timestamp)
 void pajeDefineContainerType(const char *alias,
                              const char *containerType, const char *name)
 {
-  printf("%d %s %s %s\n",
-         paje_event_id("PajeDefineContainerType"),
+  printf("%d %s %s %s\n", PAJE_DefineContainerType,
          alias, containerType, name);
 }
 
 void pajeDefineStateType(const char *alias,
                          const char *containerType, const char *name)
 {
-  printf("%d %s %s %s\n",
-         paje_event_id("PajeDefineStateType"), alias, containerType, name);
+  printf("%d %s %s %s\n", PAJE_DefineStateType, alias, containerType, name);
 }
 
 void pajeDefineLinkType(const char *alias,
@@ -125,8 +45,7 @@ void pajeDefineLinkType(const char *alias,
                         const char *sourceContainerType,
                         const char *destContainerType, const char *name)
 {
-  printf("%d %s %s %s %s %s\n",
-         paje_event_id("PajeDefineLinkType"),
+  printf("%d %s %s %s %s %s\n", PAJE_DefineLinkType,
          alias, containerType, sourceContainerType, destContainerType,
          name);
 }
@@ -136,16 +55,14 @@ void pajeCreateContainer(double timestamp,
                          const char *type,
                          const char *container, const char *name)
 {
-  printf("%d %f %s %s %s %s\n",
-         paje_event_id("PajeCreateContainer"),
+  printf("%d %f %s %s %s %s\n", PAJE_CreateContainer,
          paje_event_timestamp(timestamp), alias, type, container, name);
 }
 
 void pajeDestroyContainer(double timestamp,
                           const char *type, const char *container)
 {
-  printf("%d %f %s %s\n",
-         paje_event_id("PajeDestroyContainer"),
+  printf("%d %f %s %s\n", PAJE_DestroyContainer,
          paje_event_timestamp(timestamp), type, container);
 }
 
@@ -153,25 +70,31 @@ void pajeSetState(double timestamp,
                   const char *container,
                   const char *type, const char *value)
 {
-  printf("%d %f %s %s %s\n",
-         paje_event_id("PajeSetState"),
+  printf("%d %f %s %s %s\n", PAJE_SetState, 
          paje_event_timestamp(timestamp), container, type, value);
 }
 
+
 void pajePushState(double timestamp,
+                   const char *container,
+                   const char *type, const char *value)
+{
+  printf("%d %f %s %s %s\n", PAJE_PushState,
+         paje_event_timestamp(timestamp), container, type, value);
+}
+
+void pajePushStateWithMark(double timestamp,
                    const char *container,
                    const char *type, const char *value, const int mark)
 {
-  printf("%d %f %s %s %s %d\n",
-         paje_event_id("PajePushState"),
+  printf("%d %f %s %s %s %d\n", PAJE_PushStateWithMark,
          paje_event_timestamp(timestamp), container, type, value, mark);
 }
 
 void pajePopState(double timestamp,
                   const char *container, const char *type)
 {
-  printf("%d %f %s %s\n",
-         paje_event_id("PajePopState"),
+  printf("%d %f %s %s\n", PAJE_PopState,
          paje_event_timestamp(timestamp), container, type);
 }
 
@@ -180,12 +103,36 @@ void pajeStartLink(double timestamp,
                    const char *type,
                    const char *sourceContainer,
                    const char *value,
+                   const char *key)
+{
+  printf("%d %f %s %s %s %s %s\n", PAJE_StartLink,
+         paje_event_timestamp(timestamp),
+         container, type, sourceContainer, value, key);
+}
+
+void pajeStartLinkWithMessageSize(double timestamp,
+                   const char *container,
+                   const char *type,
+                   const char *sourceContainer,
+                   const char *value,
+                   const char *key,
+                   const int messageSize)
+{
+  printf("%d %f %s %s %s %s %s %d\n", PAJE_StartLinkWithMessageSizeAndMark,
+         paje_event_timestamp(timestamp),
+         container, type, sourceContainer, value, key, messageSize);
+}
+
+void pajeStartLinkWithMessageSizeAndMark(double timestamp,
+                   const char *container,
+                   const char *type,
+                   const char *sourceContainer,
+                   const char *value,
                    const char *key,
                    const int messageSize,
                    const int mark)
 {
-  printf("%d %f %s %s %s %s %s %d %d\n",
-         paje_event_id("PajeStartLink"),
+  printf("%d %f %s %s %s %s %s %d %d\n", PAJE_StartLinkWithMessageSizeAndMark,
          paje_event_timestamp(timestamp),
          container, type, sourceContainer, value, key, messageSize, mark);
 }
@@ -196,21 +143,163 @@ void pajeEndLink(double timestamp,
                  const char *endContainer,
                  const char *value, const char *key)
 {
-  printf("%d %f %s %s %s %s %s\n",
-         paje_event_id("PajeEndLink"),
+  printf("%d %f %s %s %s %s %s\n", PAJE_EndLink,
          paje_event_timestamp(timestamp),
          container, type, endContainer, value, key);
 }
 
 void paje_header(void)
 {
-  int i;
-  for (i = 0; paje_events[i].name; i++) {
-    paje_events[i].id = i;
-    printf("%%EventDef %s %d\n%s\n%%EndEventDef\n",
-           paje_events[i].name, paje_events[i].id,
-           paje_events[i].description);
-  }
+  printf("%%EventDef PajeDefineContainerType %d\n"
+         "%%       Alias string\n"
+         "%%       ContainerType string\n"
+         "%%       Name string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeDefineVariableType %d\n"
+         "%%       Alias string\n"
+         "%%       ContainerType string\n"
+         "%%       Name string\n"
+         "%%       Color color\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeDefineStateType %d\n"
+         "%%       Alias string\n"
+         "%%       ContainerType string\n"
+         "%%       Name string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeDefineEventType %d\n"
+         "%%       Alias string\n"
+         "%%       ContainerType string\n"
+         "%%       Name string\n"
+         "%%       Color color\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeDefineLinkType %d\n"
+         "%%       Alias string\n"
+         "%%       ContainerType string\n"
+         "%%       SourceContainerType string\n"
+         "%%       DestContainerType string\n"
+         "%%       Name string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeDefineEntityValue %d\n"
+         "%%       Alias string\n"
+         "%%       EntityType string\n"
+         "%%       Name string\n"
+         "%%       Color color\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeCreateContainer %d\n"
+         "%%       Time date\n"
+         "%%       Alias string\n"
+         "%%       Type string\n"
+         "%%       Container string\n"
+         "%%       Name string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeDestroyContainer %d\n"
+         "%%       Time date\n"
+         "%%       Type string\n"
+         "%%       Name string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeSetVariable %d\n"
+         "%%       Time date\n"
+         "%%       Type string\n"
+         "%%       Container string\n"
+         "%%       Value double\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeAddVariable %d\n"
+         "%%       Time date\n"
+         "%%       Type string\n"
+         "%%       Container string\n"
+         "%%       Value double\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeSubVariable %d\n"
+         "%%       Time date\n"
+         "%%       Type string\n"
+         "%%       Container string\n"
+         "%%       Value double\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeSetState %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       Value string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajePushState %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       Value string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajePushState %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       Value string\n"
+         "%%       Mark string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajePopState %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeStartLink %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       SourceContainer string\n"
+         "%%       Value string\n"
+         "%%       Key string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeStartLink %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       SourceContainer string\n"
+         "%%       Value string\n"
+         "%%       Key string\n"
+         "%%       MessageSize string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeStartLink %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       SourceContainer string\n"
+         "%%       Value string\n"
+         "%%       Key string\n"
+         "%%       MessageSize string\n"
+         "%%       Mark string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeEndLink %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       DestContainer string\n"
+         "%%       Value string\n"
+         "%%       Key string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeNewEvent %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       Value string\n"
+         "%%EndEventDef\n",
+         PAJE_DefineContainerType,
+         PAJE_DefineVariableType,
+         PAJE_DefineStateType,
+         PAJE_DefineEventType,
+         PAJE_DefineLinkType,
+         PAJE_DefineEntityValue,
+         PAJE_CreateContainer,
+         PAJE_DestroyContainer,
+         PAJE_SetVariable,
+         PAJE_AddVariable,
+         PAJE_SubVariable,
+         PAJE_SetState,
+         PAJE_PushState,
+         PAJE_PushStateWithMark,
+         PAJE_PopState,
+         PAJE_StartLink,
+         PAJE_StartLinkWithMessageSize,
+         PAJE_StartLinkWithMessageSizeAndMark,
+         PAJE_EndLink,
+         PAJE_NewEvent);
 }
 
 void paje_hierarchy(void)

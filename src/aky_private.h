@@ -54,10 +54,24 @@ void pajeSetState(double timestamp,
                   const char *type, const char *value);
 void pajePushState(double timestamp,
                    const char *container,
+                   const char *type, const char *value);
+void pajePushStateWithMark(double timestamp,
+                   const char *container,
                    const char *type, const char *value, const int mark);
 void pajePopState(double timestamp,
                   const char *container, const char *type);
 void pajeStartLink(double timestamp,
+                   const char *container,
+                   const char *type,
+                   const char *sourceContainer,
+                   const char *value, const char *key);
+void pajeStartLinkWithMessageSize(double timestamp,
+                   const char *container,
+                   const char *type,
+                   const char *sourceContainer,
+                   const char *value, const char *key,
+                   const int messageSize);
+void pajeStartLinkWithMessageSizeAndMark(double timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
@@ -71,6 +85,28 @@ void pajeEndLink(double timestamp,
 void paje_header(void);
 void paje_hierarchy(void);
 
+typedef enum {
+  PAJE_DefineContainerType,
+  PAJE_DefineVariableType,
+  PAJE_DefineStateType,
+  PAJE_DefineEventType,
+  PAJE_DefineLinkType,
+  PAJE_DefineEntityValue,
+  PAJE_CreateContainer,
+  PAJE_DestroyContainer,
+  PAJE_SetVariable,
+  PAJE_AddVariable,
+  PAJE_SubVariable,
+  PAJE_SetState,
+  PAJE_PushState,
+  PAJE_PushStateWithMark,
+  PAJE_PopState,
+  PAJE_StartLink,
+  PAJE_StartLinkWithMessageSize,
+  PAJE_StartLinkWithMessageSizeAndMark,
+  PAJE_EndLink,
+  PAJE_NewEvent,
+} e_event_type;
 
 typedef struct paje_event {
   const char *name;

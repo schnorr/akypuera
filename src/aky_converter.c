@@ -144,21 +144,26 @@ int main(int argc, char **argv)
     switch (event.type) {
     case AKY_PTP_SEND:
       if (!arguments.no_links){
-        /* try to find message size, otherwise set it to 0 */
-        int messageSize = 0;
-        if (event.ct.n_uint32 == 2){
-          messageSize = event.v_uint32[1];
-        }
-        /* try to find the message mark, otherwise set it to -1 */
-        int mark = -1;
-        if (event.ct.n_uint64 == 1){
-          mark = event.v_uint64[0];
-        }
         char key[AKY_DEFAULT_STR_SIZE];
-        aky_put_key("n", event.id1, event.v_uint32[0], key,
+        int messageSize = -1;
+        int mark = -1;
+        if (event.ct.n_uint32 == 2){
+          /* has message size */
+          messageSize = event.v_uint32[1];
+          if (event.ct.n_uint64 == 1){
+            /* has message mark */
+            mark = event.v_uint64[0];
+          }
+        }
+        aky_put_key("n", event.id1, event.v_uint32[0], key, 
                     AKY_DEFAULT_STR_SIZE);
-        pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key,
-                      messageSize, mark);
+        if (messageSize != -1 && mark != -1){
+          pajeStartLinkWithMessageSizeAndMark(timestamp, "0", "LINK",
+                                              mpi_process, "PTP", key,
+                                              messageSize, mark);
+        }else{
+          pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
+        }
       }
       break;
     case AKY_PTP_RECV:
@@ -315,14 +320,15 @@ int main(int argc, char **argv)
     case MPI_CART_SUB_IN:
     case MPI_FINALIZE_IN:
       if (!arguments.no_states){
-        /* try to find the message mark, otherwise set it to -1 */
-        int mark = -1;
-        if (event.ct.n_uint64 == 1){
-          mark = event.v_uint64[0];
-        }
         char value[100];
         snprintf(value, 100, "%s", name_get(event.type));
-        pajePushState(timestamp, mpi_process, "STATE", value, mark);
+        if (event.ct.n_uint64 == 1){
+          /* has message mark */
+          int mark = event.v_uint64[0];
+          pajePushStateWithMark(timestamp, mpi_process, "STATE", value, mark);
+        }else{
+          pajePushState(timestamp, mpi_process, "STATE", value);
+        }
       }
       break;
     case MPI_COMM_SPAWN_OUT:
