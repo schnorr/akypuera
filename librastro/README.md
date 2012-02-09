@@ -1,15 +1,16 @@
 librastro README file
 =====================
 
-1. Application Instrumentation
+Application Instrumentation
+---------------------------
 
 The application to be traced must be instrumented with functions that
-start with **rst_event_**. All events are timestamped according to the
+start with `rst_event_`. All events are timestamped according to the
 local timestamp of the machine in the moment the tracing function is
 executed.  New functions can be created arbitrary by a
 `rastro_generate` (see below for additional information, or
 `rastro_generate --help`), so the user is not limited by existing
-functions. A **rst_event_** function is on the following form:
+functions. A `rst_event_` function is on the following form:
 
 rst_event_X where a X can be one or a combination of:
 
@@ -28,7 +29,8 @@ users can provide as many parameters as desired. Examples:
       rst_event_iicilf(...)
       rst_event_siicicffll(...)
 
-2. Instrumentation Functions Generation
+Instrumentation Functions Generation
+------------------------------------
 
 **librastro** has a program to automatically implement functions
 defined by the user and that are not present in the library. The user
@@ -51,7 +53,8 @@ the corresponding file:
 
      $ rastro_generate -h code.h -c code.c -i used_functions.txt
 
-3. Compiling generated functions and librastro linking
+Compiling generated functions and librastro linking
+---------------------------------------------------
 
 The user has to add to the compilation chain the files created by
 `rastro_generate`. Then, link the final binary to the librastro library
