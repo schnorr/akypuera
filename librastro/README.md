@@ -1,5 +1,9 @@
-librastro README file
-=====================
+librastro
+=========
+
+__librastro__ is a generic tracing library to register the behavior of
+parallel or distributed applications, providing a low memory footprint
+and low intrusion.
 
 Application Instrumentation
 ---------------------------
