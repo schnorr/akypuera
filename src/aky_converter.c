@@ -140,7 +140,7 @@ int main(int argc, char **argv)
   while (rst_decode_event(&data, &event) && !fail) {
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%ld", event.id1);
-    double timestamp = (double) event.timestamp / 1000000;
+    long timestamp = event.timestamp;
     switch (event.type) {
     case AKY_PTP_SEND:
       if (!arguments.no_links){

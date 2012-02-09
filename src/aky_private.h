@@ -43,41 +43,41 @@ void pajeDefineLinkType(const char *alias,
                         const char *containerType,
                         const char *sourceContainerType,
                         const char *destContainerType, const char *name);
-void pajeCreateContainer(double timestamp,
+void pajeCreateContainer(long timestamp,
                          const char *alias,
                          const char *type,
                          const char *container, const char *name);
-void pajeDestroyContainer(double timestamp,
+void pajeDestroyContainer(long timestamp,
                           const char *type, const char *container);
-void pajeSetState(double timestamp,
+void pajeSetState(long timestamp,
                   const char *container,
                   const char *type, const char *value);
-void pajePushState(double timestamp,
+void pajePushState(long timestamp,
                    const char *container,
                    const char *type, const char *value);
-void pajePushStateWithMark(double timestamp,
+void pajePushStateWithMark(long timestamp,
                    const char *container,
                    const char *type, const char *value, const int mark);
-void pajePopState(double timestamp,
+void pajePopState(long timestamp,
                   const char *container, const char *type);
-void pajeStartLink(double timestamp,
+void pajeStartLink(long timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
                    const char *value, const char *key);
-void pajeStartLinkWithMessageSize(double timestamp,
+void pajeStartLinkWithMessageSize(long timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
                    const char *value, const char *key,
                    const int messageSize);
-void pajeStartLinkWithMessageSizeAndMark(double timestamp,
+void pajeStartLinkWithMessageSizeAndMark(long timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
                    const char *value, const char *key,
                    const int messageSize, const int mark);
-void pajeEndLink(double timestamp,
+void pajeEndLink(long timestamp,
                  const char *container,
                  const char *type,
                  const char *endContainer,
