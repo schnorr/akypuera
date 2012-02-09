@@ -81,9 +81,11 @@ To merge and convert them to paje, execute tau_merge and tau2paje this way:
 otf2paje
 --------
 
-otf2paje converts OTF2 archives (created by Score-P) to the paje's
+otf2paje converts OTF2 archives (created by
+[Score-P](http://www.vi-hps.org/projects/score-p)) to the paje's
 generic file format. To try it, suppose you have an MPI application
-implemented in ring.c. You compile it using scorep and mpicc, like this:
+implemented in ring.c. You compile it using scorep and mpicc, like
+this:
 
      $ scorep mpicc ring.c -o ring
 
@@ -98,4 +100,5 @@ otf2paje like this:
 
      $ otf2paje /tmp/scorep-20111212_1555_57197991368223/traces.otf2
 
-The tool is just born, only states are converted.
+The `otf2paje` tool is just born, only states are converted. Contact
+us if you need more than that.
