@@ -23,7 +23,11 @@
 #include "rastro_config.h"
 
 //the timestamp function used by librastro
+#ifdef HAVE_CLOCKGETTIME
+extern int (*rastro_gettimeofday) (clockid_t clk_id, struct timespec *tp);
+#elif HAVE_GETTIMEOFDAY
 extern int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz);
+#endif
 
 #define RST_MAX_EVENT_SIZE 1000
 

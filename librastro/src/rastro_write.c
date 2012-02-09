@@ -29,7 +29,11 @@ static char rst_dirname[FILENAME_MAX];
 static void rst_event_lls_ptr(rst_buffer_t * ptr, u_int16_t type,
                               u_int64_t l0, u_int64_t l1, char *s0);
 
+#ifdef HAVE_CLOCKGETTIME
+int (*rastro_gettimeofday) (clockid_t clk_id, struct timespec *tp) = NULL;
+#elif HAVE_GETTIMEOFDAY
 int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz) = NULL;
+#endif
 
 void rst_destroy_buffer(void *p)
 {
@@ -105,10 +109,18 @@ void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv)
 // Inicializa a biblioteca em uma thread
 void rst_init(u_int64_t id1, u_int64_t id2)
 {
+#ifdef HAVE_CLOCKGETTIME
+  rst_init_timestamp (id1, id2, &clock_gettime);
+#elif HAVE_GETTIMEOFDAY
   rst_init_timestamp (id1, id2, &gettimeofday);
+#endif
 }
 
+#ifdef HAVE_CLOCKGETTIME
+void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (clockid_t clk_id, struct timespec *tp))
+#elif HAVE_GETTIMEOFDAY
 void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz))
+#endif
 {
   rst_buffer_t *ptr;
   ptr = (rst_buffer_t *) malloc(sizeof(rst_buffer_t));
@@ -120,10 +132,24 @@ void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct t
 // Inicializacao com buffer pre-alocado
 void rst_init_ptr(rst_buffer_t *ptr, u_int64_t id1, u_int64_t id2)
 {
+#ifdef HAVE_CLOCKGETTIME
+  rst_init_ptr_timestamp(ptr, id1, id2, &clock_gettime);
+#elif HAVE_GETTIMEOFDAY
   rst_init_ptr_timestamp(ptr, id1, id2, &gettimeofday);
+#endif
 }
 
-void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz))
+#ifdef HAVE_CLOCKGETTIME
+void rst_init_ptr_timestamp(rst_buffer_t * ptr,
+                            u_int64_t id1,
+                            u_int64_t id2,
+                            int (*timestamp) (clockid_t clk_id, struct timespec *tp))
+#elif HAVE_GETTIMEOFDAY
+void rst_init_ptr_timestamp(rst_buffer_t * ptr,
+                            u_int64_t id1,
+                            u_int64_t id2,
+                            int (*timestamp) (struct timeval *tv, struct timezone *tz))
+#endif
 {
   int fd;
   char fname[30];
@@ -200,20 +226,32 @@ void rst_finalize_ptr(rst_buffer_t * ptr)
 // starts an event
 void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
 {
-    struct timeval tp;
     u_int32_t deltasec;
+    u_int32_t sec;
 
+#ifdef HAVE_CLOCKGETTIME
+    struct timespec tp;
+    clock_gettime (CLOCK_REALTIME, &tp);
+    sec = tp.tv_sec;
+#elif HAVE_GETTIMEOFDAY
+    struct timeval tp;
     rastro_gettimeofday(&tp, NULL);
-    deltasec = tp.tv_sec - RST_T0(ptr);
+    sec = tp.tv_sec;
+#endif
+    deltasec = sec - RST_T0(ptr);
     if (deltasec > 3600) {
-        RST_SET_T0(ptr, tp.tv_sec);
+        RST_SET_T0(ptr, sec);
         deltasec = 0;
         RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
-        RST_PUT(ptr, u_int32_t, tp.tv_sec);
+        RST_PUT(ptr, u_int32_t, sec);
     } else {
         RST_PUT(ptr, u_int32_t, header);
     }
+#ifdef HAVE_CLOCKGETTIME
+    RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_nsec);
+#elif HAVE_GETTIMEOFDAY
     RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_usec);
+#endif
 }
 
 // finishes an event

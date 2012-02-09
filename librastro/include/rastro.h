@@ -37,7 +37,11 @@
 #include <dirent.h>
 #include <rastro_config.h>
 
+#ifdef HAVE_CLOCKGETTIME
+#define RST_CLOCK_RESOLUTION 1000000000
+#elif HAVE_GETTIMEOFDAY
 #define RST_CLOCK_RESOLUTION 1000000
+#endif
 #define RST_EVENT_TYPE_MASK 0x3fff      /* 14 bits */
 #define RST_EVENT_INIT (-1 & RST_EVENT_TYPE_MASK)
 #define RST_EVENT_STOP (-2 & RST_EVENT_TYPE_MASK)
@@ -148,9 +152,23 @@ typedef struct {
 */
 void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv);
 void rst_init(u_int64_t id1, u_int64_t id2);
+#ifdef HAVE_CLOCKGETTIME
+void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (clockid_t clk_id, struct timespec *tp));
+#elif HAVE_GETTIMEOFDAY
 void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz));
+#endif
 void rst_init_ptr(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2);
-void rst_init_ptr_timestamp(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz));
+#ifdef HAVE_CLOCKGETTIME
+void rst_init_ptr_timestamp(rst_buffer_t * ptr,
+                            u_int64_t id1,
+                            u_int64_t id2,
+                            int (*timestamp) (clockid_t clk_id, struct timespec *tp));
+#elif HAVE_GETTIMEOFDAY
+void rst_init_ptr_timestamp(rst_buffer_t * ptr,
+                            u_int64_t id1,
+                            u_int64_t id2,
+                            int (*timestamp) (struct timeval *tv, struct timezone *tz));
+#endif
 void rst_finalize(void);
 void rst_finalize_ptr(rst_buffer_t * ptr);
 void rst_flush_all(void);

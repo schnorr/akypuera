@@ -19,6 +19,16 @@
 */
 #include "saida.h"
 
+#ifdef HAVE_CLOCKGETTIME
+static int my_gettimeofday(clockid_t clk_id, struct timespec *tv)
+{
+  if (tv) {
+    tv->tv_sec = 1;
+    tv->tv_nsec = 0;
+  }
+  return 0;
+}
+#elif HAVE_GETTIMEOFDAY
 static int my_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
   if (tv) {
@@ -27,6 +37,7 @@ static int my_gettimeofday(struct timeval *tv, struct timezone *tz)
   }
   return 0;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
