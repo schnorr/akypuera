@@ -2,8 +2,12 @@ librastro
 =========
 
 __librastro__ is a generic tracing library to register the behavior of
-parallel or distributed applications, providing a low memory footprint
-and low intrusion.
+any computer program. It is especially tailored for parallel or
+distributed applications, providing a low memory footprint and low
+intrusion. The library is flexible, enabling the definition of events
+with application-dependent information, and offers a clock
+synchronization tool based on a linear regression to synchronize
+timestamps registered on different computers.
 
 Application Instrumentation
 ---------------------------
