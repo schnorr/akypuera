@@ -343,5 +343,6 @@ int main(int argc, char *argv[])
     free (arguments.master_host);
     free (arguments.remote_login);
   }
+   return 0;
 }
 
