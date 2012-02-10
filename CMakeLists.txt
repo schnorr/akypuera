@@ -22,6 +22,11 @@ OPTION(DEBUG
   "Debug akypuera"
   OFF)
 
+EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --oneline -1"
+  OUTPUT_VARIABLE "GITVERSION")
+EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log -n 1 --format=%ai"
+  OUTPUT_VARIABLE "GITDATE")
+
 SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith -Wchar-subscripts -Wcomment -Wformat -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -Wno-strict-aliasing -Wno-format-nonliteral -Werror ")
 
 # aky_config.h.in file

@@ -2,5 +2,7 @@
 #define _AKY_CONFIG_H
 
 #cmakedefine SMPI @SMPI@
+#cmakedefine GITVERSION "@GITVERSION@"
+#cmakedefine GITDATE "@GITDATE@"
 
 #endif

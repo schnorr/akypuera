@@ -135,6 +135,11 @@ int main(int argc, char **argv)
   }
 
   name_init();
+
+  /* output build version and date for aky in the trace */
+  printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
+  printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
+
   paje_header();
   paje_hierarchy();
 
