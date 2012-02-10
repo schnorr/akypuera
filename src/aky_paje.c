@@ -49,13 +49,27 @@ void pajeDefineLinkType(const char *alias,
          name);
 }
 
+static void pajeCreateContainer_internal (double timestamp,
+                                     const char *alias,
+                                     const char *type,
+                                     const char *container, const char *name)
+{
+  printf("%d %g %s %s %s %s\n", PAJE_CreateContainer,
+         timestamp, alias, type, container, name);
+}
+
 void pajeCreateContainer(long timestamp,
                          const char *alias,
                          const char *type,
                          const char *container, const char *name)
 {
-  printf("%d %g %s %s %s %s\n", PAJE_CreateContainer,
-         paje_event_timestamp(timestamp), alias, type, container, name);
+  static int root_container = 1;
+  if (root_container){
+    pajeCreateContainer_internal (0.0, "root", "ROOT", "0", "root");
+    root_container = 0;
+  }
+  pajeCreateContainer_internal (paje_event_timestamp(timestamp),
+                                alias, type, container, name);
 }
 
 void pajeDestroyContainer(long timestamp,
@@ -303,7 +317,8 @@ void paje_header(void)
 
 void paje_hierarchy(void)
 {
-  pajeDefineContainerType("PROCESS", "0", "PROCESS");
+  pajeDefineContainerType ("ROOT", "0", "ROOT");
+  pajeDefineContainerType("PROCESS", "ROOT", "PROCESS");
   pajeDefineStateType("STATE", "PROCESS", "STATE");
-  pajeDefineLinkType("LINK", "0", "PROCESS", "PROCESS", "LINK");
+  pajeDefineLinkType("LINK", "ROOT", "PROCESS", "PROCESS", "LINK");
 }

@@ -159,11 +159,11 @@ int main(int argc, char **argv)
         aky_put_key("n", event.id1, event.v_uint32[0], key, 
                     AKY_DEFAULT_STR_SIZE);
         if (messageSize != -1 && mark != -1){
-          pajeStartLinkWithMessageSizeAndMark(timestamp, "0", "LINK",
+          pajeStartLinkWithMessageSizeAndMark(timestamp, "root", "LINK",
                                               mpi_process, "PTP", key,
                                               messageSize, mark);
         }else{
-          pajeStartLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
+          pajeStartLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
         }
       }
       break;
@@ -183,12 +183,12 @@ int main(int argc, char **argv)
             fail = 1;
           }
         }
-        pajeEndLink(timestamp, "0", "LINK", mpi_process, "PTP", key);
+        pajeEndLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
       }
       break;
     case MPI_INIT:
       pajeCreateContainer(timestamp, mpi_process,
-                          "PROCESS", "0", mpi_process);
+                          "PROCESS", "root", mpi_process);
       break;
     case MPI_COMM_SPAWN_IN:
     case MPI_COMM_GET_NAME_IN:
