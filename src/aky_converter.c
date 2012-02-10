@@ -90,6 +90,7 @@ int main(int argc, char **argv)
   }
 
   rst_file_t data;
+  bzero (&data, sizeof(rst_file_t));
   rst_event_t event;
   int i;
   int fail = 0;
