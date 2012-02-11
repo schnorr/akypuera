@@ -229,14 +229,17 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     u_int32_t deltasec;
     u_int32_t sec;
 
+    long long precision;
 #ifdef HAVE_CLOCKGETTIME
     struct timespec tp;
     clock_gettime (CLOCK_REALTIME, &tp);
     sec = tp.tv_sec;
+    precision = tp.tv_nsec;
 #elif HAVE_GETTIMEOFDAY
     struct timeval tp;
     rastro_gettimeofday(&tp, NULL);
     sec = tp.tv_sec;
+    precision = tp.tv_usec;
 #endif
     deltasec = sec - RST_T0(ptr);
     if (deltasec > 3600) {
@@ -247,11 +250,8 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     } else {
         RST_PUT(ptr, u_int32_t, header);
     }
-#ifdef HAVE_CLOCKGETTIME
-    RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_nsec);
-#elif HAVE_GETTIMEOFDAY
-    RST_PUT(ptr, u_int32_t, deltasec * RST_CLOCK_RESOLUTION + tp.tv_usec);
-#endif
+    long long resolution = RST_CLOCK_RESOLUTION;
+    RST_PUT(ptr, u_int64_t, deltasec * resolution + precision);
 }
 
 // finishes an event
