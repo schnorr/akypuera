@@ -433,8 +433,10 @@ int rst_decode_event(rst_file_t * f_data, rst_event_t * event)
 void rst_print_event(rst_event_t * event)
 {
   int i;
-  fprintf(stderr, "type: %d ts: %lld  (id1=%lu,id2=%lu)\n", event->type,
-          event->timestamp, event->id1, event->id2);
+  fprintf(stderr, "type: %d ts: %lld (%.9f secs) (id1=%lu,id2=%lu)\n",
+          event->type, event->timestamp,
+          (double)event->timestamp/(double)RST_CLOCK_RESOLUTION,
+          event->id1, event->id2);
   if (event->ct.n_uint64 > 0) {
     fprintf(stderr, "\tu_int64_ts-> ");
     for (i = 0; i < event->ct.n_uint64; i++) {
