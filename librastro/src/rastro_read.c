@@ -260,6 +260,7 @@ static int rst_open_one_file(char *f_name, rst_one_file_t * of_data,
   of_data->hostname = strdup(of_data->event.v_string[0]);
   of_data->event.id1 = of_data->id1;
   of_data->event.id2 = of_data->id2;
+  of_data->filename = strdup (f_name);
   find_timesync_data(syncfilename, of_data);
 
   /* Synchronize the first event */
@@ -276,6 +277,7 @@ static void rst_close_one_file(rst_one_file_t * of_data)
   free(of_data->rst_buffer);
   of_data->rst_buffer = NULL;
   free(of_data->hostname);
+  free(of_data->filename);
   of_data->hostname = NULL;
 }
 

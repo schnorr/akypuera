@@ -131,6 +131,7 @@ typedef struct rst_one_file {
   u_int64_t id2;
   timestamp_t hora_global;
   rst_event_t event;
+  char *filename; //this filename
 } rst_one_file_t;
 
 typedef struct {
