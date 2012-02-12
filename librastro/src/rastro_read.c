@@ -433,11 +433,16 @@ int rst_decode_event(rst_file_t * f_data, rst_event_t * event)
 
 void rst_print_event(rst_event_t * event)
 {
+  static timestamp_t first_timestamp = -1;
+  if (first_timestamp == -1){
+    first_timestamp = event->timestamp;
+  }
+  timestamp_t dif = event->timestamp - first_timestamp;
+  double ts = (double)dif/(double)RST_CLOCK_RESOLUTION;
+
   int i;
-  printf("type: %d ts: %lld (%.9f secs) (id1=%lu,id2=%lu)\n",
-          event->type, event->timestamp,
-          (double)event->timestamp/(double)RST_CLOCK_RESOLUTION,
-          event->id1, event->id2);
+  printf("type: %d ts: %.9f (id1=%lu,id2=%lu)\n",
+         event->type, ts, event->id1, event->id2);
   if (event->ct.n_uint64 > 0) {
     printf("\tu_int64_ts-> ");
     for (i = 0; i < event->ct.n_uint64; i++) {
