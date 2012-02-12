@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
         int i;
         for (i = 0; i < 10; i++){
           rst_event (1);
-          sleep(1);
         }
 	rst_finalize();
 	return 0;
