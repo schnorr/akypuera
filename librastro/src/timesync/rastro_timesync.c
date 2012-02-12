@@ -44,12 +44,12 @@ struct arguments {
 
 static long long timerabs(struct timeval a)
 {
-  return (long long)a.tv_sec * 1000000 + a.tv_usec;
+  return (long long)a.tv_sec * RST_CLOCK_RESOLUTION + a.tv_usec;
 }
 
 static long timerdiff(struct timeval a, struct timeval b)
 {
-  return (a.tv_sec - b.tv_sec) * 1000000 + (a.tv_usec - b.tv_usec);
+  return (a.tv_sec - b.tv_sec) * RST_CLOCK_RESOLUTION + (a.tv_usec - b.tv_usec);
 }
 
 static void receive_data(int socket, char *buffer, int size)
