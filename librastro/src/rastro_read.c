@@ -42,8 +42,8 @@ static char *trd_event(timestamp_t * hora_global, rst_event_t * evento,
   evento->ct.n_float = evento->ct.n_string = evento->ct.n_uint8 = 0;
 
   if (header & RST_TIME_SET) {
-    long long resolution = RST_CLOCK_RESOLUTION;
-    long long seconds = (long long) RST_GET(ptr, u_int32_t);
+    timestamp_t resolution = RST_CLOCK_RESOLUTION;
+    timestamp_t seconds = (timestamp_t) RST_GET(ptr, u_int32_t);
     *hora_global = seconds * resolution;
   }
   evento->timestamp = (timestamp_t)RST_GET(ptr, u_int64_t);
