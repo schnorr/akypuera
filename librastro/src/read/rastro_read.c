@@ -20,7 +20,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
 {
   struct arguments *arguments = state->input;
   switch (key){
-  case 'z': arguments->synchronization_file = arg; break;
+  case 's': arguments->synchronization_file = arg; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == RST_MAX_INPUT_SIZE) {
       /* Too many arguments. */
