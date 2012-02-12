@@ -110,6 +110,7 @@ typedef struct {
   u_int64_t id1;
   u_int64_t id2;
   timestamp_t timestamp;
+  struct rst_one_file *file; // rst file from which this event was read from
 } rst_event_t;
 
 typedef struct {
@@ -118,7 +119,7 @@ typedef struct {
   timestamp_t ref0;
 } ct_t;
 
-typedef struct {
+typedef struct rst_one_file {
   int fd;
   ct_t sync_time;
   char *rst_buffer_ptr;

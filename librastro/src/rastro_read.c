@@ -212,6 +212,7 @@ static int rst_decode_one_event(rst_one_file_t * of_data,
   if (event->type == RST_EVENT_STOP) {
     return RST_NOK;
   }
+  event->file = of_data;
   return RST_OK;
 }
 
