@@ -37,6 +37,8 @@
 #include <dirent.h>
 #include <rastro_config.h>
 
+#define RST_MAX_INPUT_SIZE 1000
+
 #ifdef HAVE_CLOCKGETTIME
 #define RST_CLOCK_RESOLUTION 1000000000
 #elif HAVE_GETTIMEOFDAY

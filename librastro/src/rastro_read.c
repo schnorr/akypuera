@@ -433,57 +433,57 @@ int rst_decode_event(rst_file_t * f_data, rst_event_t * event)
 void rst_print_event(rst_event_t * event)
 {
   int i;
-  fprintf(stderr, "type: %d ts: %lld (%.9f secs) (id1=%lu,id2=%lu)\n",
+  printf("type: %d ts: %lld (%.9f secs) (id1=%lu,id2=%lu)\n",
           event->type, event->timestamp,
           (double)event->timestamp/(double)RST_CLOCK_RESOLUTION,
           event->id1, event->id2);
   if (event->ct.n_uint64 > 0) {
-    fprintf(stderr, "\tu_int64_ts-> ");
+    printf("\tu_int64_ts-> ");
     for (i = 0; i < event->ct.n_uint64; i++) {
-      fprintf(stderr, "(%" PRIu64 ") ", event->v_uint64[i]);
+      printf("(%" PRIu64 ") ", event->v_uint64[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
   if (event->ct.n_string > 0) {
-    fprintf(stderr, "\tstrings-> ");
+    printf("\tstrings-> ");
     for (i = 0; i < event->ct.n_string; i++) {
-      fprintf(stderr, "(%s) ", event->v_string[i]);
+      printf("(%s) ", event->v_string[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
   if (event->ct.n_float > 0) {
-    fprintf(stderr, "\tfloats-> ");
+    printf("\tfloats-> ");
     for (i = 0; i < event->ct.n_float; i++) {
-      fprintf(stderr, "(%f) ", event->v_float[i]);
+      printf("(%f) ", event->v_float[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
   if (event->ct.n_uint32 > 0) {
-    fprintf(stderr, "\tu_int32_ts-> ");
+    printf("\tu_int32_ts-> ");
     for (i = 0; i < event->ct.n_uint32; i++) {
-      fprintf(stderr, "(%d) ", event->v_uint32[i]);
+      printf("(%d) ", event->v_uint32[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
   if (event->ct.n_uint16 > 0) {
-    fprintf(stderr, "\tu_int16_ts-> ");
+    printf("\tu_int16_ts-> ");
     for (i = 0; i < event->ct.n_uint16; i++) {
-      fprintf(stderr, "(%d) ", event->v_uint16[i]);
+      printf("(%d) ", event->v_uint16[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
   if (event->ct.n_uint8 > 0) {
-    fprintf(stderr, "\tu_int8_ts-> ");
+    printf("\tu_int8_ts-> ");
     for (i = 0; i < event->ct.n_uint8; i++) {
-      fprintf(stderr, "(%c) ", event->v_uint8[i]);
+      printf("(%c) ", event->v_uint8[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
   if (event->ct.n_double > 0) {
-    fprintf(stderr, "\tdoubles-> ");
+    printf("\tdoubles-> ");
     for (i = 0; i < event->ct.n_double; i++) {
-      fprintf(stderr, "(%f) ", event->v_double[i]);
+      printf("(%f) ", event->v_double[i]);
     }
-    fprintf(stderr, "\n");
+    printf("\n");
   }
 }
