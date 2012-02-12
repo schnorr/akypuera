@@ -79,7 +79,7 @@
 #define FDATAINITIALIZED -239847237
 
 typedef u_int16_t type_t;
-typedef long long timestamp_t;
+typedef unsigned long long timestamp_t;
 
 typedef struct {
   int n_uint8;
