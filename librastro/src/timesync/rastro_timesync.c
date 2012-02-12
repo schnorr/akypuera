@@ -28,11 +28,11 @@
 #include <sys/time.h>
 #include <sys/param.h>  /* for MAXHOSTNAMELEN */
 #include <argp.h>
+#include "rastro_private.h"
 
 /* configuration structure */
-#define RASTRO_INPUT_SIZE 300
 struct arguments {
-  char *slaves[RASTRO_INPUT_SIZE];
+  char *slaves[RST_MAX_INPUT_SIZE];
   int number_of_slaves;
   int slave_mode;
   char *master_port;
@@ -284,7 +284,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'r': arguments->remote_login = strdup(arg); break;
   case 'z': arguments->sample_size = atoi(arg); break;
   case ARGP_KEY_ARG:
-    if (arguments->number_of_slaves == RASTRO_INPUT_SIZE) {
+    if (arguments->number_of_slaves == RST_MAX_INPUT_SIZE) {
       /* Too many arguments. */
       argp_usage (state);
     }
