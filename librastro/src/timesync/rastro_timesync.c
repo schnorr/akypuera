@@ -42,14 +42,6 @@ struct arguments {
   char *program_name;
 };
 
-/* return current time */
-static long long getCurrentTime(void)
-{
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  return (long long) tv.tv_sec * 1000000 +  (long long) tv.tv_usec;
-}
-
 static long long timerabs(struct timeval a)
 {
   return (long long)a.tv_sec * 1000000 + a.tv_usec;
