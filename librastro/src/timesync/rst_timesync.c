@@ -256,8 +256,8 @@ static void exec_slave(struct arguments *arg, char *remote_host, int master_port
 /* the master function, run on local host */
 static void master (struct arguments *arg, char *remote_host)
 {
-  long long local_time;
-  long long remote_time;
+  timestamp_t local_time;
+  timestamp_t remote_time;
   int port;
   int com_socket;
   int new_socket;
