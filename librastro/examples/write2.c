@@ -19,29 +19,20 @@
 */
 #include "saida.h"
 
-#ifdef HAVE_CLOCKGETTIME
-static int my_gettimeofday(clockid_t clk_id, struct timespec *tv)
+static timestamp_t my_timestamping (void)
 {
-  if (tv) {
-    tv->tv_sec = 1;
-    tv->tv_nsec = 0;
-  }
+  static timestamp_t counter = 0;
+  return counter++;
+}
+
+static timestamp_t my_timeresolution (void)
+{
   return 0;
 }
-#elif HAVE_GETTIMEOFDAY
-static int my_gettimeofday(struct timeval *tv, struct timezone *tz)
-{
-  if (tv) {
-    tv->tv_sec = 1;
-    tv->tv_usec = 0;
-  }
-  return 0;
-}
-#endif
 
 int main(int argc, char *argv[])
 {
-  rst_init_timestamp(10, 20, &my_gettimeofday);
+  rst_init_timestamp(10, 20, &my_timestamping, &my_timeresolution);
   rst_event(1);
   rst_event_lws(2, 1, 2, (u_int8_t*)"string_3");
   rst_event_wlsfcd(3, 1, 2, (u_int8_t*)"string_3", 4, '5', 6);
