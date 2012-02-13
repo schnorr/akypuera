@@ -203,7 +203,7 @@ static int rst_decode_one_event(rst_one_file_t * of_data,
   }
 
   of_data->rst_buffer_ptr =
-      trd_event(&of_data->hora_global, event, of_data->rst_buffer_ptr);
+      trd_event(&of_data->last_hour, event, of_data->rst_buffer_ptr);
 
   event->timestamp =
       rst_correct_time(event->timestamp, &of_data->sync_time);

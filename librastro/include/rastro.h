@@ -51,25 +51,25 @@
 /*
   Basic keywords for event generation
 */
-#define LETRA_UINT8 c
-#define LETRA_UINT16 w
-#define LETRA_UINT32 i
-#define LETRA_UINT64 l
-#define LETRA_FLOAT f
-#define LETRA_DOUBLE d
-#define LETRA_STRING s
+#define LETTER_UINT8 c
+#define LETTER_UINT16 w
+#define LETTER_UINT32 i
+#define LETTER_UINT64 l
+#define LETTER_FLOAT f
+#define LETTER_DOUBLE d
+#define LETTER_STRING s
 
-#define LETRA_UINT8_ASPA 'c'
-#define LETRA_UINT16_ASPA 'w'
-#define LETRA_UINT32_ASPA 'i'
-#define LETRA_UINT64_ASPA 'l'
-#define LETRA_FLOAT_ASPA 'f'
-#define LETRA_DOUBLE_ASPA 'd'
-#define LETRA_STRING_ASPA 's'
+#define LETTER_UINT8_QUOTE 'c'
+#define LETTER_UINT16_QUOTE 'w'
+#define LETTER_UINT32_QUOTE 'i'
+#define LETTER_UINT64_QUOTE 'l'
+#define LETTER_FLOAT_QUOTE 'f'
+#define LETTER_DOUBLE_QUOTE 'd'
+#define LETTER_STRING_QUOTE 's'
 
 /*
   CAT concatenates the function
-      rst_event_+LETRA_UINT64+LETRA_UINT64+LETRA_STRING+_ptr
+      rst_event_+LETTER_UINT64+LETTER_UINT64+LETTER_STRING+_ptr
 */
 #define CAT(x,y,z,w) x##y##y##z##w
 #define XCAT(x,y,z,w) CAT(x,y,z,w)
@@ -129,7 +129,7 @@ typedef struct rst_one_file {
   char *hostname;
   u_int64_t id1;
   u_int64_t id2;
-  timestamp_t hora_global;
+  timestamp_t last_hour;
   rst_event_t event;
   char *filename; //this filename
 } rst_one_file_t;

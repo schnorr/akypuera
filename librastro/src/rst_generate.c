@@ -60,13 +60,13 @@ static const char *fortran_casts[] = {
 static int rst_generate_validate_types (char *types)
 {
   size_t accept = strspn (types,
-                          XSTR(LETRA_DOUBLE)
-                          XSTR(LETRA_UINT64)
-                          XSTR(LETRA_FLOAT)
-                          XSTR(LETRA_UINT32)
-                          XSTR(LETRA_UINT16)
-                          XSTR(LETRA_UINT8)
-                          XSTR(LETRA_STRING));
+                          XSTR(LETTER_DOUBLE)
+                          XSTR(LETTER_UINT64)
+                          XSTR(LETTER_FLOAT)
+                          XSTR(LETTER_UINT32)
+                          XSTR(LETTER_UINT16)
+                          XSTR(LETTER_UINT8)
+                          XSTR(LETTER_STRING));
   size_t len = strlen (types);
   return accept == len;
 }
@@ -90,13 +90,13 @@ static int rst_add_type (char c, const char **types, char *output, int len)
 {
   int res = 0;
   switch (c){
-  case LETRA_UINT8_ASPA:  res = snprintf (output, len, "%s", types[RST_UINT8_ID]); break;
-  case LETRA_UINT16_ASPA: res = snprintf (output, len, "%s", types[RST_UINT16_ID]); break;
-  case LETRA_UINT32_ASPA: res = snprintf (output, len, "%s", types[RST_UINT32_ID]); break;
-  case LETRA_UINT64_ASPA: res = snprintf (output, len, "%s", types[RST_UINT64_ID]); break;
-  case LETRA_FLOAT_ASPA:  res = snprintf (output, len, "%s", types[RST_FLOAT_ID]); break;
-  case LETRA_DOUBLE_ASPA: res = snprintf (output, len, "%s", types[RST_DOUBLE_ID]); break;
-  case LETRA_STRING_ASPA: res = snprintf (output, len, "%s", types[RST_STRING_ID]); break;
+  case LETTER_UINT8_QUOTE:  res = snprintf (output, len, "%s", types[RST_UINT8_ID]); break;
+  case LETTER_UINT16_QUOTE: res = snprintf (output, len, "%s", types[RST_UINT16_ID]); break;
+  case LETTER_UINT32_QUOTE: res = snprintf (output, len, "%s", types[RST_UINT32_ID]); break;
+  case LETTER_UINT64_QUOTE: res = snprintf (output, len, "%s", types[RST_UINT64_ID]); break;
+  case LETTER_FLOAT_QUOTE:  res = snprintf (output, len, "%s", types[RST_FLOAT_ID]); break;
+  case LETTER_DOUBLE_QUOTE: res = snprintf (output, len, "%s", types[RST_DOUBLE_ID]); break;
+  case LETTER_STRING_QUOTE: res = snprintf (output, len, "%s", types[RST_STRING_ID]); break;
   }
   return res;
 }
@@ -104,13 +104,13 @@ static int rst_add_type (char c, const char **types, char *output, int len)
 static int rst_get_id (char c, counters_t *ct)
 {
   switch (c){
-  case LETRA_UINT8_ASPA:  return ct->n_uint8;
-  case LETRA_UINT16_ASPA: return ct->n_uint16;
-  case LETRA_UINT32_ASPA: return ct->n_uint32;
-  case LETRA_UINT64_ASPA: return ct->n_uint64;
-  case LETRA_FLOAT_ASPA:  return ct->n_float;
-  case LETRA_DOUBLE_ASPA: return ct->n_double;
-  case LETRA_STRING_ASPA: return ct->n_string;
+  case LETTER_UINT8_QUOTE:  return ct->n_uint8;
+  case LETTER_UINT16_QUOTE: return ct->n_uint16;
+  case LETTER_UINT32_QUOTE: return ct->n_uint32;
+  case LETTER_UINT64_QUOTE: return ct->n_uint64;
+  case LETTER_FLOAT_QUOTE:  return ct->n_float;
+  case LETTER_DOUBLE_QUOTE: return ct->n_double;
+  case LETTER_STRING_QUOTE: return ct->n_string;
   }
   return -1;
 }
@@ -118,13 +118,13 @@ static int rst_get_id (char c, counters_t *ct)
 static void rst_add_id (char c, counters_t *ct)
 {
   switch (c){
-  case LETRA_UINT8_ASPA:  ct->n_uint8++; break;
-  case LETRA_UINT16_ASPA: ct->n_uint16++; break;
-  case LETRA_UINT32_ASPA: ct->n_uint32++; break;
-  case LETRA_UINT64_ASPA: ct->n_uint64++; break;
-  case LETRA_FLOAT_ASPA:  ct->n_float++; break;
-  case LETRA_DOUBLE_ASPA: ct->n_double++; break;
-  case LETRA_STRING_ASPA: ct->n_string++; break;
+  case LETTER_UINT8_QUOTE:  ct->n_uint8++; break;
+  case LETTER_UINT16_QUOTE: ct->n_uint16++; break;
+  case LETTER_UINT32_QUOTE: ct->n_uint32++; break;
+  case LETTER_UINT64_QUOTE: ct->n_uint64++; break;
+  case LETTER_FLOAT_QUOTE:  ct->n_float++; break;
+  case LETTER_DOUBLE_QUOTE: ct->n_double++; break;
+  case LETTER_STRING_QUOTE: ct->n_string++; break;
   }
 }
 
@@ -318,19 +318,19 @@ int rst_generate_function_implementation (char *types, char *implem, int implem_
   n += rst_generate_function_start (&ct, implem+n, implem_len-n);
   /* order must be the same as in generate_function_start */
   for (i = 0; i < ct.n_double; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, double, " XSTR(LETRA_DOUBLE) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, double, " XSTR(LETTER_DOUBLE) "%d);\n", i);
   for (i = 0; i < ct.n_uint64; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int64_t, " XSTR(LETRA_UINT64) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int64_t, " XSTR(LETTER_UINT64) "%d);\n", i);
   for (i = 0; i < ct.n_float; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, float, " XSTR(LETRA_FLOAT) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, float, " XSTR(LETTER_FLOAT) "%d);\n", i);
   for (i = 0; i < ct.n_uint32; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int32_t, " XSTR(LETRA_UINT32) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int32_t, " XSTR(LETTER_UINT32) "%d);\n", i);
   for (i = 0; i < ct.n_uint16; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int16_t, " XSTR(LETRA_UINT16) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int16_t, " XSTR(LETTER_UINT16) "%d);\n", i);
   for (i = 0; i < ct.n_uint8; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int8_t, " XSTR(LETRA_UINT8) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT(ptr, u_int8_t, " XSTR(LETTER_UINT8) "%d);\n", i);
   for (i = 0; i < ct.n_string; i++)
-    n += snprintf (implem+n, implem_len-n, "  RST_PUT_STR(ptr, " XSTR(LETRA_STRING) "%d);\n", i);
+    n += snprintf (implem+n, implem_len-n, "  RST_PUT_STR(ptr, " XSTR(LETTER_STRING) "%d);\n", i);
   n += snprintf (implem+n, implem_len-n,
                  "  rst_endevent(ptr);\n"
                  "}\n");

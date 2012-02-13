@@ -192,7 +192,7 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr,
 
   gethostname(hostname, sizeof(hostname));
 
-  XCAT(rst_event_, LETRA_UINT64, LETRA_STRING, _ptr) (ptr, RST_EVENT_INIT,
+  XCAT(rst_event_, LETTER_UINT64, LETTER_STRING, _ptr) (ptr, RST_EVENT_INIT,
                                                       id1, id2, hostname);
 }
 
