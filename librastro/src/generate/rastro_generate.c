@@ -123,7 +123,11 @@ int main(int argc, char *argv[])
     fclose (file);
   }
 
-  rst_generate (arguments.input, arguments.input_size, header, implem, arguments.header_file);
+  rst_generate (arguments.input,
+                arguments.input_size,
+                header,
+                implem,
+                arguments.header_file);
 
   fclose (header);
   fclose (implem);
