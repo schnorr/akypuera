@@ -34,7 +34,7 @@ static const char *c_types[] = {
   "u_int64_t",
   "float",
   "double",
-  "char*"
+  "const char*"
 };
 
 static const char *fortran_types[] = {
@@ -44,7 +44,7 @@ static const char *fortran_types[] = {
   "int64_t*",
   "float*",
   "double*",
-  "char*"
+  "const char*"
 };
 
 static const char *fortran_casts[] = {
@@ -225,13 +225,20 @@ int rst_generate_function_header (char *types, char *header, int header_len)
   rst_generate_arg_c (types, af, len);
   rst_generate_arg_prep (types, ap, len);
 
+  /* Fortran prototypes */
+  char *arg_list_fortran;
+  arg_list_fortran = (char*)malloc(len*sizeof(char));
+  rst_generate_arg_fortran_types (types, arg_list_fortran, len);
+
   res = snprintf (header,
                   header_len,
                   "/* Rastro function prototype for '%s' */\n"
                   "void rst_event_%s_ptr(rst_buffer_t *ptr, %s);\n"
+                  "void rst_event_%s_f_ (%s);\n"
                   "#define rst_event_%s(%s) rst_event_%s_ptr(RST_PTR, %s)\n\n",
                   types,
                   types, af,
+                  types, arg_list_fortran,
                   types, ap, types, ap);
   free (af);
   free (ap);
@@ -378,6 +385,11 @@ int rst_generate_header (char *types[], int types_len, char *header, int header_
     }
     n += nt;
   }
+  n += snprintf (header+n,
+                 header_len-strlen(header),
+                 "void rst_init_f_(int64_t *id1, int64_t *id2);\n"
+                 "void rst_finalize_f_ (void);\n\n");
+
   n += snprintf (header+n,
                  header_len-strlen(header),
                  "#endif //__AUTO_RASTRO_FILE_H__\n");
