@@ -25,7 +25,7 @@
 #define _RASTRO_saida_H_
 
 #include "rastro.h"
-#include "rastro_private.h"
+#include "rst_private.h"
 
 void rst_event_iwlsifcd_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int16_t w0, u_int64_t l0, u_int8_t *s0, u_int32_t i1, float f0, u_int8_t c0, double d0);
 #define rst_event_iwlsifcd(type, i0, w0, l0, s0, i1, f0, c0, d0) rst_event_iwlsifcd_ptr(RST_PTR, type, i0, w0, l0, s0, i1, f0, c0, d0)

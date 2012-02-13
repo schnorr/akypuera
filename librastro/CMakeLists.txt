@@ -22,8 +22,8 @@ CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/include/rastro_config.h.in"
                "${CMAKE_BINARY_DIR}/include/rastro_config.h" @ONLY IMMEDIATE)
 
 SET(RASTRO_SRC
-  src/rastro_read.c 
-  src/rastro_write.c
+  src/rst_read.c 
+  src/rst_write.c
   src/rst_generate.c
 )
 
@@ -33,16 +33,15 @@ SET(RASTRO_HEADERS
 )
 
 SET(RASTRO_GENERATE_SRC
-  src/generate/rastro_generate.c
+  src/generate/rst_generate.c
 )
 
 SET(RASTRO_READ_SRC
-  src/read/rastro_read.c
+  src/read/rst_read.c
 )
 
 SET(RASTRO_TIMESYNC_SRC
-  src/timesync/rastro_timesync.c
-  src/timesync/rastro_timesync_f.c
+  src/timesync/rst_timesync.c
 )
 
 INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/include/)

@@ -28,7 +28,7 @@
 #include <sys/time.h>
 #include <sys/param.h>  /* for MAXHOSTNAMELEN */
 #include <argp.h>
-#include "rastro_private.h"
+#include "rst_private.h"
 
 /* configuration structure */
 struct arguments {
