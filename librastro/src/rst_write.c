@@ -50,59 +50,6 @@ void rst_destroy_buffer(void *p)
   }
 }
 
-void extract_arguments(int *argcp, char ***argvp)
-{
-  char **argv;
-  int argc;
-  int arg, used, unused;
-  char **p1, **p2, **plast;
-  char *cepar;
-
-  argv = *argvp;
-  argc = *argcp;
-
-  arg = used = unused = 1;
-  bzero(rst_dirname, sizeof rst_dirname);
-  while (arg < argc) {
-    if (strncmp(argv[arg], "-rst-", 5) == 0) {
-      cepar = argv[arg] + 5;
-      if (!strcmp(cepar, "dir")) {
-        strcpy(rst_dirname, argv[++arg]);
-        if (opendir(rst_dirname) == NULL) {
-          printf("Diretorio invalido\n");
-          exit(0);
-        }
-        if ((rst_dirname[strlen(rst_dirname) - 1] != '/'))
-          rst_dirname[strlen(rst_dirname)] = '/';
-      }
-      unused = ++arg;
-    } else {
-      if (unused > used) {
-        p1 = argv + used;
-        p2 = argv + unused;
-        plast = argv + argc;
-        argc -= (unused - used);
-        while (p2 < plast)
-          *p1++ = *p2++;
-        unused = used;
-      }
-      arg = ++used;
-    }
-  }
-  if (unused > used)
-    argc = used;
-  *argcp = argc;
-  argv[argc] = NULL;
-}
-
-void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv)
-{
-  if (argv != NULL)
-    extract_arguments(argc, argv);
-
-  rst_init(id1, id2);
-}
-
 void rst_init(u_int64_t id1, u_int64_t id2)
 {
 #ifdef HAVE_CLOCKGETTIME
@@ -251,26 +198,24 @@ void rst_endevent(rst_buffer_t * ptr)
     }
 }
 
+/*
+ * basic event only with a type
+ */
 void rst_event(u_int16_t type)
 {
-  rst_buffer_t *ptr = RST_PTR;
-
-/*...2 para finalizar esse rastro que so tem o tipo...*/
-  rst_startevent(ptr, type << 18 | 0x20000);
-  rst_endevent(ptr);
+  rst_event_ptr (RST_PTR, type);
 }
 
 void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type)
 {
-  if (ptr == NULL) {
-    printf("[rastro] ptr invalido\n");
-    return;
-  }
 /*...2 para finalizar esse rastro que so tem o tipo...*/
   rst_startevent(ptr, type << 18 | 0x20000);
   rst_endevent(ptr);
 }
 
+/*
+ * lls event to be used by rastro itself (for the first event)
+ */ 
 static void rst_event_lls_ptr(rst_buffer_t * ptr, u_int16_t type,
                               u_int64_t l0, u_int64_t l1, char *s0)
 {

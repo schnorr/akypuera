@@ -154,7 +154,6 @@ typedef struct {
 /*
   Writing Interface
 */
-void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv);
 void rst_init(u_int64_t id1, u_int64_t id2);
 #ifdef HAVE_CLOCKGETTIME
 void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (clockid_t clk_id, struct timespec *tp));
