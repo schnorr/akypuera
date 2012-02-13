@@ -174,7 +174,6 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr,
 #endif
 void rst_finalize(void);
 void rst_finalize_ptr(rst_buffer_t * ptr);
-void rst_flush_all(void);
 
 void rst_event(u_int16_t type);
 void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type);
