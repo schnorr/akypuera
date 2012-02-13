@@ -50,8 +50,6 @@ void rst_destroy_buffer(void *p)
   }
 }
 
-
-// Extrai argumentos para a biblioteca
 void extract_arguments(int *argcp, char ***argvp)
 {
   char **argv;
@@ -97,7 +95,6 @@ void extract_arguments(int *argcp, char ***argvp)
   argv[argc] = NULL;
 }
 
-// Inicializa biblioteca em um nodo
 void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv)
 {
   if (argv != NULL)
@@ -106,7 +103,6 @@ void rst_initialize(u_int64_t id1, u_int64_t id2, int *argc, char ***argv)
   rst_init(id1, id2);
 }
 
-// Inicializa a biblioteca em uma thread
 void rst_init(u_int64_t id1, u_int64_t id2)
 {
 #ifdef HAVE_CLOCKGETTIME
@@ -128,8 +124,6 @@ void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct t
   rst_init_ptr_timestamp (ptr, id1, id2, timestamp);
 }
 
-
-// Inicializacao com buffer pre-alocado
 void rst_init_ptr(rst_buffer_t *ptr, u_int64_t id1, u_int64_t id2)
 {
 #ifdef HAVE_CLOCKGETTIME
@@ -196,7 +190,6 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr,
                                                       id1, id2, hostname);
 }
 
-// Grava buffer no arquivo de traco
 void rst_flush(rst_buffer_t * ptr)
 {
   size_t nbytes;
@@ -210,20 +203,17 @@ void rst_flush(rst_buffer_t * ptr)
   RST_RESET(ptr);
 }
 
-// Termina biblioteca em nodo ou thread
 void rst_finalize(void)
 {
   rst_buffer_t *ptr = RST_PTR;
   rst_destroy_buffer(ptr);
 }
 
-// Termina biblioteca em nodo ou thread com ptr
 void rst_finalize_ptr(rst_buffer_t * ptr)
 {
   rst_destroy_buffer(ptr);
 }
 
-// starts an event
 void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
 {
     timestamp_t deltasec;
@@ -253,7 +243,6 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     RST_PUT(ptr, u_int64_t, deltasec * resolution + precision);
 }
 
-// finishes an event
 void rst_endevent(rst_buffer_t * ptr)
 {
     ptr->rst_buffer_ptr = ALIGN_PTR(ptr->rst_buffer_ptr);
@@ -262,7 +251,6 @@ void rst_endevent(rst_buffer_t * ptr)
     }
 }
 
-// Registra evento somente com tipo
 void rst_event(u_int16_t type)
 {
   rst_buffer_t *ptr = RST_PTR;
@@ -272,7 +260,6 @@ void rst_event(u_int16_t type)
   rst_endevent(ptr);
 }
 
-// Registra evento somente com tipo com ptr
 void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type)
 {
   if (ptr == NULL) {
