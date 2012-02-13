@@ -80,7 +80,10 @@ static void receive_data(int socket, char *buffer, int size)
   while (received != size){
     received = recv(socket, (void *) buffer, size, 0);
     if (received < size){
-      fprintf(stdout, "received less...\n");
+      fprintf(stderr,
+              "[rastro_timesync] at %s,"
+              "received less (%d bytes) than expected (%d bytes), continue\n",
+              __FUNCTION__, received, size);
       buffer += received;
       size -= received;
       received = 0;
@@ -98,7 +101,10 @@ static void ping_wait_pong(const int socket,
   t0 = timer();
   int test = send(socket, (void *) &t0, sizeof(t0), 0);
   if (test == -1) {
-    fprintf(stderr, "[ping]: send failed at socket %d!\n", socket);
+    fprintf(stderr,
+            "[rastro_timesync] at %s,"
+            "send failed at socket %d\n",
+            __FUNCTION__, socket);
     exit(1);
   }
   receive_data(socket, (char *) &tremote, sizeof(tremote));
@@ -158,7 +164,10 @@ static void pongs(int socket)
     tlocal = timer ();
     int test = send(socket, (void *) &tlocal, sizeof(tlocal), 0);
     if (test == -1) {
-      fprintf(stderr, "[pong]: send failed at socket %d!\n", socket);
+      fprintf(stderr,
+              "[rastro_timesync] at %s,"
+              "send failed at socket %d\n",
+              __FUNCTION__, socket);
       exit(1);
     }
   } while (tremote != 0);
