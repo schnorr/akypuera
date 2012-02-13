@@ -42,15 +42,37 @@ struct arguments {
   char *program_name;
 };
 
-static long long timerabs(struct timeval a)
+#ifdef HAVE_CLOCKGETTIME
+static timestamp_t timerabs(struct timespec *a)
 {
-  return (long long)a.tv_sec * RST_CLOCK_RESOLUTION + a.tv_usec;
+  timestamp_t seconds = a->tv_sec;
+  timestamp_t precision = a->tv_nsec;
+  return seconds * RST_CLOCK_RESOLUTION + precision;
 }
 
-static long timerdiff(struct timeval a, struct timeval b)
+static timestamp_t timer (void)
 {
-  return (a.tv_sec - b.tv_sec) * RST_CLOCK_RESOLUTION + (a.tv_usec - b.tv_usec);
+  struct timespec a;
+  clock_gettime (CLOCK_REALTIME, &a);
+  return timerabs (&a);
 }
+
+#elif HAVE_GETTIMEOFDAY
+static timestamp_t timerabs(struct timeval *a)
+{
+  timestamp_t seconds = a->tv_sec;
+  timestamp_t precision = a->tv_usec;
+  return seconds * RST_CLOCK_RESOLUTION + precision;
+}
+
+static timestamp_t timer (void)
+{
+  struct timeval a;
+  gettimeofday (&a, NULL);
+  return timerabs(&a);
+}
+#endif
+
 
 static void receive_data(int socket, char *buffer, int size)
 {
@@ -66,69 +88,80 @@ static void receive_data(int socket, char *buffer, int size)
   }
 }
 
-static void ping1(int socket, long long *local, long long *remote, long *delta)
+static void ping_wait_pong(const int socket,
+                           timestamp_t *local,
+                           timestamp_t *remote,
+                           timestamp_t *delta)
 {
-  struct timeval t0, t1, tremote;
-  int test;
-  gettimeofday(&t0, NULL);
-  test = send(socket, (void *) &t0, sizeof(t0), 0);
+  timestamp_t t0, t1, tremote;
+
+  t0 = timer();
+  int test = send(socket, (void *) &t0, sizeof(t0), 0);
   if (test == -1) {
     fprintf(stderr, "[ping]: send failed at socket %d!\n", socket);
     exit(1);
   }
   receive_data(socket, (char *) &tremote, sizeof(tremote));
-  gettimeofday(&t1, NULL);
-  *delta = timerdiff(t1, t0);
-  *local = timerabs(t0) + *delta / 2;
-  *remote = timerabs(tremote);
+  t1 = timer();
+
+  *delta = t1 - t0;
+  *local = t0 + *delta / 2;
+  *remote = tremote;
 }
 
-static void ping(int socket, long long *mlocal, long long *mremote,
-          char *remotename, int sample_size)
+static void pings(const int sample_size,
+                  char *remote_hostname,
+                  const int remote_socket,
+                  timestamp_t *local_time,
+                  timestamp_t *remote_time)
 {
-  long delta;
-  long long local, remote;
-  long mdelta = 1e9;
+  timestamp_t delta, local, remote;
+  timestamp_t mdelta = 1e9;
   int i;
-  struct timeval t0 = {0, 0};
-  int remotenamelen;
-    
-  receive_data(socket, (char *) &remotenamelen, sizeof(remotenamelen));
-  receive_data(socket, remotename, remotenamelen);
-  remotename[remotenamelen] = '\0';
 
+  int remotenamelen;
+
+  //receive remote hostname from slave
+  receive_data(remote_socket, (char *) &remotenamelen, sizeof(remotenamelen));
+  receive_data(remote_socket, remote_hostname, remotenamelen);
+  remote_hostname[remotenamelen] = '\0';
+
+  //do sample_size ping-pongs with slave
   for (i = 0; i < sample_size; i++) {
-    ping1(socket, &local, &remote, &delta);
+    ping_wait_pong(remote_socket, &local, &remote, &delta);
     if (delta <= mdelta) {
       mdelta = delta;
-      *mlocal = local;
-      *mremote = remote;
+      *local_time = local;
+      *remote_time = remote;
     }
   }
-  send(socket, (void *) &t0, sizeof(t0), 0);
+  timestamp_t termination = 0;
+  send(remote_socket, (void *) &termination, sizeof(termination), 0);
 }
 
 
-static void pong(int socket)
+static void pongs(int socket)
 {
-  struct timeval tvi, tvo;
-  int teste;
+  timestamp_t tremote, tlocal;
+
+  //send this hostname to the master
   int namesize;
   char hostname[MAXHOSTNAMELEN];
-
   gethostname(hostname, sizeof(hostname));
   namesize = strlen(hostname);
   send(socket, (char *)&namesize, sizeof(namesize), 0);
   send(socket, hostname, namesize, 0);
+
+  //reply with pong up to a timestamp whose value is zero
   do {
-    receive_data(socket, (char *) &tvi, sizeof(tvi));
-    gettimeofday(&tvo, NULL); 
-    teste = send(socket, (void *) &tvo, sizeof(tvo), 0);
-    if (teste == -1) {
+    receive_data(socket, (char *) &tremote, sizeof(tremote));
+    tlocal = timer ();
+    int test = send(socket, (void *) &tlocal, sizeof(tlocal), 0);
+    if (test == -1) {
       fprintf(stderr, "[pong]: send failed at socket %d!\n", socket);
       exit(1);
     }
-  } while (tvi.tv_sec != 0);
+  } while (tremote != 0);
 }
 
 static int open_connection(int *pport)
@@ -179,7 +212,7 @@ static int establish_connection(char *host, char *port)
 }
 
 
-static void create_slave(struct arguments *arg, char *remote_host, int master_port)
+static void exec_slave(struct arguments *arg, char *remote_host, int master_port)
 {
   char str[10];
   snprintf (str, 10, "%d", master_port);
@@ -220,7 +253,8 @@ static void create_slave(struct arguments *arg, char *remote_host, int master_po
   }
 }
 
-static void synchronize_slave (struct arguments *arg, char *remote_host)
+/* the master function, run on local host */
+static void master (struct arguments *arg, char *remote_host)
 {
   long long local_time;
   long long remote_time;
@@ -228,26 +262,43 @@ static void synchronize_slave (struct arguments *arg, char *remote_host)
   int com_socket;
   int new_socket;
 
+  //create local socket
   gethostname(arg->master_host, sizeof(arg->master_host));
   com_socket = open_connection (&port);
-  create_slave (arg, remote_host, port);
+
+  //execute slave on remote_host
+  exec_slave (arg, remote_host, port);
+
+  //wait for slave to contact me
   new_socket = wait_connection(com_socket);
-  ping(new_socket,
-       &local_time,
-       &remote_time,
-       remote_host,
-       arg->sample_size);
+
+  //run arg->simple_size pings
+  pings(arg->sample_size,
+        remote_host,
+        new_socket,
+        &local_time,
+        &remote_time);
+
+  //output the clock differences
   printf("%s %lld %s %lld\n",
          arg->master_host, local_time,
          remote_host, remote_time);
+
+  //close sockets, end of program
   close(new_socket);
   close(com_socket);
 }
 
+/* the slave function, run on remote host */
 static void slave (char *master_host, char *master_port)
 {
+  //stablish connection to master_host, at master_port
   int com_socket = establish_connection (master_host, master_port);
-  pong(com_socket);
+
+  //run the pongs, up to NULL request
+  pongs(com_socket);
+
+  //close the socket
   close(com_socket);
 }
 
@@ -329,7 +380,7 @@ int main(int argc, char *argv[])
 
     int i;
     for (i = 0; i < arguments.number_of_slaves; i++) {
-      synchronize_slave (&arguments, arguments.slaves[i]);
+      master (&arguments, arguments.slaves[i]);
     }
 
     free (arguments.master_host);
