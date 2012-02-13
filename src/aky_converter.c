@@ -71,6 +71,32 @@ static int parse_options (int key, char *arg, struct argp_state *state)
 
 static struct argp argp = { options, parse_options, args_doc, doc };
 
+static int dump_commented_file (char *filename)
+{
+  FILE *file = fopen (filename, "r");
+  if (file == NULL){
+    fprintf(stderr,
+            "[aky_converter] at %s, "
+            "comment file %s could not be opened for reading\n",
+            __FUNCTION__, filename);
+    return 1;
+  }
+  while (!feof(file)){
+    char c;
+    c = fgetc(file);
+    if (feof(file)) break;
+    printf ("# ");
+    while (c != '\n'){
+      printf ("%c", c);
+      c = fgetc(file);
+      if (feof(file)) break;
+    }
+    printf ("\n");
+  }
+  fclose(file);
+  return 0;
+}
+
 int main(int argc, char **argv)
 {
   struct arguments arguments;
@@ -113,35 +139,32 @@ int main(int argc, char **argv)
     printf ("# %s\n", arguments.comment);
   }
   if (arguments.comment_file){
-    FILE *file = fopen (arguments.comment_file, "r");
-    if (file == NULL){
-      fprintf(stderr,
-              "[aky_converter] at %s, "
-              "comment file %s could not be opened for reading\n",
-              __FUNCTION__, arguments.comment_file);
+    if (dump_commented_file (arguments.comment_file) == 1){
       return 1;
     }
-    while (!feof(file)){
-      char c;
-      c = fgetc(file);
-      if (feof(file)) break;
-      printf ("# ");
-      while (c != '\n'){
-        printf ("%c", c);
-        c = fgetc(file);
-        if (feof(file)) break;
-      }
-      printf ("\n");
-    }
-    fclose(file);
   }
 
   name_init();
 
-  /* output build version and date for aky in the trace */
+  /* output build version, date and conversion for aky in the trace */
   printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
   printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
+  {
+    printf ("#AKY_CONVERSION: ");
+    int i;
+    for (i = 0; i < argc; i++){
+      printf ("%s ", argv[i]);
+    }
+    printf ("\n");
+  }
+  /* output contents of synchronization file if used */
+  if (arguments.synchronization_file){
+    if (dump_commented_file (arguments.synchronization_file) == 1){
+      return 1;
+    }
+  }
 
+  /* start trace generation */
   paje_header(arguments.basic);
   paje_hierarchy();
 
