@@ -16,6 +16,10 @@
 */
 #include "aky_private.h"
 
+static int extended = 1; /* be extended by default,
+                            this is configured in
+                            paje_header function */
+
 static double paje_event_timestamp(long timestamp)
 {
   static long first_timestamp = -1;
@@ -100,8 +104,12 @@ void pajePushStateWithMark(long timestamp,
                    const char *container,
                    const char *type, const char *value, const int mark)
 {
-  printf("%d %.9f %s %s %s %d\n", PAJE_PushStateWithMark,
-         paje_event_timestamp(timestamp), container, type, value, mark);
+  if (extended){
+    printf("%d %.9f %s %s %s %d\n", PAJE_PushStateWithMark,
+           paje_event_timestamp(timestamp), container, type, value, mark);
+  }else{
+    pajePushState (timestamp, container, type, value);
+  }
 }
 
 void pajePopState(long timestamp,
@@ -131,9 +139,13 @@ void pajeStartLinkWithMessageSize(long timestamp,
                    const char *key,
                    const int messageSize)
 {
-  printf("%d %.9f %s %s %s %s %s %d\n", PAJE_StartLinkWithMessageSizeAndMark,
-         paje_event_timestamp(timestamp),
-         container, type, sourceContainer, value, key, messageSize);
+  if (extended){
+    printf("%d %.9f %s %s %s %s %s %d\n", PAJE_StartLinkWithMessageSizeAndMark,
+           paje_event_timestamp(timestamp),
+           container, type, sourceContainer, value, key, messageSize);
+  }else{
+    pajeStartLink(timestamp, container, type, sourceContainer, value, key);
+  }
 }
 
 void pajeStartLinkWithMessageSizeAndMark(long timestamp,
@@ -145,9 +157,13 @@ void pajeStartLinkWithMessageSizeAndMark(long timestamp,
                    const int messageSize,
                    const int mark)
 {
-  printf("%d %.9f %s %s %s %s %s %d %d\n", PAJE_StartLinkWithMessageSizeAndMark,
-         paje_event_timestamp(timestamp),
-         container, type, sourceContainer, value, key, messageSize, mark);
+  if (extended){
+    printf("%d %.9f %s %s %s %s %s %d %d\n", PAJE_StartLinkWithMessageSizeAndMark,
+           paje_event_timestamp(timestamp),
+           container, type, sourceContainer, value, key, messageSize, mark);
+  }else{
+    pajeStartLink(timestamp, container, type, sourceContainer, value, key);
+  }
 }
 
 void pajeEndLink(long timestamp,
@@ -161,7 +177,7 @@ void pajeEndLink(long timestamp,
          container, type, endContainer, value, key);
 }
 
-void paje_header(void)
+void paje_header(int basic)
 {
   printf("%%EventDef PajeDefineContainerType %d\n"
          "%%       Alias string\n"
@@ -240,13 +256,6 @@ void paje_header(void)
          "%%       Type string\n"
          "%%       Value string\n"
          "%%EndEventDef\n"
-         "%%EventDef PajePushState %d\n"
-         "%%       Time date\n"
-         "%%       Container string\n"
-         "%%       Type string\n"
-         "%%       Value string\n"
-         "%%       Mark string\n"
-         "%%EndEventDef\n"
          "%%EventDef PajePopState %d\n"
          "%%       Time date\n"
          "%%       Container string\n"
@@ -259,25 +268,6 @@ void paje_header(void)
          "%%       SourceContainer string\n"
          "%%       Value string\n"
          "%%       Key string\n"
-         "%%EndEventDef\n"
-         "%%EventDef PajeStartLink %d\n"
-         "%%       Time date\n"
-         "%%       Container string\n"
-         "%%       Type string\n"
-         "%%       SourceContainer string\n"
-         "%%       Value string\n"
-         "%%       Key string\n"
-         "%%       MessageSize string\n"
-         "%%EndEventDef\n"
-         "%%EventDef PajeStartLink %d\n"
-         "%%       Time date\n"
-         "%%       Container string\n"
-         "%%       Type string\n"
-         "%%       SourceContainer string\n"
-         "%%       Value string\n"
-         "%%       Key string\n"
-         "%%       MessageSize string\n"
-         "%%       Mark string\n"
          "%%EndEventDef\n"
          "%%EventDef PajeEndLink %d\n"
          "%%       Time date\n"
@@ -306,19 +296,65 @@ void paje_header(void)
          PAJE_SubVariable,
          PAJE_SetState,
          PAJE_PushState,
-         PAJE_PushStateWithMark,
          PAJE_PopState,
          PAJE_StartLink,
-         PAJE_StartLinkWithMessageSize,
-         PAJE_StartLinkWithMessageSizeAndMark,
          PAJE_EndLink,
          PAJE_NewEvent);
+
+  if (basic){
+    extended = 0;
+    printf ("#\n"
+            "# Trace created without extended events\n");
+    return;
+  }
+
+  printf("#\n"
+         "# Extended events with additional information\n"
+         "# Note that not all paje file format parsers support this\n"
+         "# If you have problems parsing this file with your visualization tool\n"
+         "# Try running aky_converter with the --basic parameter\n"
+         "#\n");
+  printf("%%EventDef PajePushState %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       Value string\n"
+         "%%       Mark string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeStartLink %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       SourceContainer string\n"
+         "%%       Value string\n"
+         "%%       Key string\n"
+         "%%       MessageSize string\n"
+         "%%EndEventDef\n"
+         "%%EventDef PajeStartLink %d\n"
+         "%%       Time date\n"
+         "%%       Container string\n"
+         "%%       Type string\n"
+         "%%       SourceContainer string\n"
+         "%%       Value string\n"
+         "%%       Key string\n"
+         "%%       MessageSize string\n"
+         "%%       Mark string\n"
+         "%%EndEventDef\n",
+         PAJE_PushStateWithMark,
+         PAJE_StartLinkWithMessageSize,
+         PAJE_StartLinkWithMessageSizeAndMark);
 }
 
 void paje_hierarchy(void)
 {
+  printf ("#\n"
+          "# This is the type hierarchy for this trace file\n"
+          "#\n");
   pajeDefineContainerType ("ROOT", "0", "ROOT");
   pajeDefineContainerType("PROCESS", "ROOT", "PROCESS");
   pajeDefineStateType("STATE", "PROCESS", "STATE");
   pajeDefineLinkType("LINK", "ROOT", "PROCESS", "PROCESS", "LINK");
+  printf ("#\n"
+          "# Let the timestamped events describe behavior\n"
+          "#\n");
 }

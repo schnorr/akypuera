@@ -24,6 +24,7 @@ static struct argp_option options[] = {
   {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors"},
   {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
   {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
+  {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
   {"sync", 'z', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)"},
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
   {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
@@ -33,7 +34,7 @@ static struct argp_option options[] = {
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors, no_links, no_states;
+  int ignore_errors, no_links, no_states, basic;
   char *synchronization_file;
   char *comment;
   char *comment_file;
@@ -46,6 +47,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
   case 's': arguments->no_states = 1; break;
+  case 'b': arguments->basic = 1; break;
   case 'z': arguments->synchronization_file = arg; break;
   case 'm': arguments->comment = arg; break;
   case 'n': arguments->comment_file = arg; break;
@@ -140,7 +142,7 @@ int main(int argc, char **argv)
   printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
   printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
 
-  paje_header();
+  paje_header(arguments.basic);
   paje_hierarchy();
 
   while (rst_decode_event(&data, &event) && !fail) {

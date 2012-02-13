@@ -82,7 +82,7 @@ void pajeEndLink(long timestamp,
                  const char *type,
                  const char *endContainer,
                  const char *value, const char *key);
-void paje_header(void);
+void paje_header(int basic);
 void paje_hierarchy(void);
 
 typedef enum {
