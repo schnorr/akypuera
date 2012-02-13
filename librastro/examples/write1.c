@@ -20,7 +20,7 @@
       Author: Geovani Ricardo Wiedenhoft
       Email: grw@inf.ufsm.fr
 */
-#include "saida.h"
+#include "auto-generated.h"
 
 int main(int argc, char *argv[])
 {

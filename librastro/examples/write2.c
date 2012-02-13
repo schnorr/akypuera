@@ -17,7 +17,7 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
-#include "saida.h"
+#include "auto-generated.h"
 
 static timestamp_t my_timestamping (void)
 {
