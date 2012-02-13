@@ -155,26 +155,11 @@ typedef struct {
   Writing Interface
 */
 void rst_init(u_int64_t id1, u_int64_t id2);
-#ifdef HAVE_CLOCKGETTIME
-void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (clockid_t clk_id, struct timespec *tp));
-#elif HAVE_GETTIMEOFDAY
-void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz));
-#endif
-void rst_init_ptr(rst_buffer_t * ptr, u_int64_t id1, u_int64_t id2);
-#ifdef HAVE_CLOCKGETTIME
-void rst_init_ptr_timestamp(rst_buffer_t * ptr,
-                            u_int64_t id1,
-                            u_int64_t id2,
-                            int (*timestamp) (clockid_t clk_id, struct timespec *tp));
-#elif HAVE_GETTIMEOFDAY
-void rst_init_ptr_timestamp(rst_buffer_t * ptr,
-                            u_int64_t id1,
-                            u_int64_t id2,
-                            int (*timestamp) (struct timeval *tv, struct timezone *tz));
-#endif
+void rst_init_timestamp (u_int64_t id1,
+                         u_int64_t id2,
+                         timestamp_t (*stamping) (void),
+                         timestamp_t (*resolution) (void));
 void rst_finalize(void);
-void rst_finalize_ptr(rst_buffer_t * ptr);
-
 void rst_event(u_int16_t type);
 void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type);
 void rst_startevent(rst_buffer_t *ptr, u_int32_t header);

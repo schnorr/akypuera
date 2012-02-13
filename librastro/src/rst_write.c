@@ -29,11 +29,32 @@ static char rst_dirname[FILENAME_MAX];
 static void rst_event_lls_ptr(rst_buffer_t * ptr, u_int16_t type,
                               u_int64_t l0, u_int64_t l1, char *s0);
 
+timestamp_t (*rastro_timestamping) (void) = NULL;
+timestamp_t (*rastro_timeresolution) (void) = NULL;
+
+static timestamp_t _rst_timeresolution (void)
+{
+  return RST_CLOCK_RESOLUTION;
+}
+
+static timestamp_t _rst_timestamping (void)
+{
+  timestamp_t sec;
+  timestamp_t precision;
+  timestamp_t resolution = _rst_timeresolution ();
 #ifdef HAVE_CLOCKGETTIME
-int (*rastro_gettimeofday) (clockid_t clk_id, struct timespec *tp) = NULL;
+  struct timespec tp;
+  clock_gettime (CLOCK_REALTIME, &tp);
+  sec = tp.tv_sec;
+  precision = tp.tv_nsec;
 #elif HAVE_GETTIMEOFDAY
-int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz) = NULL;
+  struct timeval tv;
+  gettimeofday (&tv, NULL);
+  sec = tv.tv_sec;
+  precision = tp.tv_usec;
 #endif
+  return sec * resolution + precision;
+}
 
 void rst_destroy_buffer(void *p)
 {
@@ -50,47 +71,11 @@ void rst_destroy_buffer(void *p)
   }
 }
 
-void rst_init(u_int64_t id1, u_int64_t id2)
-{
-#ifdef HAVE_CLOCKGETTIME
-  rst_init_timestamp (id1, id2, &clock_gettime);
-#elif HAVE_GETTIMEOFDAY
-  rst_init_timestamp (id1, id2, &gettimeofday);
-#endif
-}
-
-#ifdef HAVE_CLOCKGETTIME
-void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (clockid_t clk_id, struct timespec *tp))
-#elif HAVE_GETTIMEOFDAY
-void rst_init_timestamp(u_int64_t id1, u_int64_t id2, int (*timestamp) (struct timeval *tv, struct timezone *tz))
-#endif
-{
-  rst_buffer_t *ptr;
-  ptr = (rst_buffer_t *) malloc(sizeof(rst_buffer_t));
-
-  rst_init_ptr_timestamp (ptr, id1, id2, timestamp);
-}
-
-void rst_init_ptr(rst_buffer_t *ptr, u_int64_t id1, u_int64_t id2)
-{
-#ifdef HAVE_CLOCKGETTIME
-  rst_init_ptr_timestamp(ptr, id1, id2, &clock_gettime);
-#elif HAVE_GETTIMEOFDAY
-  rst_init_ptr_timestamp(ptr, id1, id2, &gettimeofday);
-#endif
-}
-
-#ifdef HAVE_CLOCKGETTIME
-void rst_init_ptr_timestamp(rst_buffer_t * ptr,
-                            u_int64_t id1,
-                            u_int64_t id2,
-                            int (*timestamp) (clockid_t clk_id, struct timespec *tp))
-#elif HAVE_GETTIMEOFDAY
-void rst_init_ptr_timestamp(rst_buffer_t * ptr,
-                            u_int64_t id1,
-                            u_int64_t id2,
-                            int (*timestamp) (struct timeval *tv, struct timezone *tz))
-#endif
+static void rst_init_ptr_timestamp(rst_buffer_t *ptr,
+                                   u_int64_t id1,
+                                   u_int64_t id2,
+                                   timestamp_t (*stamping) (void),
+                                   timestamp_t (*resolution) (void))
 {
   int fd;
   char fname[30];
@@ -109,7 +94,8 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr,
 #endif
 
   //define the timestamp function to be used by librastro
-  rastro_gettimeofday = timestamp;
+  rastro_timestamping = stamping;
+  rastro_timeresolution = resolution;
 
   RST_SET_PTR(ptr);
   ptr->rst_buffer_size = 100000;
@@ -137,6 +123,21 @@ void rst_init_ptr_timestamp(rst_buffer_t * ptr,
                                                       id1, id2, hostname);
 }
 
+void rst_init(u_int64_t id1, u_int64_t id2)
+{
+  rst_init_timestamp (id1, id2, &_rst_timestamping, &_rst_timeresolution);
+}
+
+void rst_init_timestamp (u_int64_t id1,
+                         u_int64_t id2,
+                         timestamp_t (*stamping) (void),
+                         timestamp_t (*resolution) (void))
+{
+  rst_buffer_t *ptr;
+  ptr = (rst_buffer_t *) malloc(sizeof(rst_buffer_t));
+  rst_init_ptr_timestamp (ptr, id1, id2, stamping, resolution);
+}
+
 void rst_flush(rst_buffer_t * ptr)
 {
   size_t nbytes;
@@ -156,38 +157,23 @@ void rst_finalize(void)
   rst_destroy_buffer(ptr);
 }
 
-void rst_finalize_ptr(rst_buffer_t * ptr)
-{
-  rst_destroy_buffer(ptr);
-}
-
 void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
 {
-    timestamp_t deltasec;
-    timestamp_t sec;
-    timestamp_t precision;
-#ifdef HAVE_CLOCKGETTIME
-    struct timespec tp;
-    clock_gettime (CLOCK_REALTIME, &tp);
-    sec = tp.tv_sec;
-    precision = tp.tv_nsec;
-#elif HAVE_GETTIMEOFDAY
-    struct timeval tp;
-    rastro_gettimeofday(&tp, NULL);
-    sec = tp.tv_sec;
-    precision = tp.tv_usec;
-#endif
-    deltasec = sec - RST_T0(ptr);
-    if (deltasec > 3600) {
-        RST_SET_T0(ptr, sec);
-        deltasec = 0;
-        RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
-        RST_PUT(ptr, u_int32_t, sec);
-    } else {
-        RST_PUT(ptr, u_int32_t, header);
-    }
-    timestamp_t resolution = RST_CLOCK_RESOLUTION;
-    RST_PUT(ptr, u_int64_t, deltasec * resolution + precision);
+  timestamp_t time = rastro_timestamping ();
+  timestamp_t resolution = rastro_timeresolution ();
+
+  timestamp_t sec = time/resolution;
+  timestamp_t precision = time - (sec * resolution);
+  timestamp_t deltasec = sec - RST_T0(ptr);
+  if(deltasec > 3600){
+    RST_SET_T0(ptr, sec);
+    deltasec = 0;
+    RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
+    RST_PUT(ptr, u_int32_t, sec);
+  }else{
+    RST_PUT(ptr, u_int32_t, header);
+  }
+  RST_PUT(ptr, u_int64_t, deltasec * resolution + precision);
 }
 
 void rst_endevent(rst_buffer_t * ptr)
