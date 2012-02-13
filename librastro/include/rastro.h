@@ -141,7 +141,7 @@ typedef struct {
 } rst_file_t;
 
 typedef struct {
-  long rst_t0;
+  timestamp_t rst_t0;
   int rst_fd;
   char *rst_buffer_ptr;
   char *rst_buffer;

@@ -226,10 +226,9 @@ void rst_finalize_ptr(rst_buffer_t * ptr)
 // starts an event
 void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
 {
-    u_int32_t deltasec;
-    u_int32_t sec;
-
-    long long precision;
+    timestamp_t deltasec;
+    timestamp_t sec;
+    timestamp_t precision;
 #ifdef HAVE_CLOCKGETTIME
     struct timespec tp;
     clock_gettime (CLOCK_REALTIME, &tp);
@@ -250,7 +249,7 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     } else {
         RST_PUT(ptr, u_int32_t, header);
     }
-    long long resolution = RST_CLOCK_RESOLUTION;
+    timestamp_t resolution = RST_CLOCK_RESOLUTION;
     RST_PUT(ptr, u_int64_t, deltasec * resolution + precision);
 }
 
