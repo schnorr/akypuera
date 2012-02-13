@@ -25,7 +25,6 @@ rst_buffer_t *rst_global_buffer;
 pthread_key_t rst_key;
 #endif
 
-static char rst_dirname[FILENAME_MAX];
 static void rst_event_lls_ptr(rst_buffer_t * ptr, u_int16_t type,
                               u_int64_t l0, u_int64_t l1, char *s0);
 
