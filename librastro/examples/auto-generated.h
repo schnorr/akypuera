@@ -5,15 +5,21 @@
 #include <rastro.h>
 
 /* Rastro function prototype for 'lws' */
-void rst_event_lws_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0, u_int16_t w0, char* s0);
+void rst_event_lws_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0, u_int16_t w0, const char* s0);
+void rst_event_lws_f_ (int16_t *type, int64_t* l0, int16_t* w0, const char* s0);
 #define rst_event_lws(type, l0, w0, s0) rst_event_lws_ptr(RST_PTR, type, l0, w0, s0)
 
 /* Rastro function prototype for 'wlsfcd' */
-void rst_event_wlsfcd_ptr(rst_buffer_t *ptr, u_int16_t type, u_int16_t w0, u_int64_t l0, char* s0, float f0, u_int8_t c0, double d0);
+void rst_event_wlsfcd_ptr(rst_buffer_t *ptr, u_int16_t type, u_int16_t w0, u_int64_t l0, const char* s0, float f0, u_int8_t c0, double d0);
+void rst_event_wlsfcd_f_ (int16_t *type, int16_t* w0, int64_t* l0, const char* s0, float* f0, int8_t* c0, double* d0);
 #define rst_event_wlsfcd(type, w0, l0, s0, f0, c0, d0) rst_event_wlsfcd_ptr(RST_PTR, type, w0, l0, s0, f0, c0, d0)
 
 /* Rastro function prototype for 'iwlsifcd' */
-void rst_event_iwlsifcd_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int16_t w0, u_int64_t l0, char* s0, u_int32_t i1, float f0, u_int8_t c0, double d0);
+void rst_event_iwlsifcd_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int16_t w0, u_int64_t l0, const char* s0, u_int32_t i1, float f0, u_int8_t c0, double d0);
+void rst_event_iwlsifcd_f_ (int16_t *type, int32_t* i0, int16_t* w0, int64_t* l0, const char* s0, int32_t* i1, float* f0, int8_t* c0, double* d0);
 #define rst_event_iwlsifcd(type, i0, w0, l0, s0, i1, f0, c0, d0) rst_event_iwlsifcd_ptr(RST_PTR, type, i0, w0, l0, s0, i1, f0, c0, d0)
+
+void rst_init_f_(int64_t *id1, int64_t *id2);
+void rst_finalize_f_ (void);
 
 #endif //__AUTO_RASTRO_FILE_H__
