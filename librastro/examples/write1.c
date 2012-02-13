@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
 {
 	rst_init(10, 20);
 	rst_event(1);
-	rst_event_lws(2, 1, 2, (u_int8_t*)"string_3");
-	rst_event_wlsfcd(3, 1, 2, (u_int8_t*)"string_3", 4, '5', 6);
-	rst_event_iwlsifcd(4, 1, 2, 3, (u_int8_t*)"string_4", 5, 6, '7', 8);
+	rst_event_lws(2, 1, 2, "string_3");
+	rst_event_wlsfcd(3, 1, 2, "string_3", 4, '5', 6);
+	rst_event_iwlsifcd(4, 1, 2, 3, "string_4", 5, 6, '7', 8);
         int i;
         for (i = 0; i < 10; i++){
           rst_event (1);
