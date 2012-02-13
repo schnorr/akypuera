@@ -129,7 +129,7 @@ typedef struct rst_one_file {
   char *hostname;
   u_int64_t id1;
   u_int64_t id2;
-  timestamp_t last_hour;
+  timestamp_t hour;
   rst_event_t event;
   char *filename; //this filename
 } rst_one_file_t;
