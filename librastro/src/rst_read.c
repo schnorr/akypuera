@@ -451,8 +451,13 @@ int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
 void rst_print_event(rst_event_t *event)
 {
   int i;
-  printf("type: %d ts: %.9f (id1=%lu,id2=%lu)\n",
-         event->type, event->timestamp, event->id1, event->id2);
+  if (event->file->resolution > 1000000){
+    printf("type: %d ts: %.9f (id1=%lu,id2=%lu)\n",
+           event->type, event->timestamp, event->id1, event->id2);
+  }else{
+    printf("type: %d ts: %f (id1=%lu,id2=%lu)\n",
+           event->type, event->timestamp, event->id1, event->id2);
+  }
   if (event->ct.n_uint64 > 0) {
     printf("\tu_int64_ts-> ");
     for (i = 0; i < event->ct.n_uint64; i++) {
