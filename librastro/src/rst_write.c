@@ -50,7 +50,7 @@ static timestamp_t _rst_timestamping (void)
   struct timeval tv;
   gettimeofday (&tv, NULL);
   sec = tv.tv_sec;
-  precision = tp.tv_usec;
+  precision = tv.tv_usec;
 #endif
   return sec * resolution + precision;
 }
