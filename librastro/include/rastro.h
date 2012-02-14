@@ -131,7 +131,7 @@ typedef struct rst_file {
 } rst_file_t;
 
 typedef struct rst_rastro {
-  rst_file_t **of_data;
+  rst_file_t **files;
   int quantity;
   int initialized;
 } rst_rastro_t;

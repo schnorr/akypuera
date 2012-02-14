@@ -302,11 +302,11 @@ static void rst_close_one_file(rst_file_t *file)
 static void smallest_first(rst_rastro_t * f_data, int dead, int son)
 {
   rst_file_t *aux;
-  if (f_data->of_data[dead - 1]->event.timestamp >
-      f_data->of_data[son - 1]->event.timestamp) {
-    aux = f_data->of_data[dead - 1];
-    f_data->of_data[dead - 1] = f_data->of_data[son - 1];
-    f_data->of_data[son - 1] = aux;
+  if (f_data->files[dead - 1]->event.timestamp >
+      f_data->files[son - 1]->event.timestamp) {
+    aux = f_data->files[dead - 1];
+    f_data->files[dead - 1] = f_data->files[son - 1];
+    f_data->files[son - 1] = aux;
   }
 }
 
@@ -339,8 +339,8 @@ static void reorganize_top_down(rst_rastro_t * f_data, int dead)
 
   //both belong
   else {
-    if (f_data->of_data[son1 - 1]->event.timestamp <
-        f_data->of_data[son2 - 1]->event.timestamp) {
+    if (f_data->files[son1 - 1]->event.timestamp <
+        f_data->files[son2 - 1]->event.timestamp) {
       smallest_first(f_data, dead, son1);
       reorganize_top_down(f_data, son1);
     } else {
@@ -353,88 +353,90 @@ static void reorganize_top_down(rst_rastro_t * f_data, int dead)
 /*
   Public functions
  */
-int rst_open_file(char *f_name, rst_rastro_t * f_data, char
-                  *syncfilename, int buffer_size)
+int rst_open_file(char *filename,
+                  rst_rastro_t *rastro,
+                  char *syncfilename,
+                  int buffer_size)
 {
-  if (f_data->initialized != FDATAINITIALIZED) {
-    f_data->of_data = (rst_file_t **) malloc(sizeof(*f_data->of_data));
-    f_data->quantity = 0;
-    f_data->initialized = FDATAINITIALIZED;
+  if (rastro->initialized != FDATAINITIALIZED) {
+    rastro->files = (rst_file_t **) malloc(sizeof(*rastro->files));
+    rastro->quantity = 0;
+    rastro->initialized = FDATAINITIALIZED;
   } else {
-    f_data->of_data =
-        (rst_file_t **) realloc(f_data->of_data,
-                                    sizeof(*f_data->of_data) *
-                                    (f_data->quantity + 1));
+    rastro->files =
+        (rst_file_t **) realloc(rastro->files,
+                                    sizeof(*rastro->files) *
+                                    (rastro->quantity + 1));
   }
 
-  if (f_data->of_data == NULL) {
+  if (rastro->files == NULL) {
     fprintf(stderr, "[rastro] cannot allocate memory");
     return RST_NOK;
   }
 
-  f_data->of_data[f_data->quantity] =
+  rastro->files[rastro->quantity] =
       (rst_file_t *) malloc(sizeof(rst_file_t));
-  bzero(f_data->of_data[f_data->quantity], sizeof(rst_file_t));
-  if (f_data->of_data[f_data->quantity] == NULL) {
+  bzero(rastro->files[rastro->quantity], sizeof(rst_file_t));
+  if (rastro->files[rastro->quantity] == NULL) {
     fprintf(stderr, "[rastro] cannot allocate memory");
     return RST_NOK;
   }
 
   if (rst_open_one_file
-      (f_name, f_data->of_data[f_data->quantity], syncfilename,
+      (filename, rastro->files[rastro->quantity], syncfilename,
        buffer_size)) {
     if (!rst_decode_one_event
-        (f_data->of_data[f_data->quantity],
-         &f_data->of_data[f_data->quantity]->event)) {
+        (rastro->files[rastro->quantity],
+         &rastro->files[rastro->quantity]->event)) {
 
-      rst_close_one_file(f_data->of_data[f_data->quantity]);
-      free(f_data->of_data[f_data->quantity]);
+      rst_close_one_file(rastro->files[rastro->quantity]);
+      free(rastro->files[rastro->quantity]);
     } else {
-      f_data->quantity++;
-      reorganize_bottom_up(f_data, f_data->quantity);
+      rastro->quantity++;
+      reorganize_bottom_up(rastro, rastro->quantity);
     }
     return RST_OK;
   } else
     return RST_NOK;
 }
 
-void rst_close_file(rst_rastro_t * f_data)
+void rst_close_file(rst_rastro_t *rastro)
 {
-  free(f_data->of_data);
-  f_data->quantity = 0;
+  free(rastro->files);
+  rastro->quantity = 0;
 }
 
-int rst_decode_event(rst_rastro_t * f_data, rst_event_t * event)
+int rst_decode_event(rst_rastro_t *rastro, rst_event_t * event)
 {
   rst_file_t *aux;
 
   //empty
-  if (f_data->quantity < 1)
+  if (rastro->quantity < 1)
     return RST_NOK;
 
   else {
-    *event = f_data->of_data[0]->event;
+    *event = rastro->files[0]->event;
 
-    f_data->quantity--;
+    rastro->quantity--;
 
     //switch the last and the first
-    aux = f_data->of_data[0];
-    f_data->of_data[0] = f_data->of_data[f_data->quantity];
-    f_data->of_data[f_data->quantity] = aux;
+    aux = rastro->files[0];
+    rastro->files[0] = rastro->files[rastro->quantity];
+    rastro->files[rastro->quantity] = aux;
 
     //reorganize
-    reorganize_top_down(f_data, 1);
+    reorganize_top_down(rastro, 1);
 
     if (!rst_decode_one_event
-        (f_data->of_data[f_data->quantity],
-         &f_data->of_data[f_data->quantity]->event)) {
+        (rastro->files[rastro->quantity],
+         &rastro->files[rastro->quantity]->event)) {
 
-      rst_close_one_file(f_data->of_data[f_data->quantity]);
-      free(f_data->of_data[f_data->quantity]);
+      rst_close_one_file(rastro->files[rastro->quantity]);
+      free(rastro->files[rastro->quantity]);
     } else {
-      f_data->quantity++;
+      rastro->quantity++;
       //reorganize
-      reorganize_bottom_up(f_data, f_data->quantity);
+      reorganize_bottom_up(rastro, rastro->quantity);
     }
     return RST_OK;
   }
