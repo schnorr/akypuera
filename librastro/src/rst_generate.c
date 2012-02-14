@@ -101,7 +101,7 @@ static int rst_add_type (char c, const char **types, char *output, int len)
   return res;
 }
 
-static int rst_get_id (char c, counters_t *ct)
+static int rst_get_id (char c, rst_counters_t *ct)
 {
   switch (c){
   case LETTER_UINT8_QUOTE:  return ct->n_uint8;
@@ -115,7 +115,7 @@ static int rst_get_id (char c, counters_t *ct)
   return -1;
 }
 
-static void rst_add_id (char c, counters_t *ct)
+static void rst_add_id (char c, rst_counters_t *ct)
 {
   switch (c){
   case LETTER_UINT8_QUOTE:  ct->n_uint8++; break;
@@ -128,16 +128,16 @@ static void rst_add_id (char c, counters_t *ct)
   }
 }
 
-static void rst_counters (char *types, counters_t *ct)
+static void rst_counters (char *types, rst_counters_t *ct)
 {
   char *index = NULL;
-  bzero (ct, sizeof(counters_t));
+  bzero (ct, sizeof(rst_counters_t));
   for (index = types; *index != '\0'; index++){
     rst_add_id (*index, ct);
   }
 }
 
-static int rst_add_type_and_var (char c, const char **types, counters_t *ct, char *output, int len)
+static int rst_add_type_and_var (char c, const char **types, rst_counters_t *ct, char *output, int len)
 {
   int res = 0;
   res += rst_add_type (c, types, output+res, len-res);
@@ -149,9 +149,9 @@ static int rst_add_type_and_var (char c, const char **types, counters_t *ct, cha
 static int rst_generate_arg_fortran_types (char *types, char *str, int len)
 {
   int n = 0;
-  counters_t ct;
+  rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(counters_t));
+  bzero (&ct, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "int16_t *type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-n);
@@ -164,9 +164,9 @@ static int rst_generate_arg_fortran_types (char *types, char *str, int len)
 static int rst_generate_arg_fortran_casts (char *types, char *str, int len)
 {
   int n = 0;
-  counters_t ct;
+  rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(counters_t));
+  bzero (&ct, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "(u_int16_t)* type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
@@ -179,9 +179,9 @@ static int rst_generate_arg_fortran_casts (char *types, char *str, int len)
 static int rst_generate_arg_c (char *types, char *str, int len)
 {
   int n = 0;
-  counters_t ct;
+  rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(counters_t));
+  bzero (&ct, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "u_int16_t type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
@@ -194,9 +194,9 @@ static int rst_generate_arg_c (char *types, char *str, int len)
 static int rst_generate_arg_prep (char *types, char *str, int len)
 {
   int n = 0;
-  counters_t ct;
+  rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(counters_t));
+  bzero (&ct, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
@@ -213,8 +213,8 @@ int rst_generate_function_header (char *types, char *header, int header_len)
     return -1;
   }
 
-  counters_t ct;
-  bzero (&ct, sizeof(counters_t));
+  rst_counters_t ct;
+  bzero (&ct, sizeof(rst_counters_t));
 
   int len = 1000, res = 0;
   char *af, *ap;
@@ -245,10 +245,10 @@ int rst_generate_function_header (char *types, char *header, int header_len)
   return res;
 }
 
-static int rst_generate_function_start (counters_t *ct, char *implem, int implem_len)
+static int rst_generate_function_start (rst_counters_t *ct, char *implem, int implem_len)
 {
-  counters_t ct_done;
-  bzero (&ct_done, sizeof(counters_t));
+  rst_counters_t ct_done;
+  bzero (&ct_done, sizeof(rst_counters_t));
 
   int bits = 16;
   int done = 0;
@@ -306,7 +306,7 @@ int rst_generate_function_implementation (char *types, char *implem, int implem_
     return -1;
   }
 
-  counters_t ct;
+  rst_counters_t ct;
   rst_counters (types, &ct);
 
   int i, n = 0;

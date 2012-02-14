@@ -81,7 +81,7 @@
 typedef u_int16_t type_t;
 typedef unsigned long long timestamp_t;
 
-typedef struct {
+typedef struct rst_counters {
   int n_uint8;
   int n_uint16;
   int n_uint32;
@@ -89,7 +89,7 @@ typedef struct {
   int n_float;
   int n_double;
   int n_string;
-} counters_t;
+} rst_counters_t;
 
 /*
   The Event structure
@@ -98,7 +98,7 @@ typedef struct {
 #define RST_MAX_STRLEN 100
 
 typedef struct {
-  counters_t ct;
+  rst_counters_t ct;
   char v_string[RST_MAX_FIELDS_PER_TYPE][RST_MAX_STRLEN];
   u_int8_t v_uint8[RST_MAX_FIELDS_PER_TYPE];
   u_int16_t v_uint16[RST_MAX_FIELDS_PER_TYPE];
