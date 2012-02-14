@@ -451,7 +451,7 @@ int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
 void rst_print_event(rst_event_t *event)
 {
   int i;
-  if (event->file->resolution > 1000000){
+  if (event->file->resolution > RST_MICROSECONDS){
     printf("type: %d ts: %.9f (id1=%lu,id2=%lu)\n",
            event->type, event->timestamp, event->id1, event->id2);
   }else{
