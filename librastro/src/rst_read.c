@@ -104,6 +104,13 @@ static char *trd_event(rst_file_t *file, rst_event_t *event)
 // correct a timestamp according to synchronization data 
 static double rst_correct_time(rst_file_t *file, double remote)
 {
+  if (file->resolution == 0){
+    fprintf(stderr,
+            "[rastro_read] at %s, "
+            "resolution written in the trace file is zero\n",
+            __FUNCTION__);
+    return 0;
+  }
   double loc0 = file->sync_time.loc0/file->resolution;
   double ref0 = file->sync_time.ref0/file->resolution;
   return file->sync_time.a * (remote - loc0) + ref0;
