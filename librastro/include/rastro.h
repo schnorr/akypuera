@@ -138,6 +138,7 @@ typedef struct rst_rastro {
  * rst_buffer_t is used only for writing
  */
 typedef struct {
+  int write_first_hour;
   timestamp_t rst_t0;
   int rst_fd;
   char *rst_buffer_ptr;

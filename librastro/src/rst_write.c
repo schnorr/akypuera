@@ -97,6 +97,7 @@ static void rst_init_ptr_timestamp(rst_buffer_t *ptr,
   rastro_timeresolution = resolution;
 
   RST_SET_PTR(ptr);
+  ptr->write_first_hour = 1;
   ptr->rst_buffer_size = 100000;
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
   bzero(ptr->rst_buffer, ptr->rst_buffer_size);
@@ -163,12 +164,13 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
   timestamp_t sec = time/resolution;
   timestamp_t precision = time - (sec * resolution);
   timestamp_t deltasec = sec - RST_T0(ptr);
-  if(deltasec > 3600){
+  if(deltasec > 3600 || ptr->write_first_hour){
     RST_SET_T0(ptr, sec);
     deltasec = 0;
     RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
     RST_PUT(ptr, timestamp_t, sec);
     RST_PUT(ptr, timestamp_t, resolution);
+    ptr->write_first_hour = 0;
   }else{
     RST_PUT(ptr, u_int32_t, header);
   }
