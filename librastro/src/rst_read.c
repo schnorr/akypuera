@@ -45,8 +45,9 @@ static char *trd_event(rst_file_t *file, rst_event_t *event)
   }
 
   //read the timestamp of this event, correct it according to the last hour
-  event->timestamp = (timestamp_t)RST_GET(ptr, u_int64_t);
-  event->timestamp += file->hour;
+  timestamp_t precision = (timestamp_t)RST_GET(ptr, u_int64_t);
+  timestamp_t time = file->hour + precision;
+  event->timestamp = (double)time/file->resolution;
 
   int fields_in_header = RST_FIELDS_IN_FIRST;
   char field_types[100];
@@ -101,9 +102,11 @@ static char *trd_event(rst_file_t *file, rst_event_t *event)
 }
 
 // correct a timestamp according to synchronization data 
-static timestamp_t rst_correct_time(timestamp_t remote, rst_ct_t *ct)
+static double rst_correct_time(rst_file_t *file, double remote)
 {
-  return (timestamp_t) (ct->a * (double) (remote - ct->loc0)) + ct->ref0;
+  double loc0 = file->sync_time.loc0/file->resolution;
+  double ref0 = file->sync_time.ref0/file->resolution;
+  return file->sync_time.a * (remote - loc0) + ref0;
 }
 
 // find synchronization data from a rastro_timesync file
@@ -198,7 +201,7 @@ static int rst_decode_one_event(rst_file_t *file, rst_event_t *event)
   file->rst_buffer_ptr = trd_event(file, event);
 
   //correct timestamp
-  event->timestamp = rst_correct_time(event->timestamp, &file->sync_time);
+  event->timestamp = rst_correct_time(file, event->timestamp);
 
   //copy information from file to event
   event->id1 = file->id1;
@@ -280,7 +283,7 @@ static int rst_open_one_file(char *filename,
   find_timesync_data(syncfilename, file);
 
   //clock synchronization of the first event
-  file->event.timestamp = rst_correct_time(file->event.timestamp, &file->sync_time);
+  file->event.timestamp = rst_correct_time(file, file->event.timestamp);
   return RST_OK;
 }
 
@@ -401,19 +404,6 @@ void rst_close(rst_rastro_t *rastro)
   rastro->n = 0;
 }
 
-timestamp_t rst_resolution(rst_rastro_t *rastro)
-{
-  if (rastro == NULL){
-    return 0;
-  }else{
-    if (rastro->n >= 1){
-      return rastro->files[0]->resolution;
-    }else{
-      return 0;
-    }
-  }
-}
-
 int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
 {
   rst_file_t *aux;
@@ -454,7 +444,7 @@ int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
 void rst_print_event(rst_event_t *event)
 {
   int i;
-  printf("type: %d ts: %lld (id1=%lu,id2=%lu)\n",
+  printf("type: %d ts: %.9f (id1=%lu,id2=%lu)\n",
          event->type, event->timestamp, event->id1, event->id2);
   if (event->ct.n_uint64 > 0) {
     printf("\tu_int64_ts-> ");
