@@ -328,13 +328,13 @@ static void reorganize_top_down(rst_rastro_t * f_data, int dead)
   son2 = (dead * 2) + 1;
 
   //empty
-  if (dead > f_data->quantity)
+  if (dead > f_data->n)
     return;
   //son1 does not belong
-  if (son1 > f_data->quantity)
+  if (son1 > f_data->n)
     return;
   //son2 does not belong
-  if (son2 > f_data->quantity)
+  if (son2 > f_data->n)
     smallest_first(f_data, dead, son1);
 
   //both belong
@@ -353,20 +353,14 @@ static void reorganize_top_down(rst_rastro_t * f_data, int dead)
 /*
   Public functions
  */
-int rst_open_file(char *filename,
-                  rst_rastro_t *rastro,
-                  char *syncfilename,
-                  int buffer_size)
+int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *syncfilename)
 {
-  if (rastro->initialized != FDATAINITIALIZED) {
+  if (rastro->files == NULL){
     rastro->files = (rst_file_t **) malloc(sizeof(*rastro->files));
-    rastro->quantity = 0;
-    rastro->initialized = FDATAINITIALIZED;
+    rastro->n = 0;
   } else {
-    rastro->files =
-        (rst_file_t **) realloc(rastro->files,
-                                    sizeof(*rastro->files) *
-                                    (rastro->quantity + 1));
+    rastro->files = (rst_file_t **) realloc(rastro->files,
+                                            sizeof(*rastro->files) * (rastro->n + 1));
   }
 
   if (rastro->files == NULL) {
@@ -374,76 +368,76 @@ int rst_open_file(char *filename,
     return RST_NOK;
   }
 
-  rastro->files[rastro->quantity] =
+  rastro->files[rastro->n] =
       (rst_file_t *) malloc(sizeof(rst_file_t));
-  bzero(rastro->files[rastro->quantity], sizeof(rst_file_t));
-  if (rastro->files[rastro->quantity] == NULL) {
+  bzero(rastro->files[rastro->n], sizeof(rst_file_t));
+  if (rastro->files[rastro->n] == NULL) {
     fprintf(stderr, "[rastro] cannot allocate memory");
     return RST_NOK;
   }
 
   if (rst_open_one_file
-      (filename, rastro->files[rastro->quantity], syncfilename,
+      (filename, rastro->files[rastro->n], syncfilename,
        buffer_size)) {
     if (!rst_decode_one_event
-        (rastro->files[rastro->quantity],
-         &rastro->files[rastro->quantity]->event)) {
+        (rastro->files[rastro->n],
+         &rastro->files[rastro->n]->event)) {
 
-      rst_close_one_file(rastro->files[rastro->quantity]);
-      free(rastro->files[rastro->quantity]);
+      rst_close_one_file(rastro->files[rastro->n]);
+      free(rastro->files[rastro->n]);
     } else {
-      rastro->quantity++;
-      reorganize_bottom_up(rastro, rastro->quantity);
+      rastro->n++;
+      reorganize_bottom_up(rastro, rastro->n);
     }
     return RST_OK;
   } else
     return RST_NOK;
 }
 
-void rst_close_file(rst_rastro_t *rastro)
+void rst_close(rst_rastro_t *rastro)
 {
   free(rastro->files);
-  rastro->quantity = 0;
+  rastro->n = 0;
 }
 
-int rst_decode_event(rst_rastro_t *rastro, rst_event_t * event)
+int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
 {
   rst_file_t *aux;
 
   //empty
-  if (rastro->quantity < 1)
+  if (rastro->n < 1)
     return RST_NOK;
 
   else {
     *event = rastro->files[0]->event;
 
-    rastro->quantity--;
+    rastro->n--;
 
     //switch the last and the first
     aux = rastro->files[0];
-    rastro->files[0] = rastro->files[rastro->quantity];
-    rastro->files[rastro->quantity] = aux;
+    rastro->files[0] = rastro->files[rastro->n];
+    rastro->files[rastro->n] = aux;
 
     //reorganize
     reorganize_top_down(rastro, 1);
 
     if (!rst_decode_one_event
-        (rastro->files[rastro->quantity],
-         &rastro->files[rastro->quantity]->event)) {
+        (rastro->files[rastro->n],
+         &rastro->files[rastro->n]->event)) {
 
-      rst_close_one_file(rastro->files[rastro->quantity]);
-      free(rastro->files[rastro->quantity]);
+      rst_close_one_file(rastro->files[rastro->n]);
+      free(rastro->files[rastro->n]);
     } else {
-      rastro->quantity++;
+      rastro->n++;
       //reorganize
-      reorganize_bottom_up(rastro, rastro->quantity);
+      reorganize_bottom_up(rastro, rastro->n);
     }
     return RST_OK;
   }
 }
 
 
-void rst_print_event(rst_event_t * event)
+void rst_print_event(rst_event_t *event)
 {
   int i;
   printf("type: %d ts: %lld (id1=%lu,id2=%lu)\n",

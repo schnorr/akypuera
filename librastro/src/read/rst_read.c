@@ -53,17 +53,16 @@ int main (int argc, char *argv[])
     return 1;
   }
 
-  rst_rastro_t data;
-  bzero(&data, sizeof(rst_rastro_t));
+  rst_rastro_t rastro;
+  bzero(&rastro, sizeof(rst_rastro_t));
   rst_event_t event;
   int i;
 
   /* opening rst files */
   for (i = 0; i < arguments.input_size; i++){
-    int status = rst_open_file (arguments.input[i],
-                                &data,
-                                arguments.synchronization_file,
-                                100000);
+    int status = rst_open_file (&rastro, 100000,
+                                arguments.input[i],
+                                arguments.synchronization_file);
     if (status == RST_NOK){
       fprintf(stderr,
               "[rastro_read] at %s, "
@@ -74,11 +73,11 @@ int main (int argc, char *argv[])
   }
 
   /* reading all the files */
-  while (rst_decode_event (&data, &event)) {
+  while (rst_decode_event (&rastro, &event)) {
     rst_print_event (&event);
   }
 
   /* closing everything */
-  rst_close_file (&data);
+  rst_close (&rastro);
   return 0;
 }

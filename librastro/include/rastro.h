@@ -76,8 +76,6 @@
 #define STR(x) #x
 #define XSTR(x) STR(x)
 
-#define FDATAINITIALIZED -239847237
-
 typedef u_int16_t type_t;
 typedef unsigned long long timestamp_t;
 
@@ -132,8 +130,7 @@ typedef struct rst_file {
 
 typedef struct rst_rastro {
   rst_file_t **files;
-  int quantity;
-  int initialized;
+  int n;
 } rst_rastro_t;
 
 /*
@@ -167,11 +164,10 @@ void rst_endevent(rst_buffer_t * ptr);
 /* 
   Reading Interface
 */
-int rst_open_file(char *f_name, rst_rastro_t * f_data, char *syncfilename,
-                  int buffer_size);
-void rst_close_file(rst_rastro_t * f_data);
-int rst_decode_event(rst_rastro_t * f_data, rst_event_t * event);
-void rst_print_event(rst_event_t * event);
+int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *syncfilename);
+int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event);
+void rst_close(rst_rastro_t *rastro);
+void rst_print_event(rst_event_t *event);
 
 /*
  Generate Interface 
