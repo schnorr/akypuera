@@ -100,7 +100,7 @@ static char *trd_event(rst_one_file_t *file, rst_event_t *event)
 }
 
 // correct a timestamp according to synchronization data 
-static timestamp_t rst_correct_time(timestamp_t remote, ct_t *ct)
+static timestamp_t rst_correct_time(timestamp_t remote, rst_ct_t *ct)
 {
   return (timestamp_t) (ct->a * (double) (remote - ct->loc0)) + ct->ref0;
 }

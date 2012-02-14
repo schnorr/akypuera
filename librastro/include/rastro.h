@@ -113,15 +113,15 @@ typedef struct {
   struct rst_one_file *file; // rst file from which this event was read from
 } rst_event_t;
 
-typedef struct {
+typedef struct rst_ct {
   double a;
   timestamp_t loc0;
   timestamp_t ref0;
-} ct_t;
+} rst_ct_t;
 
 typedef struct rst_one_file {
   int fd;
-  ct_t sync_time;
+  rst_ct_t sync_time;
   char *rst_buffer_ptr;
   char *rst_buffer;
   int rst_buffer_size;
