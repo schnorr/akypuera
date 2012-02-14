@@ -53,8 +53,8 @@ int main (int argc, char *argv[])
     return 1;
   }
 
-  rst_file_t data;
-  bzero(&data, sizeof(rst_file_t));
+  rst_rastro_t data;
+  bzero(&data, sizeof(rst_rastro_t));
   rst_event_t event;
   int i;
 

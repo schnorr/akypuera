@@ -299,7 +299,7 @@ static void rst_close_one_file(rst_one_file_t *file)
 /* 
    Functions related to the reading of multiple trace files
  */
-static void smallest_first(rst_file_t * f_data, int dead, int son)
+static void smallest_first(rst_rastro_t * f_data, int dead, int son)
 {
   rst_one_file_t *aux;
   if (f_data->of_data[dead - 1]->event.timestamp >
@@ -310,7 +310,7 @@ static void smallest_first(rst_file_t * f_data, int dead, int son)
   }
 }
 
-static void reorganize_bottom_up(rst_file_t * f_data, int son)
+static void reorganize_bottom_up(rst_rastro_t * f_data, int son)
 {
   int dead;
   dead = son / 2;
@@ -321,7 +321,7 @@ static void reorganize_bottom_up(rst_file_t * f_data, int son)
   reorganize_bottom_up(f_data, dead);
 }
 
-static void reorganize_top_down(rst_file_t * f_data, int dead)
+static void reorganize_top_down(rst_rastro_t * f_data, int dead)
 {
   int son1, son2;
   son1 = dead * 2;
@@ -353,7 +353,7 @@ static void reorganize_top_down(rst_file_t * f_data, int dead)
 /*
   Public functions
  */
-int rst_open_file(char *f_name, rst_file_t * f_data, char
+int rst_open_file(char *f_name, rst_rastro_t * f_data, char
                   *syncfilename, int buffer_size)
 {
   if (f_data->initialized != FDATAINITIALIZED) {
@@ -398,13 +398,13 @@ int rst_open_file(char *f_name, rst_file_t * f_data, char
     return RST_NOK;
 }
 
-void rst_close_file(rst_file_t * f_data)
+void rst_close_file(rst_rastro_t * f_data)
 {
   free(f_data->of_data);
   f_data->quantity = 0;
 }
 
-int rst_decode_event(rst_file_t * f_data, rst_event_t * event)
+int rst_decode_event(rst_rastro_t * f_data, rst_event_t * event)
 {
   rst_one_file_t *aux;
 

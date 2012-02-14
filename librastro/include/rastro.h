@@ -134,11 +134,11 @@ typedef struct rst_one_file {
   char *filename; //this filename
 } rst_one_file_t;
 
-typedef struct {
+typedef struct rst_rastro {
   rst_one_file_t **of_data;
   int quantity;
   int initialized;
-} rst_file_t;
+} rst_rastro_t;
 
 typedef struct {
   timestamp_t rst_t0;
@@ -168,10 +168,10 @@ void rst_endevent(rst_buffer_t * ptr);
 /* 
   Reading Interface
 */
-int rst_open_file(char *f_name, rst_file_t * f_data, char *syncfilename,
+int rst_open_file(char *f_name, rst_rastro_t * f_data, char *syncfilename,
                   int buffer_size);
-void rst_close_file(rst_file_t * f_data);
-int rst_decode_event(rst_file_t * f_data, rst_event_t * event);
+void rst_close_file(rst_rastro_t * f_data);
+int rst_decode_event(rst_rastro_t * f_data, rst_event_t * event);
 void rst_print_event(rst_event_t * event);
 
 /*
