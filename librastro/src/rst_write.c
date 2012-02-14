@@ -102,8 +102,7 @@ static void rst_init_ptr_timestamp(rst_buffer_t *ptr,
   bzero(ptr->rst_buffer, ptr->rst_buffer_size);
   RST_RESET(ptr);
 
-  sprintf(fname, "rastro-%" PRIu64 "-%" PRIu64 ".rst", /* dirname, */ id1,
-          id2);
+  sprintf(fname, "rastro-%" PRIu64 "-%" PRIu64 ".rst", id1, id2);
   fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
   if (fd == -1) {
     fprintf(stderr, "[rastro] cannot open file %s: %s\n",
