@@ -117,15 +117,16 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  rst_file_t data;
-  bzero (&data, sizeof(rst_file_t));
+  rst_rastro_t rastro;
+  bzero (&rastro, sizeof(rst_rastro_t));
   rst_event_t event;
   int i;
   int fail = 0;
 
   for (i = 0; i < arguments.input_size; i++){
-    int ret = rst_open_file(arguments.input[i], &data,
-                            arguments.synchronization_file, 100000);
+    int ret = rst_open_file(&rastro, 100000,
+                            arguments.input[i],
+                            arguments.synchronization_file);
     if (ret == -1) {
       fprintf(stderr,
               "[aky_converter] at %s, "
@@ -168,7 +169,7 @@ int main(int argc, char **argv)
   paje_header(arguments.basic);
   paje_hierarchy();
 
-  while (rst_decode_event(&data, &event) && !fail) {
+  while (rst_decode_event(&rastro, &event) && !fail) {
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%ld", event.id1);
     long timestamp = event.timestamp;
@@ -504,7 +505,7 @@ int main(int argc, char **argv)
     }
   }
 
-  rst_close_file(&data);
+  rst_close (&rastro);
   aky_key_free();
   return 0;
 }
