@@ -39,7 +39,7 @@ static char *trd_event(rst_file_t *file, rst_event_t *event)
   //if header contains time data with the hour, read it
   if (header & RST_TIME_SET) {
     timestamp_t resolution = RST_CLOCK_RESOLUTION;
-    timestamp_t seconds = (timestamp_t) RST_GET(ptr, u_int32_t);
+    timestamp_t seconds = (timestamp_t) RST_GET(ptr, timestamp_t);
     file->hour = seconds * resolution;
   }
 

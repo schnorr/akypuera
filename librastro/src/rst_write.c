@@ -167,7 +167,7 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
     RST_SET_T0(ptr, sec);
     deltasec = 0;
     RST_PUT(ptr, u_int32_t, header | RST_TIME_SET);
-    RST_PUT(ptr, u_int32_t, sec);
+    RST_PUT(ptr, timestamp_t, sec);
   }else{
     RST_PUT(ptr, u_int32_t, header);
   }
