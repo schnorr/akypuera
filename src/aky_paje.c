@@ -57,7 +57,7 @@ static void pajeCreateContainer_internal (double timestamp,
                                      const char *type,
                                      const char *container, const char *name)
 {
-  printf("%d %g %s %s %s %s\n", PAJE_CreateContainer,
+  printf("%d %.9f %s %s %s %s\n", PAJE_CreateContainer,
          timestamp, alias, type, container, name);
 }
 
@@ -78,7 +78,7 @@ void pajeCreateContainer(double timestamp,
 void pajeDestroyContainer(double timestamp,
                           const char *type, const char *container)
 {
-  printf("%d %g %s %s\n", PAJE_DestroyContainer,
+  printf("%d %.9f %s %s\n", PAJE_DestroyContainer,
          paje_event_timestamp(timestamp), type, container);
 }
 
@@ -86,7 +86,7 @@ void pajeSetState(double timestamp,
                   const char *container,
                   const char *type, const char *value)
 {
-  printf("%d %g %s %s %s\n", PAJE_SetState,
+  printf("%d %.9f %s %s %s\n", PAJE_SetState,
          paje_event_timestamp(timestamp), container, type, value);
 }
 
@@ -95,7 +95,7 @@ void pajePushState(double timestamp,
                    const char *container,
                    const char *type, const char *value)
 {
-  printf("%d %g %s %s %s\n", PAJE_PushState,
+  printf("%d %.9f %s %s %s\n", PAJE_PushState,
          paje_event_timestamp(timestamp), container, type, value);
 }
 
@@ -104,7 +104,7 @@ void pajePushStateWithMark(double timestamp,
                    const char *type, const char *value, const int mark)
 {
   if (extended){
-    printf("%d %g %s %s %s %d\n", PAJE_PushStateWithMark,
+    printf("%d %.9f %s %s %s %d\n", PAJE_PushStateWithMark,
            paje_event_timestamp(timestamp), container, type, value, mark);
   }else{
     pajePushState (timestamp, container, type, value);
@@ -114,7 +114,7 @@ void pajePushStateWithMark(double timestamp,
 void pajePopState(double timestamp,
                   const char *container, const char *type)
 {
-  printf("%d %g %s %s\n", PAJE_PopState,
+  printf("%d %.9f %s %s\n", PAJE_PopState,
          paje_event_timestamp(timestamp), container, type);
 }
 
@@ -125,7 +125,7 @@ void pajeStartLink(double timestamp,
                    const char *value,
                    const char *key)
 {
-  printf("%d %g %s %s %s %s %s\n", PAJE_StartLink,
+  printf("%d %.9f %s %s %s %s %s\n", PAJE_StartLink,
          paje_event_timestamp(timestamp),
          container, type, sourceContainer, value, key);
 }
@@ -139,7 +139,7 @@ void pajeStartLinkWithMessageSize(double timestamp,
                    const int messageSize)
 {
   if (extended){
-    printf("%d %g %s %s %s %s %s %d\n", PAJE_StartLinkWithMessageSizeAndMark,
+    printf("%d %.9f %s %s %s %s %s %d\n", PAJE_StartLinkWithMessageSizeAndMark,
            paje_event_timestamp(timestamp),
            container, type, sourceContainer, value, key, messageSize);
   }else{
@@ -157,7 +157,7 @@ void pajeStartLinkWithMessageSizeAndMark(double timestamp,
                    const int mark)
 {
   if (extended){
-    printf("%d %g %s %s %s %s %s %d %d\n", PAJE_StartLinkWithMessageSizeAndMark,
+    printf("%d %.9f %s %s %s %s %s %d %d\n", PAJE_StartLinkWithMessageSizeAndMark,
            paje_event_timestamp(timestamp),
            container, type, sourceContainer, value, key, messageSize, mark);
   }else{
@@ -171,7 +171,7 @@ void pajeEndLink(double timestamp,
                  const char *endContainer,
                  const char *value, const char *key)
 {
-  printf("%d %g %s %s %s %s %s\n", PAJE_EndLink,
+  printf("%d %.9f %s %s %s %s %s\n", PAJE_EndLink,
          paje_event_timestamp(timestamp),
          container, type, endContainer, value, key);
 }
