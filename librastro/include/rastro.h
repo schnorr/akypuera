@@ -124,6 +124,7 @@ typedef struct rst_file {
   u_int64_t id1;
   u_int64_t id2;
   timestamp_t hour;
+  timestamp_t resolution; //clock resolution
   rst_event_t event;
   char *filename; //this filename
 } rst_file_t;
@@ -166,6 +167,7 @@ void rst_endevent(rst_buffer_t * ptr);
 */
 int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *syncfilename);
 int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event);
+timestamp_t rst_resolution(rst_rastro_t *rastro);
 void rst_close(rst_rastro_t *rastro);
 void rst_print_event(rst_event_t *event);
 

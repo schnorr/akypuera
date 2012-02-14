@@ -38,8 +38,9 @@ static char *trd_event(rst_file_t *file, rst_event_t *event)
 
   //if header contains time data with the hour, read it
   if (header & RST_TIME_SET) {
-    timestamp_t resolution = RST_CLOCK_RESOLUTION;
     timestamp_t seconds = (timestamp_t) RST_GET(ptr, timestamp_t);
+    timestamp_t resolution = (timestamp_t) RST_GET(ptr, timestamp_t);
+    file->resolution = resolution;
     file->hour = seconds * resolution;
   }
 
@@ -398,6 +399,19 @@ void rst_close(rst_rastro_t *rastro)
 {
   free(rastro->files);
   rastro->n = 0;
+}
+
+timestamp_t rst_resolution(rst_rastro_t *rastro)
+{
+  if (rastro == NULL){
+    return 0;
+  }else{
+    if (rastro->n >= 1){
+      return rastro->files[0]->resolution;
+    }else{
+      return 0;
+    }
+  }
 }
 
 int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
