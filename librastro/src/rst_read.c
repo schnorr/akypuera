@@ -24,40 +24,40 @@
  */
 
 // read an event from the buffer
-static char *trd_event(timestamp_t *hour, rst_event_t * evento, char *ptr)
+static char *trd_event(rst_one_file_t *file, rst_event_t *event)
 {
-  u_int32_t header;
-  char field_types[100];
-  int field_ctr = 0;
-  int i;
-  int fields_in_header;
+  //zero the event, prepare it for reading
+  bzero (event, sizeof(rst_event_t));
 
-  header = RST_GET(ptr, u_int32_t);
+  //the pointer to the data
+  char *ptr = file->rst_buffer_ptr;
 
-  evento->type = header >> 18;
+  //read the header
+  u_int32_t header = RST_GET(ptr, u_int32_t);
+  event->type = header >> 18;
 
-  evento->ct.n_uint64 = evento->ct.n_uint16 = evento->ct.n_double =
-      evento->ct.n_uint32 = 0;
-  evento->ct.n_float = evento->ct.n_string = evento->ct.n_uint8 = 0;
-
+  //if header contains time data with the hour, read it
   if (header & RST_TIME_SET) {
     timestamp_t resolution = RST_CLOCK_RESOLUTION;
     timestamp_t seconds = (timestamp_t) RST_GET(ptr, u_int32_t);
-    *hour = seconds * resolution;
+    file->hour = seconds * resolution;
   }
-  evento->timestamp = (timestamp_t)RST_GET(ptr, u_int64_t);
-  evento->timestamp += *hour;
 
-  fields_in_header = RST_FIELDS_IN_FIRST;
+  //read the timestamp of this event, correct it according to the last hour
+  event->timestamp = (timestamp_t)RST_GET(ptr, u_int64_t);
+  event->timestamp += file->hour;
+
+  int fields_in_header = RST_FIELDS_IN_FIRST;
+  char field_types[100];
+  int i, field_counter = 0;
   for (;;) {
     for (i = 0; i < fields_in_header; i++) {
-      char type;
       int bits_to_shift = RST_BITS_PER_FIELD * (fields_in_header - i - 1);
-      type = (header >> bits_to_shift) & RST_FIELD_MASK;
+      char type = (header >> bits_to_shift) & RST_FIELD_MASK;
       if (type == RST_NO_TYPE) {
         break;
       }
-      field_types[field_ctr++] = type;
+      field_types[field_counter++] = type;
     }
     if (!((header >> (fields_in_header * RST_BITS_PER_FIELD)) & RST_LAST)) {
       // there are more headers -- process next one
@@ -68,116 +68,111 @@ static char *trd_event(timestamp_t *hour, rst_event_t * evento, char *ptr)
       break;
     }
   }
-  for (i = 0; i < field_ctr; i++) {
+  for (i = 0; i < field_counter; i++) {
     switch (field_types[i]) {
     case RST_STRING_TYPE:
-      RST_GET_STR(ptr, evento->v_string[evento->ct.n_string++]);
+      RST_GET_STR(ptr, event->v_string[event->ct.n_string++]);
       break;
     case RST_DOUBLE_TYPE:
-      evento->v_double[evento->ct.n_double++] = RST_GET(ptr, double);
+      event->v_double[event->ct.n_double++] = RST_GET(ptr, double);
       break;
     case RST_LONG_TYPE:
-      evento->v_uint64[evento->ct.n_uint64++] = RST_GET(ptr, u_int64_t);
+      event->v_uint64[event->ct.n_uint64++] = RST_GET(ptr, u_int64_t);
       break;
     case RST_FLOAT_TYPE:
-      evento->v_float[evento->ct.n_float++] = RST_GET(ptr, float);
+      event->v_float[event->ct.n_float++] = RST_GET(ptr, float);
       break;
     case RST_INT_TYPE:
-      evento->v_uint32[evento->ct.n_uint32++] = RST_GET(ptr, u_int32_t);
+      event->v_uint32[event->ct.n_uint32++] = RST_GET(ptr, u_int32_t);
       break;
     case RST_SHORT_TYPE:
-      evento->v_uint16[evento->ct.n_uint16++] = RST_GET(ptr, u_int16_t);
+      event->v_uint16[event->ct.n_uint16++] = RST_GET(ptr, u_int16_t);
       break;
     case RST_CHAR_TYPE:
-      evento->v_uint8[evento->ct.n_uint8++] = RST_GET(ptr, u_int8_t);
+      event->v_uint8[event->ct.n_uint8++] = RST_GET(ptr, u_int8_t);
       break;
     }
   }
 
+  //align the data pointer, return it for next read
   ptr = ALIGN_PTR(ptr);
-
   return ptr;
 }
 
 // correct a timestamp according to synchronization data 
-static timestamp_t rst_correct_time(timestamp_t remote, ct_t * ct)
+static timestamp_t rst_correct_time(timestamp_t remote, ct_t *ct)
 {
-  timestamp_t local;
-
-  local = (timestamp_t) (ct->a * (double) (remote - ct->loc0)) + ct->ref0;
-
-  return local;
+  return (timestamp_t) (ct->a * (double) (remote - ct->loc0)) + ct->ref0;
 }
 
-static void find_timesync_data(char *filename, rst_one_file_t * of_data)
+// find synchronization data from a rastro_timesync file
+static void find_timesync_data(char *filename, rst_one_file_t *file)
 {
-  FILE *ct_file;
-  char refhost[MAXHOSTNAMELEN + 1];
-  char host[MAXHOSTNAMELEN + 1];
+  char refhost[MAXHOSTNAMELEN];
+  char host[MAXHOSTNAMELEN];
   timestamp_t time;
   timestamp_t reftime;
-  int first = 1;
 
-  of_data->sync_time.a = 1;
-  of_data->sync_time.loc0 = 0;
-  of_data->sync_time.ref0 = 0;
+  //reset synchronization data for this file
+  file->sync_time.a = 1;
+  file->sync_time.loc0 = 0;
+  file->sync_time.ref0 = 0;
 
+  //open synchronization file for reading
   if (filename == NULL) {
     return;
   }
-  ct_file = fopen(filename, "r");
+  FILE *ct_file = fopen(filename, "r");
   if (ct_file == NULL) {
     return;
   }
 
+  //read all synchronization file, one line per time, parse it
   while (!feof(ct_file)) {
-    fscanf(ct_file, "%s %lld %s %lld", refhost, &reftime, host, &time);
-    if (strcmp(refhost, of_data->hostname) == 0) {
-      // this is the reference host
-      of_data->sync_time.ref0 = reftime;
-      of_data->sync_time.loc0 = reftime;
+    if (fscanf(ct_file, "%s %lld %s %lld", refhost, &reftime, host, &time) != 4){
       break;
     }
-    if (strcmp(host, of_data->hostname) == 0) {
+    if (strcmp(refhost, file->hostname) == 0) {
+      // this is the reference host
+      file->sync_time.ref0 = reftime;
+      file->sync_time.loc0 = reftime;
+      break;
+    }
+    if (strcmp(host, file->hostname) == 0) {
+      static int first = 1;
       if (first) {
-        of_data->sync_time.ref0 = reftime;
-        of_data->sync_time.loc0 = time;
+        file->sync_time.ref0 = reftime;
+        file->sync_time.loc0 = time;
         first = 0;
       } else {
-        of_data->sync_time.a = (double) (reftime - of_data->sync_time.ref0)
-            / (double) (time - of_data->sync_time.loc0);
+        file->sync_time.a =
+          (double) (reftime - file->sync_time.ref0) /
+          (double) (time - file->sync_time.loc0);
       }
     }
   }
   fclose(ct_file);
 }
 
-void rst_fill_buffer(rst_one_file_t * of_data)
+void rst_fill_buffer(rst_one_file_t * file)
 {
-  int bytes_processed;
-  int bytes_remaining;
-  int bytes_free;
-  int bytes_read;
-
-  bytes_processed = of_data->rst_buffer_ptr - of_data->rst_buffer;
-  bytes_remaining = of_data->rst_buffer_used - bytes_processed;
+  int bytes_processed = file->rst_buffer_ptr - file->rst_buffer;
+  int bytes_remaining = file->rst_buffer_used - bytes_processed;
   if (bytes_remaining >= RST_MAX_EVENT_SIZE) {
     return;
   }
 
-  bytes_free = of_data->rst_buffer_size - of_data->rst_buffer_used;
+  int bytes_free = file->rst_buffer_size - file->rst_buffer_used;
   if (bytes_free < RST_MAX_EVENT_SIZE) {
-    memmove(of_data->rst_buffer, of_data->rst_buffer_ptr, bytes_remaining);
-    of_data->rst_buffer_used = bytes_remaining;
-    of_data->rst_buffer_ptr = of_data->rst_buffer;
+    memmove(file->rst_buffer, file->rst_buffer_ptr, bytes_remaining);
+    file->rst_buffer_used = bytes_remaining;
+    file->rst_buffer_ptr = file->rst_buffer;
     bytes_free += bytes_processed;
   }
 
-  bytes_read =
-      read(of_data->fd, of_data->rst_buffer + of_data->rst_buffer_used,
-           bytes_free);
+  int bytes_read = read(file->fd, file->rst_buffer + file->rst_buffer_used, bytes_free);
   if (bytes_read > 0) {
-    of_data->rst_buffer_used += bytes_read;
+    file->rst_buffer_used += bytes_read;
   }
 }
 
@@ -185,106 +180,125 @@ void rst_fill_buffer(rst_one_file_t * of_data)
 /*
   Functions to read a single trace file
  */
+static int rst_decode_one_event(rst_one_file_t *file, rst_event_t *event)
 
-
-// Reads the buffer and decodes an event
-static int rst_decode_one_event(rst_one_file_t * of_data,
-                                rst_event_t * event)
 {
-  int bytes_remaining, bytes_processed;
+  //fill the file buffer by reading bytes from file
+  rst_fill_buffer(file);
 
-  rst_fill_buffer(of_data);
-
-  bytes_processed = of_data->rst_buffer_ptr - of_data->rst_buffer;
-  bytes_remaining = of_data->rst_buffer_used - bytes_processed;
+  //checks on bytes read
+  int bytes_processed = file->rst_buffer_ptr - file->rst_buffer;
+  int bytes_remaining = file->rst_buffer_used - bytes_processed;
   if (bytes_remaining <= 0) {
     return RST_NOK;
   }
 
-  of_data->rst_buffer_ptr =
-      trd_event(&of_data->hour, event, of_data->rst_buffer_ptr);
+  //read one event, update the buffer pointer
+  file->rst_buffer_ptr = trd_event(file, event);
 
-  event->timestamp =
-      rst_correct_time(event->timestamp, &of_data->sync_time);
-  event->id1 = of_data->id1;
-  event->id2 = of_data->id2;
+  //correct timestamp
+  event->timestamp = rst_correct_time(event->timestamp, &file->sync_time);
+
+  //copy information from file to event
+  event->id1 = file->id1;
+  event->id2 = file->id2;
+  event->file = file;
+
+  //if event is the last one, stop
   if (event->type == RST_EVENT_STOP) {
     return RST_NOK;
   }
-  event->file = of_data;
+
+  //that's it, we have a new event
   return RST_OK;
 }
 
 //Open one trace file
-static int rst_open_one_file(char *f_name, rst_one_file_t * of_data,
+static int rst_open_one_file(char *filename,
+                             rst_one_file_t *file,
                              char *syncfilename, int buffer_size)
 {
-  of_data->fd = open(f_name, O_RDONLY);
-  if (of_data->fd == -1) {
+  //zero the file data structure
+  bzero (file, sizeof(rst_one_file_t));
+
+  //open file
+  file->fd = open(filename, O_RDONLY);
+  if (file->fd == -1) {
     fprintf(stderr, "[rastro] cannot open file %s: %s\n",
-            f_name, strerror(errno));
+            filename, strerror(errno));
     return RST_NOK;
   }
-  of_data->sync_time.a = 1.0;
-  of_data->sync_time.ref0 = 0;
-  of_data->sync_time.loc0 = 0;
 
+  //reset clock synchronization data
+  //since it is used to read the first event
+  file->sync_time.a = 1.0;
+  file->sync_time.ref0 = 0;
+  file->sync_time.loc0 = 0;
+
+  //the buffer_size must have space for two MAX events
   if (buffer_size < 2 * RST_MAX_EVENT_SIZE) {
     buffer_size = 2 * RST_MAX_EVENT_SIZE;
   }
-  of_data->rst_buffer_size = buffer_size;
-  of_data->rst_buffer = (char *) malloc(of_data->rst_buffer_size);
-  if (of_data->rst_buffer == NULL) {
+  file->rst_buffer_size = buffer_size;
+
+  //allocate memory space for buffer
+  file->rst_buffer = (char *) malloc(file->rst_buffer_size);
+  if (file->rst_buffer == NULL) {
     fprintf(stderr, "[rastro] cannot allocate buffer memory");
-    close(of_data->fd);
-    of_data->fd = -1;
+    close(file->fd);
+    file->fd = -1;
     return RST_NOK;
   }
-  of_data->rst_buffer_ptr = of_data->rst_buffer;
-  of_data->rst_buffer_used = 0;
+  file->rst_buffer_ptr = file->rst_buffer;
+  file->rst_buffer_used = 0;
 
-  if (!rst_decode_one_event(of_data, &of_data->event)
-      || of_data->event.type != RST_EVENT_INIT
-      || of_data->event.ct.n_uint64 != 2
-      || of_data->event.ct.n_string != 1) {
-    fprintf(stderr, "[rastro] invalid rastro file %s\n", f_name);
-    close(of_data->fd);
-    of_data->fd = -1;
-    free(of_data->rst_buffer);
-    of_data->rst_buffer = NULL;
+  //read the first event, must be a RST_EVENT_INIT with
+  //- two u_int64_t for the ids
+  //- the hostname where the trace was registered
+  if (!rst_decode_one_event(file, &file->event)
+      || file->event.type != RST_EVENT_INIT
+      || file->event.ct.n_uint64 != 2
+      || file->event.ct.n_string != 1) {
+    fprintf(stderr, "[rastro] invalid rastro file %s\n", filename);
+    close(file->fd);
+    file->fd = -1;
+    free(file->rst_buffer);
+    file->rst_buffer = NULL;
     return RST_NOK;
   }
-  of_data->id1 = of_data->event.v_uint64[0];
-  of_data->id2 = of_data->event.v_uint64[1];
-  of_data->hostname = strdup(of_data->event.v_string[0]);
-  of_data->event.id1 = of_data->id1;
-  of_data->event.id2 = of_data->id2;
-  of_data->filename = strdup (f_name);
-  find_timesync_data(syncfilename, of_data);
 
-  /* Synchronize the first event */
-  of_data->event.timestamp =
-      rst_correct_time(of_data->event.timestamp, &of_data->sync_time);
+  //copy data from the first event to the file data structure
+  file->id1 = file->event.id1 = file->event.v_uint64[0];
+  file->id2 = file->event.id2 = file->event.v_uint64[1];
+  file->hostname = strdup(file->event.v_string[0]);
+
+  //save the filename of this trace file
+  file->filename = strdup (filename);
+
+  //find clock synchronization data, based on hostname of this trace
+  find_timesync_data(syncfilename, file);
+
+  //clock synchronization of the first event
+  file->event.timestamp = rst_correct_time(file->event.timestamp, &file->sync_time);
   return RST_OK;
 }
 
-//End a trace file
-static void rst_close_one_file(rst_one_file_t * of_data)
+static void rst_close_one_file(rst_one_file_t *file)
 {
-  close(of_data->fd);
-  of_data->fd = -1;
-  free(of_data->rst_buffer);
-  of_data->rst_buffer = NULL;
-  free(of_data->hostname);
-  free(of_data->filename);
-  of_data->hostname = NULL;
+  //close and free
+  close(file->fd);
+  file->fd = -1;
+  free(file->rst_buffer);
+  file->rst_buffer = NULL;
+  free(file->hostname);
+  free(file->filename);
+  file->hostname = NULL;
 }
 
 
 /* 
    Functions related to the reading of multiple trace files
  */
-
 static void smallest_first(rst_file_t * f_data, int dead, int son)
 {
   rst_one_file_t *aux;
@@ -295,8 +309,6 @@ static void smallest_first(rst_file_t * f_data, int dead, int son)
     f_data->of_data[son - 1] = aux;
   }
 }
-
-
 
 static void reorganize_bottom_up(rst_file_t * f_data, int son)
 {
@@ -338,12 +350,9 @@ static void reorganize_top_down(rst_file_t * f_data, int dead)
   }
 }
 
-
-
 /*
   Public functions
  */
-
 int rst_open_file(char *f_name, rst_file_t * f_data, char
                   *syncfilename, int buffer_size)
 {
