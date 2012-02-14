@@ -696,7 +696,10 @@ char ***argv;
   int rank;
   PMPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #ifdef SMPI
-  rst_init_timestamp(rank, 0, &smpi_gettimeofday);
+  rst_init_timestamp(rank,
+                     0,
+                     &smpi_rastro_timestamp,
+                     &smpi_rastro_resolution);
 #else
   rst_init(rank, 0);
 #endif
