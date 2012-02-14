@@ -24,7 +24,7 @@
  */
 
 // read an event from the buffer
-static char *trd_event(rst_one_file_t *file, rst_event_t *event)
+static char *trd_event(rst_file_t *file, rst_event_t *event)
 {
   //zero the event, prepare it for reading
   bzero (event, sizeof(rst_event_t));
@@ -106,7 +106,7 @@ static timestamp_t rst_correct_time(timestamp_t remote, rst_ct_t *ct)
 }
 
 // find synchronization data from a rastro_timesync file
-static void find_timesync_data(char *filename, rst_one_file_t *file)
+static void find_timesync_data(char *filename, rst_file_t *file)
 {
   char refhost[MAXHOSTNAMELEN];
   char host[MAXHOSTNAMELEN];
@@ -154,7 +154,7 @@ static void find_timesync_data(char *filename, rst_one_file_t *file)
   fclose(ct_file);
 }
 
-void rst_fill_buffer(rst_one_file_t * file)
+void rst_fill_buffer(rst_file_t * file)
 {
   int bytes_processed = file->rst_buffer_ptr - file->rst_buffer;
   int bytes_remaining = file->rst_buffer_used - bytes_processed;
@@ -180,7 +180,7 @@ void rst_fill_buffer(rst_one_file_t * file)
 /*
   Functions to read a single trace file
  */
-static int rst_decode_one_event(rst_one_file_t *file, rst_event_t *event)
+static int rst_decode_one_event(rst_file_t *file, rst_event_t *event)
 
 {
   //fill the file buffer by reading bytes from file
@@ -215,11 +215,11 @@ static int rst_decode_one_event(rst_one_file_t *file, rst_event_t *event)
 
 //Open one trace file
 static int rst_open_one_file(char *filename,
-                             rst_one_file_t *file,
+                             rst_file_t *file,
                              char *syncfilename, int buffer_size)
 {
   //zero the file data structure
-  bzero (file, sizeof(rst_one_file_t));
+  bzero (file, sizeof(rst_file_t));
 
   //open file
   file->fd = open(filename, O_RDONLY);
@@ -283,7 +283,7 @@ static int rst_open_one_file(char *filename,
   return RST_OK;
 }
 
-static void rst_close_one_file(rst_one_file_t *file)
+static void rst_close_one_file(rst_file_t *file)
 {
   //close and free
   close(file->fd);
@@ -301,7 +301,7 @@ static void rst_close_one_file(rst_one_file_t *file)
  */
 static void smallest_first(rst_rastro_t * f_data, int dead, int son)
 {
-  rst_one_file_t *aux;
+  rst_file_t *aux;
   if (f_data->of_data[dead - 1]->event.timestamp >
       f_data->of_data[son - 1]->event.timestamp) {
     aux = f_data->of_data[dead - 1];
@@ -357,12 +357,12 @@ int rst_open_file(char *f_name, rst_rastro_t * f_data, char
                   *syncfilename, int buffer_size)
 {
   if (f_data->initialized != FDATAINITIALIZED) {
-    f_data->of_data = (rst_one_file_t **) malloc(sizeof(*f_data->of_data));
+    f_data->of_data = (rst_file_t **) malloc(sizeof(*f_data->of_data));
     f_data->quantity = 0;
     f_data->initialized = FDATAINITIALIZED;
   } else {
     f_data->of_data =
-        (rst_one_file_t **) realloc(f_data->of_data,
+        (rst_file_t **) realloc(f_data->of_data,
                                     sizeof(*f_data->of_data) *
                                     (f_data->quantity + 1));
   }
@@ -373,8 +373,8 @@ int rst_open_file(char *f_name, rst_rastro_t * f_data, char
   }
 
   f_data->of_data[f_data->quantity] =
-      (rst_one_file_t *) malloc(sizeof(rst_one_file_t));
-  bzero(f_data->of_data[f_data->quantity], sizeof(rst_one_file_t));
+      (rst_file_t *) malloc(sizeof(rst_file_t));
+  bzero(f_data->of_data[f_data->quantity], sizeof(rst_file_t));
   if (f_data->of_data[f_data->quantity] == NULL) {
     fprintf(stderr, "[rastro] cannot allocate memory");
     return RST_NOK;
@@ -406,7 +406,7 @@ void rst_close_file(rst_rastro_t * f_data)
 
 int rst_decode_event(rst_rastro_t * f_data, rst_event_t * event)
 {
-  rst_one_file_t *aux;
+  rst_file_t *aux;
 
   //empty
   if (f_data->quantity < 1)

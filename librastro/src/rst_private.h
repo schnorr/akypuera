@@ -75,7 +75,7 @@ extern int (*rastro_gettimeofday) (struct timeval *tv, struct timezone *tz);
 #define RST_FIELDS_IN_FIRST  4
 #define RST_FIELDS_IN_OTHERS 7
 
-void rst_fill_buffer(rst_one_file_t * of_data);
+void rst_fill_buffer(rst_file_t * of_data);
 void rst_destroy_buffer(void *p);
 void extract_arguments(int *argcp, char ***argvp);
 void rst_flush(rst_buffer_t * ptr);

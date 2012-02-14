@@ -110,7 +110,7 @@ typedef struct {
   u_int64_t id1;
   u_int64_t id2;
   timestamp_t timestamp;
-  struct rst_one_file *file; // rst file from which this event was read from
+  struct rst_file *file; // rst file from which this event was read from
 } rst_event_t;
 
 typedef struct rst_ct {
@@ -119,7 +119,7 @@ typedef struct rst_ct {
   timestamp_t ref0;
 } rst_ct_t;
 
-typedef struct rst_one_file {
+typedef struct rst_file {
   int fd;
   rst_ct_t sync_time;
   char *rst_buffer_ptr;
@@ -132,14 +132,17 @@ typedef struct rst_one_file {
   timestamp_t hour;
   rst_event_t event;
   char *filename; //this filename
-} rst_one_file_t;
+} rst_file_t;
 
 typedef struct rst_rastro {
-  rst_one_file_t **of_data;
+  rst_file_t **of_data;
   int quantity;
   int initialized;
 } rst_rastro_t;
 
+/*
+ * rst_buffer_t is used only for writing
+ */
 typedef struct {
   timestamp_t rst_t0;
   int rst_fd;
