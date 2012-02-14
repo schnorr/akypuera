@@ -91,13 +91,9 @@ typedef struct rst_counters {
   int n_string;
 } rst_counters_t;
 
-/*
-  The Event structure
-*/
 #define RST_MAX_FIELDS_PER_TYPE 15
 #define RST_MAX_STRLEN 100
-
-typedef struct {
+typedef struct rst_event {
   rst_counters_t ct;
   char v_string[RST_MAX_FIELDS_PER_TYPE][RST_MAX_STRLEN];
   u_int8_t v_uint8[RST_MAX_FIELDS_PER_TYPE];
