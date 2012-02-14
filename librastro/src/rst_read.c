@@ -24,8 +24,7 @@
  */
 
 // read an event from the buffer
-static char *trd_event(timestamp_t * hora_global, rst_event_t * evento,
-                       char *ptr)
+static char *trd_event(timestamp_t *hour, rst_event_t * evento, char *ptr)
 {
   u_int32_t header;
   char field_types[100];
@@ -44,10 +43,10 @@ static char *trd_event(timestamp_t * hora_global, rst_event_t * evento,
   if (header & RST_TIME_SET) {
     timestamp_t resolution = RST_CLOCK_RESOLUTION;
     timestamp_t seconds = (timestamp_t) RST_GET(ptr, u_int32_t);
-    *hora_global = seconds * resolution;
+    *hour = seconds * resolution;
   }
   evento->timestamp = (timestamp_t)RST_GET(ptr, u_int64_t);
-  evento->timestamp += *hora_global;
+  evento->timestamp += *hour;
 
   fields_in_header = RST_FIELDS_IN_FIRST;
   for (;;) {
