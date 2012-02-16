@@ -165,6 +165,7 @@ void rst_init_timestamp_ptr (rst_buffer_t *ptr,
                              u_int64_t id2,
                              timestamp_t (*stamping) (void),
                              timestamp_t (*resolution) (void));
+void rst_flush(rst_buffer_t * ptr);
 void rst_finalize(void);
 void rst_finalize_ptr (rst_buffer_t *ptr);
 void rst_event(u_int16_t type);
