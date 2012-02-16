@@ -70,11 +70,11 @@ void rst_destroy_buffer(void *p)
   }
 }
 
-static void rst_init_ptr_timestamp(rst_buffer_t *ptr,
-                                   u_int64_t id1,
-                                   u_int64_t id2,
-                                   timestamp_t (*stamping) (void),
-                                   timestamp_t (*resolution) (void))
+static void __rst_init(rst_buffer_t *ptr,
+                       u_int64_t id1,
+                       u_int64_t id2,
+                       timestamp_t (*stamping) (void),
+                       timestamp_t (*resolution) (void))
 {
   int fd;
   char fname[30];
@@ -127,6 +127,11 @@ void rst_init(u_int64_t id1, u_int64_t id2)
   rst_init_timestamp (id1, id2, &_rst_timestamping, &_rst_timeresolution);
 }
 
+void rst_init_ptr (rst_buffer_t *ptr, u_int64_t id1, u_int64_t id2)
+{
+  __rst_init (ptr, id1, id2, &_rst_timestamping, &_rst_timeresolution);
+}
+
 void rst_init_timestamp (u_int64_t id1,
                          u_int64_t id2,
                          timestamp_t (*stamping) (void),
@@ -134,7 +139,16 @@ void rst_init_timestamp (u_int64_t id1,
 {
   rst_buffer_t *ptr;
   ptr = (rst_buffer_t *) malloc(sizeof(rst_buffer_t));
-  rst_init_ptr_timestamp (ptr, id1, id2, stamping, resolution);
+  __rst_init (ptr, id1, id2, stamping, resolution);
+}
+
+void rst_init_timestamp_ptr (rst_buffer_t *ptr,
+                             u_int64_t id1,
+                             u_int64_t id2,
+                             timestamp_t (*stamping) (void),
+                             timestamp_t (*resolution) (void))
+{
+  __rst_init (ptr, id1, id2, stamping, resolution);
 }
 
 void rst_flush(rst_buffer_t * ptr)
@@ -153,6 +167,11 @@ void rst_flush(rst_buffer_t * ptr)
 void rst_finalize(void)
 {
   rst_buffer_t *ptr = RST_PTR;
+  rst_destroy_buffer(ptr);
+}
+
+void rst_finalize_ptr (rst_buffer_t *ptr)
+{
   rst_destroy_buffer(ptr);
 }
 
