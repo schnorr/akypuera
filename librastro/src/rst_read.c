@@ -372,9 +372,14 @@ int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *s
   if (rastro->files == NULL){
     rastro->files = (rst_file_t **) malloc(sizeof(*rastro->files));
     rastro->n = 0;
+
+    rastro->emptyfiles = (rst_file_t **) malloc(sizeof(*rastro->files));
+    rastro->size = 0;
   } else {
     rastro->files = (rst_file_t **) realloc(rastro->files,
                                             sizeof(*rastro->files) * (rastro->n + 1));
+    rastro->emptyfiles = (rst_file_t **) realloc(rastro->emptyfiles,
+                                       sizeof(*rastro->emptyfiles) * (rastro->n + 1));
   }
 
   if (rastro->files == NULL) {
@@ -397,8 +402,8 @@ int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *s
         (rastro->files[rastro->n],
          &rastro->files[rastro->n]->event)) {
 
-      rst_close_one_file(rastro->files[rastro->n]);
-      free(rastro->files[rastro->n]);
+      //file is empty, save the pointer so we can free it later
+      rastro->emptyfiles[rastro->size++] = rastro->files[rastro->n];
     } else {
       rastro->n++;
       reorganize_bottom_up(rastro, rastro->n);
@@ -410,8 +415,23 @@ int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *s
 
 void rst_close(rst_rastro_t *rastro)
 {
-  free(rastro->files);
+  int i;
+
+  //close and free active files
+  for (i = 0; i < rastro->n; i++){
+    rst_close_one_file (rastro->files[i]);
+    free (rastro->files[i]);
+  }
+  free (rastro->files);
   rastro->n = 0;
+
+  //close and free empty files
+  for (i = 0; i < rastro->size; i++){
+    rst_close_one_file (rastro->emptyfiles[i]);
+    free (rastro->emptyfiles[i]);
+  }
+  free (rastro->emptyfiles);
+  rastro->size = 0;
 }
 
 int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
@@ -439,8 +459,8 @@ int rst_decode_event(rst_rastro_t *rastro, rst_event_t *event)
         (rastro->files[rastro->n],
          &rastro->files[rastro->n]->event)) {
 
-      rst_close_one_file(rastro->files[rastro->n]);
-      free(rastro->files[rastro->n]);
+      //file is empty, save the pointer so we can free it later
+      rastro->emptyfiles[rastro->size++] = rastro->files[rastro->n];
     } else {
       rastro->n++;
       //reorganize

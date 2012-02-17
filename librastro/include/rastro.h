@@ -134,7 +134,10 @@ typedef struct rst_file {
 
 typedef struct rst_rastro {
   rst_file_t **files;
-  int n;
+  int n;    //active files (with events)
+
+  rst_file_t **emptyfiles;
+  int size; //number of empty files
 } rst_rastro_t;
 
 /*
