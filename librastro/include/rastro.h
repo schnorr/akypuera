@@ -129,6 +129,7 @@ typedef struct rst_file {
   timestamp_t resolution; //clock resolution
   rst_event_t event;
   char *filename; //this filename
+  int id; //to be used by the output of rastro_read
 } rst_file_t;
 
 typedef struct rst_rastro {

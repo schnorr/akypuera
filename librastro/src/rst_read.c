@@ -229,8 +229,11 @@ static int rst_open_one_file(char *filename,
                              rst_file_t *file,
                              char *syncfilename, int buffer_size)
 {
+  static int ids = 0;
+
   //zero the file data structure
   bzero (file, sizeof(rst_file_t));
+  file->id = ids++;
 
   //open file
   file->fd = open(filename, O_RDONLY);
@@ -452,10 +455,10 @@ void rst_print_event(rst_event_t *event)
 {
   int i;
   if (event->file->resolution > RST_MICROSECONDS){
-    printf("type: %d ts: %.9f (id1=%lu,id2=%lu)\n",
+    printf("%d type: %d ts: %.9f (id1=%lu,id2=%lu)\n", event->file->id,
            event->type, event->timestamp, event->id1, event->id2);
   }else{
-    printf("type: %d ts: %f (id1=%lu,id2=%lu)\n",
+    printf("%d type: %d ts: %f (id1=%lu,id2=%lu)\n", event->file->id,
            event->type, event->timestamp, event->id1, event->id2);
   }
   if (event->ct.n_uint64 > 0) {

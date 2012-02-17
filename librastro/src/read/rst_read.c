@@ -70,8 +70,9 @@ int main (int argc, char *argv[])
               __FUNCTION__, arguments.input[i]);
       return 1;
     }else{
-      printf ("file %s, clock resolution %lld\n",
+      printf ("file %s, id %d, clock resolution %lld\n",
               rastro.files[i]->filename,
+              rastro.files[i]->id,
               rastro.files[i]->resolution);
     }
   }
