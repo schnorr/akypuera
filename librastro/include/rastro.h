@@ -146,6 +146,8 @@ typedef struct {
   char *rst_buffer_ptr;
   char *rst_buffer;
   int rst_buffer_size;
+  u_int64_t id1;
+  u_int64_t id2;
 } rst_buffer_t;
 
 #define RST_OK  (1==1)

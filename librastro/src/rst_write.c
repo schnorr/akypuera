@@ -97,6 +97,8 @@ static void __rst_init(rst_buffer_t *ptr,
   rastro_timeresolution = resolution;
 
   RST_SET_PTR(ptr);
+  ptr->id1 = id1;
+  ptr->id2 = id2;
   ptr->write_first_hour = 1;
   ptr->rst_buffer_size = 100000;
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
