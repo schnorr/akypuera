@@ -333,7 +333,7 @@ void paje_header(int basic)
          "%%       Time date\n"
          "%%       Container string\n"
          "%%       Type string\n"
-         "%%       EndContainer string\n"
+         "%%       StartContainer string\n"
          "%%       Value string\n"
          "%%       Key string\n"
          "%%       MessageSize string\n"
