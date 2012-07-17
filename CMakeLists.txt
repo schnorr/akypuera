@@ -7,7 +7,7 @@ PROJECT(aky)
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 OPTION(SMPI
-  "Enable to trace MPI applications linked against SimGrid's SMPI"
+  "Enable to trace MPI applications linked against SMPI (THREADED required)"
   OFF)
 
 OPTION(TAU
