@@ -295,7 +295,7 @@ int main (int argc, char **argv)
   }
 
   /* we start here to output the paje converted file */
-  paje_header();
+  paje_header(1);
   paje_hierarchy();
 
   /* Get number of locations from the anchor file. */
