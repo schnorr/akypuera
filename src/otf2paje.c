@@ -310,7 +310,7 @@ int main (int argc, char **argv)
 
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
-    pajeCreateContainer(0, mpi_process, "PROCESS", "0", mpi_process);
+    pajeCreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
   }
 
   /* Define event callbacks. */
