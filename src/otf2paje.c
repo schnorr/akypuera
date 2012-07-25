@@ -301,7 +301,8 @@ int main (int argc, char **argv)
   /* Get number of locations from the anchor file. */
   uint64_t          num_locations = 0;
   OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
-  for ( size_t i = 0; i < num_locations; i++ ){
+  size_t i;
+  for ( i = 0; i < num_locations; i++ ){
     OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, i);
     uint64_t definitions_read = 0;
     OTF2_Reader_ReadAllLocalDefinitions (reader, def_reader, &definitions_read);
@@ -338,7 +339,7 @@ int main (int argc, char **argv)
                                   &events_read );
   }
 
-  for (size_t i = 0; i < num_locations; i++){
+  for (i = 0; i < num_locations; i++){
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
     pajeDestroyContainer(user_data->last_timestamp,
