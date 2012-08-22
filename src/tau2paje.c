@@ -288,7 +288,7 @@ static int SendMessage(void *userData,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
-  pajeStartLinkWithMessageSize(rank_last_time[sourceNodeToken], "0", "LINK",
+  pajeStartLinkWithMessageSize(rank_last_time[sourceNodeToken], "root", "LINK",
                                mpi_process, "PTP", key, messageSize);
 
   return 0;
@@ -326,7 +326,7 @@ static int RecvMessage(void *userData, double time,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
-  pajeEndLink(rank_last_time[destinationNodeToken], "0", "LINK",
+  pajeEndLink(rank_last_time[destinationNodeToken], "root", "LINK",
               mpi_process, "PTP", key);
   return 0;
 }
