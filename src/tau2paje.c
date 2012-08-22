@@ -38,7 +38,7 @@ static char args_doc[] = "<tau.trc> <tau.edf>";
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi;
+  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic;;
 };
 static struct arguments arguments;
 
@@ -48,6 +48,7 @@ static struct argp_option options[] = {
   {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
   {"only-mpi", 'm', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
   {"normalize-mpi", 'n', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"},
+  {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
   { 0 }
 };
 
@@ -60,6 +61,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 's': arguments->no_states = 1; break;
   case 'm': arguments->only_mpi = 1; break;
   case 'n': arguments->normalize_mpi = 1; break;
+  case 'b': arguments->basic = 1; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
@@ -400,7 +402,7 @@ int main(int argc, char **argv)
     cb.SendMessage = SendMessage;
     cb.RecvMessage = RecvMessage;
   }
-  paje_header();
+  paje_header(arguments.basic);
   paje_hierarchy();
 
   int recs_read;
