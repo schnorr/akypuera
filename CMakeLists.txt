@@ -90,7 +90,7 @@ if(TAU_FOUND)
   INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
   LINK_DIRECTORIES(${TAU_LIBRARY_PATH})
   add_executable (tau2paje src/tau2paje.c src/aky_paje.c src/aky_keys.c)
-  target_link_libraries (tau2paje TAU TAU_tf)  
+  target_link_libraries (tau2paje TAU TAU_tf stdc++ m)
 endif(TAU_FOUND)
 
 # Installation part
