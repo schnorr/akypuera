@@ -105,7 +105,7 @@ static elem_t *new_element(int src, int dst, char *key, int n)
 
   //generate the key
   static unsigned long long counter = 0;
-  snprintf(key, n, "%d%d%lld", src, dst, counter++);
+  snprintf(key, n, "%d_%d_%lld", src, dst, counter++);
 
   elem_t *new = (elem_t *) malloc(sizeof(elem_t));
   new->data = strndup(key, strlen(key));
