@@ -30,6 +30,7 @@ static struct hsearch_data state_group_hash;
 static double *rank_last_time = NULL;
 static int total_number_of_ranks = 0;
 static int EndOfTrace = 0;
+static long long total_number_of_links_not_translated = 0;
 
 /* Parameter handling */
 static char doc[] = "Converts _merged_ TAU trace files to the Paje file format";
@@ -316,6 +317,7 @@ static int RecvMessage(void *userData, double time,
 
     /* should we ignore this error */
     if (arguments.ignore_errors){
+      total_number_of_links_not_translated++;
       return 0;
     }else{
       exit(1);
@@ -414,5 +416,11 @@ int main(int argc, char **argv)
   aky_key_free();
   hdestroy_r (&state_name_hash);
   hdestroy_r (&state_group_hash);
+
+  if (total_number_of_links_not_translated){
+    fprintf (stderr,
+             "[tau2paje] at %s, %lld links not translated due to synchronization problems.\n",
+             __FUNCTION__, total_number_of_links_not_translated);
+  }
   return 0;
 }
