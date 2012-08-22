@@ -177,7 +177,7 @@ static int DefThread(void *userData, unsigned int nodeid,
 {
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  pajeCreateContainer(0, mpi_process, "PROCESS", "0", mpi_process);
+  pajeCreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
   if (nodeid + 1 > total_number_of_ranks) {
     total_number_of_ranks = nodeid + 1;
     rank_last_time =
