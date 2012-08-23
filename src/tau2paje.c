@@ -39,7 +39,9 @@ static char args_doc[] = "<tau.trc> <tau.edf>";
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic;;
+  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic;
+  char *comment;
+  char *comment_file;
 };
 static struct arguments arguments;
 
@@ -47,9 +49,11 @@ static struct argp_option options[] = {
   {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"},
   {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
   {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
-  {"only-mpi", 'm', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
-  {"normalize-mpi", 'n', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"},
+  {"only-mpi", 'o', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
+  {"normalize-mpi", 'z', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"},
   {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
+  {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
+  {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
   { 0 }
 };
 
@@ -60,9 +64,11 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
   case 's': arguments->no_states = 1; break;
-  case 'm': arguments->only_mpi = 1; break;
-  case 'n': arguments->normalize_mpi = 1; break;
+  case 'o': arguments->only_mpi = 1; break;
+  case 'z': arguments->normalize_mpi = 1; break;
   case 'b': arguments->basic = 1; break;
+  case 'm': arguments->comment = arg; break;
+  case 'n': arguments->comment_file = arg; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
@@ -333,6 +339,33 @@ static int RecvMessage(void *userData, double time,
   return 0;
 }
 
+
+static int dump_commented_file (char *filename)
+{
+  FILE *file = fopen (filename, "r");
+  if (file == NULL){
+    fprintf(stderr,
+            "[aky_converter] at %s, "
+            "comment file %s could not be opened for reading\n",
+            __FUNCTION__, filename);
+    return 1;
+  }
+  while (!feof(file)){
+    char c;
+    c = fgetc(file);
+    if (feof(file)) break;
+    printf ("# ");
+    while (c != '\n'){
+      printf ("%c", c);
+      c = fgetc(file);
+      if (feof(file)) break;
+    }
+    printf ("\n");
+  }
+  fclose(file);
+  return 0;
+}
+
 /* Reader module */
 int main(int argc, char **argv)
 {
@@ -404,6 +437,29 @@ int main(int argc, char **argv)
     cb.SendMessage = SendMessage;
     cb.RecvMessage = RecvMessage;
   }
+
+  if (arguments.comment){
+    printf ("# %s\n", arguments.comment);
+  }
+  if (arguments.comment_file){
+    if (dump_commented_file (arguments.comment_file) == 1){
+      return 1;
+    }
+  }
+
+  /* output build version, date and conversion for aky in the trace */
+  printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
+  printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
+  printf ("#This file was generated using tau2paje (distributed with akypuera).\n");
+  {
+    printf ("#tau2paje's command line: ");
+    int i;
+    for (i = 0; i < argc; i++){
+      printf ("%s ", argv[i]);
+    }
+    printf ("\n");
+  }
+
   paje_header(arguments.basic);
   paje_hierarchy();
 
