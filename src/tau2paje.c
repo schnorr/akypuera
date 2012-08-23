@@ -295,8 +295,8 @@ static int SendMessage(void *userData,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
-  pajeStartLinkWithMessageSize(rank_last_time[sourceNodeToken], "root", "LINK",
-                               mpi_process, "PTP", key, messageSize);
+  pajeStartLinkWithMessageSizeAndMark(rank_last_time[sourceNodeToken], "root", "LINK",
+                                      mpi_process, "PTP", key, messageSize, messageTag);
 
   return 0;
 }
