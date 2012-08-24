@@ -36,69 +36,9 @@ corresponding paje trace file is printed on __stdout__.
 tau2paje
 --------
 
-tau2paje is a simple converter from [TAU format
-file](http://www.cs.uoregon.edu/Research/tau/) to paje's generic file
-format. The tau traces must have been generated with the execution of
-a mpi compilation compiled with `tau_compiler` (with mpi
-support). Since such execution generates as many files as the number
-of processes, these files must be merged using `tau_merge`. After
-that, execute `tau2paje` passing the single trc file followed by the
-single edf file.  The corresponding paje trace file is printed on
-stdout. Every MPI operation is transformed in a Paje state.
+[Check the Akypuera's wiki for __tau2paje__](TAUWithAkypuera)
 
-To get tau traces, download the last version of tau, from
+otf22paje
+---------
 
-     http://tau.uoregon.edu/tau.tgz
-
-Configure it using the following parameters to configure script:
-
-     ./configure -mpiinc=/usr/lib/openmpi/include/ \
-                 -mpilib=/usr/lib/openmpi/lib/ \
-                 -TRACE \
-                 -MPITRACE
-
-and then install it. The installation creates a Makefile tuned to your 
-environment. It is usually placed in the lib installation directory, and
-it is required to compile the mpi application to be traced. You have to specify
-the path to this makefile using the environment variable TAU_MAKEFILE, like this
-export TAU_MAKEFILE=/path/to/your/Makefile..tau-mpi-trace-mpitrace
-After that,, just compile your application using tau_cc. The execution is
-maked as usual with mpirun. An execution with 3 mpi processes creates:
-
-     tautrace.0.0.0.trc
-     tautrace.1.0.0.trc
-     tautrace.2.0.0.trc
-     events.0.edf
-     events.1.edf
-     events.2.edf
-
-These files have to be merged in order to be used by tau2paje.
-To merge and convert them to paje, execute tau_merge and tau2paje this way:
-
-     $ tau_merge -e events.*.edf -m merged.edf tautrace.*.trc merged.trc
-     $ tau2paje merged.trc merged.edf
-
-otf2paje
---------
-
-otf2paje converts OTF2 archives (created by
-[Score-P](http://www.vi-hps.org/projects/score-p)) to the paje's
-generic file format. To try it, suppose you have an MPI application
-implemented in ring.c. You compile it using scorep and mpicc, like
-this:
-
-     $ scorep mpicc ring.c -o ring
-
-The execution is done as usual:
-
-     $ mpirun -np 10 ./ring
-
-Score-P will create a directory with everything related to the
-profiling and tracing of the MPI application. To print in the standard
-output the corresponding Paje trace format of the OTF2 traces, run
-otf2paje like this:
-
-     $ otf2paje /tmp/scorep-20111212_1555_57197991368223/traces.otf2
-
-The `otf2paje` tool is just born, only states are converted. Contact
-us if you need more than that.
+[Check the Akypuera's wiki for __otf22paje__](TAUWithAkypuera)
