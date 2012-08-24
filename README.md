@@ -38,13 +38,13 @@ tau2paje
 
 Converts trace files from the [TAU trace file
 format](http://www.cs.uoregon.edu/Research/tau/) to the Paje's generic
-file format. [Check the Akypuera's wiki for
-__tau2paje__](https://github.com/schnorr/akypuera/wiki/TAUWithAkypuera).
+file format.
+[More about __tau2paje__ on Akypuera's wiki](https://github.com/schnorr/akypuera/wiki/TAUWithAkypuera).
 
 otf22paje
 ---------
 
 Converts trace files from the [OTF2 trace file
 format](http://www.vi-hps.org/projects/score-p/) to Paje's generic
-file format.  [Check the Akypuera's wiki for
-__otf22paje__](https://github.com/schnorr/akypuera/wiki/OTF2WithAkypuera).
+file format.
+[More about __otf22paje__ on Akypuera's wiki](https://github.com/schnorr/akypuera/wiki/OTF2WithAkypuera).
