@@ -15,7 +15,7 @@ OPTION(TAU
   OFF)
 
 OPTION(OTF2
-  "Enable to create otf2paje converter"
+  "Enable to create otf22paje converter"
   OFF)
 
 OPTION(DEBUG
@@ -57,7 +57,7 @@ IF(TAU)
   FIND_PACKAGE(TAU REQUIRED)
 ENDIF(TAU)
 
-# otf2paje converter
+# otf22paje converter
 IF(OTF2)
   FIND_PACKAGE(OTF2 REQUIRED)
 ENDIF(OTF2)
@@ -82,10 +82,10 @@ target_link_libraries(aky_converter m)
 if(OTF2_FOUND)
   INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
   LINK_DIRECTORIES(${OTF2_LIBRARY_PATH})
-  add_executable(otf2paje src/otf2paje.c src/aky_paje.c)
-  target_link_libraries(otf2paje otf2)
-  target_link_libraries(otf2paje scorep_utilities)
-  target_link_libraries(otf2paje m)
+  add_executable(otf22paje src/otf22paje.c src/aky_paje.c)
+  target_link_libraries(otf22paje otf2)
+  target_link_libraries(otf22paje scorep_utilities)
+  target_link_libraries(otf22paje m)
 endif(OTF2_FOUND)
 
 if(TAU_FOUND)
@@ -102,7 +102,7 @@ IF(TAU_FOUND)
   INSTALL(PROGRAMS ${aky_BINARY_DIR}/tau2paje DESTINATION bin)
 ENDIF(TAU_FOUND)
 IF(OTF2_FOUND)
-  INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf2paje DESTINATION bin)
+  INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf22paje DESTINATION bin)
 ENDIF(OTF2_FOUND)
 
 MARK_AS_ADVANCED(CMAKE_BUILD_TYPE)
