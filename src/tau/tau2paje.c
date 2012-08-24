@@ -39,13 +39,14 @@ static char args_doc[] = "<tau.trc> <tau.edf>";
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic;
+  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic, dummy;
   char *comment;
   char *comment_file;
 };
 static struct arguments arguments;
 
 static struct argp_option options[] = {
+  {"dummy", 'd', 0, OPTION_ARG_OPTIONAL, "Read input traces but won't translate (no output)"},
   {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"},
   {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
   {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
@@ -61,6 +62,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
 {
   struct arguments *arguments = state->input;
   switch (key){
+  case 'd': arguments->dummy = 1; break;
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
   case 's': arguments->no_states = 1; break;
@@ -138,7 +140,10 @@ static int EnterState(void *userData, double time,
   rank_last_time[nodeid] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
+
+  if (!arguments.dummy){
+    pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
+  }
   return 0;
 }
 
@@ -169,7 +174,9 @@ static int LeaveState(void *userData, double time, unsigned int nodeid,
   rank_last_time[nodeid] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  pajePopState(rank_last_time[nodeid], mpi_process, "STATE");
+  if (!arguments.dummy){
+    pajePopState(rank_last_time[nodeid], mpi_process, "STATE");
+  }
   return 0;
 }
 
@@ -184,7 +191,9 @@ static int DefThread(void *userData, unsigned int nodeid,
 {
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  pajeCreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
+  if (!arguments.dummy){
+    pajeCreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
+  }
   if (nodeid + 1 > total_number_of_ranks) {
     total_number_of_ranks = nodeid + 1;
     rank_last_time =
@@ -198,7 +207,9 @@ static int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
 {
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
-  pajeDestroyContainer(rank_last_time[nodeid], "PROCESS", mpi_process);
+  if (!arguments.dummy){
+    pajeDestroyContainer(rank_last_time[nodeid], "PROCESS", mpi_process);
+  }
   EndOfTrace = 1;
   return 0;
 }
@@ -295,8 +306,10 @@ static int SendMessage(void *userData,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
-  pajeStartLinkWithMessageSizeAndMark(rank_last_time[sourceNodeToken], "root", "LINK",
-                                      mpi_process, "PTP", key, messageSize, messageTag);
+  if (!arguments.dummy){
+    pajeStartLinkWithMessageSizeAndMark(rank_last_time[sourceNodeToken], "root", "LINK",
+                                        mpi_process, "PTP", key, messageSize, messageTag);
+  }
 
   return 0;
 }
@@ -334,8 +347,10 @@ static int RecvMessage(void *userData, double time,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
-  pajeEndLink(rank_last_time[destinationNodeToken], "root", "LINK",
-              mpi_process, "PTP", key);
+  if (!arguments.dummy){
+    pajeEndLink(rank_last_time[destinationNodeToken], "root", "LINK",
+                mpi_process, "PTP", key);
+  }
   return 0;
 }
 
@@ -448,20 +463,23 @@ int main(int argc, char **argv)
   }
 
   /* output build version, date and conversion for aky in the trace */
-  printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
-  printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
-  printf ("#This file was generated using tau2paje (distributed with akypuera).\n");
-  {
-    printf ("#tau2paje's command line: ");
-    int i;
-    for (i = 0; i < argc; i++){
-      printf ("%s ", argv[i]);
-    }
-    printf ("\n");
-  }
+  if (!arguments.dummy){
 
-  paje_header(arguments.basic);
-  paje_hierarchy();
+    printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
+    printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
+    printf ("#This file was generated using tau2paje (distributed with akypuera).\n");
+    {
+      printf ("#tau2paje's command line: ");
+      int i;
+      for (i = 0; i < argc; i++){
+        printf ("%s ", argv[i]);
+      }
+      printf ("\n");
+    }
+
+    paje_header(arguments.basic);
+    paje_hierarchy();
+  }
 
   int recs_read;
   do {
