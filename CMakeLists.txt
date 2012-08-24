@@ -33,6 +33,9 @@ SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -W
 CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
                "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
 
+SET(OTF2_SOURCES src/otf2/otf22paje.c src/aky_paje.c)
+SET(TAU_SOURCES src/tau/tau2paje.c src/aky_paje.c src/aky_keys.c)
+
 # debugging flags
 IF(DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
@@ -82,7 +85,7 @@ target_link_libraries(aky_converter m)
 if(OTF2_FOUND)
   INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
   LINK_DIRECTORIES(${OTF2_LIBRARY_PATH})
-  add_executable(otf22paje src/otf22paje.c src/aky_paje.c)
+  add_executable(otf22paje ${OTF2_SOURCES})
   target_link_libraries(otf22paje otf2)
   target_link_libraries(otf22paje scorep_utilities)
   target_link_libraries(otf22paje m)
@@ -91,7 +94,7 @@ endif(OTF2_FOUND)
 if(TAU_FOUND)
   INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
   LINK_DIRECTORIES(${TAU_LIBRARY_PATH})
-  add_executable (tau2paje src/tau2paje.c src/aky_paje.c src/aky_keys.c)
+  add_executable (tau2paje ${TAU_SOURCES})
   target_link_libraries (tau2paje TAU TAU_tf stdc++ m)
 endif(TAU_FOUND)
 
