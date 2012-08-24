@@ -36,9 +36,9 @@ corresponding paje trace file is printed on __stdout__.
 tau2paje
 --------
 
-[Check the Akypuera's wiki for __tau2paje__](TAUWithAkypuera)
+[Check the Akypuera's wiki for __tau2paje__](https://github.com/schnorr/akypuera/wiki/TAUWithAkypuera)
 
 otf22paje
 ---------
 
-[Check the Akypuera's wiki for __otf22paje__](TAUWithAkypuera)
+[Check the Akypuera's wiki for __otf22paje__](https://github.com/schnorr/akypuera/wiki/OTF2WithAkypuera)
