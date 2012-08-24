@@ -36,7 +36,7 @@ corresponding paje trace file is printed on __stdout__.
 tau2paje
 --------
 
-The __tau2paje__ is a simple converter from the [TAU trace file
+Converts trace files from the [TAU trace file
 format](http://www.cs.uoregon.edu/Research/tau/) to the Paje's generic
 file format. [Check the Akypuera's wiki for
 __tau2paje__](https://github.com/schnorr/akypuera/wiki/TAUWithAkypuera).
@@ -44,7 +44,7 @@ __tau2paje__](https://github.com/schnorr/akypuera/wiki/TAUWithAkypuera).
 otf22paje
 ---------
 
-The __otf22paje__ is a simple converter from the [OTF2 trace file
+Converts trace files from the [OTF2 trace file
 format](http://www.vi-hps.org/projects/score-p/) to Paje's generic
 file format.  [Check the Akypuera's wiki for
 __otf22paje__](https://github.com/schnorr/akypuera/wiki/OTF2WithAkypuera).
