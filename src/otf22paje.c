@@ -111,9 +111,33 @@ struct otf2paje_string_s
 typedef struct otf2paje_string_s otf2paje_string_t;
 
 /* Definition callbacks */
-static SCOREP_Error_Code GlobDefString_print (void* userData,
-                                              uint32_t stringID,
-                                              char* string)
+static inline SCOREP_Error_Code
+GlobDefUnknown_print
+(
+    void* userData
+)
+{
+    /* Dummies to suppress compiler warnings for unused parameters. */
+    ( void )userData;
+
+    return SCOREP_SUCCESS;
+}
+
+
+static SCOREP_Error_Code GlobDefClockProperties_print (void *userData, uint64_t timer_resolution, uint64_t global_offset, uint64_t trace_length)
+{
+  otf2paje_t* data = (otf2paje_t*) userData;
+  data->time_resolution = timer_resolution;
+  return SCOREP_SUCCESS;
+}
+
+static inline SCOREP_Error_Code
+GlobDefString_print
+(
+    void*       userData,
+    uint32_t    stringID,
+    const char* string
+)
 {
   otf2paje_t* data = (otf2paje_t*) userData;
   size_t hint;
@@ -140,7 +164,7 @@ static SCOREP_Error_Code GlobDefRegion_print (void* userData,
                                               uint32_t regionID,
                                               uint32_t stringID,
                                               uint32_t description,
-                                              OTF2_GlobRegionType regionType,
+                                              OTF2_RegionType regionType,
                                               uint32_t sourceFile,
                                               uint32_t beginLineNumber,
                                               uint32_t endLineNumber)
@@ -164,17 +188,17 @@ static SCOREP_Error_Code GlobDefRegion_print (void* userData,
 }
 
 
-static SCOREP_Error_Code GlobDefLocation_print(void* userData,
-                                               uint64_t locationIdentifier,
-                                               uint32_t stringID,
-                                               OTF2_GlobLocationType locType,
-                                               uint64_t numberOfEvents,
-                                               uint64_t numberOfDefinitions,
-                                               uint64_t timerResolution,
-                                               uint64_t locationGroup)
+static inline SCOREP_Error_Code
+GlobDefLocation_print
+(
+    void*             userData,
+    uint64_t          locationID,
+    uint32_t          name,
+    OTF2_LocationType locationType,
+    uint64_t          numberOfEvents,
+    uint32_t          locationGroup
+)
 {
-  otf2paje_t* data = (otf2paje_t*) userData;
-  data->time_resolution = timerResolution;
   return SCOREP_SUCCESS;
 }
 
@@ -241,7 +265,7 @@ int main (int argc, char **argv)
     return 1;
   }
 
-  OTF2_Reader* reader = OTF2_Reader_New (arguments.input[0]);
+  OTF2_Reader* reader = OTF2_Reader_Open (arguments.input[0]);
   if (reader == NULL){
     fprintf(stderr,
             "[otf2paje] at %s, "
@@ -265,17 +289,16 @@ int main (int argc, char **argv)
                                                  SCOREP_Hashtab_CompareUint64 );
 
   /* Define definition callbacks. */
-  OTF2_GlobDefReaderCallbacks register_defs;
-  bzero(&register_defs, sizeof (OTF2_GlobDefReaderCallbacks));
-  register_defs.GlobDefString = GlobDefString_print;
-  register_defs.GlobDefRegion = GlobDefRegion_print;
-  register_defs.GlobDefLocation = GlobDefLocation_print;
+  OTF2_GlobalDefReaderCallbacks *def_callbacks = OTF2_GlobalDefReaderCallbacks_New();
+  OTF2_GlobalDefReaderCallbacks_SetStringCallback (def_callbacks, GlobDefString_print);
+  OTF2_GlobalDefReaderCallbacks_SetLocationCallback (def_callbacks, GlobDefLocation_print);
+  OTF2_GlobalDefReaderCallbacks_SetRegionCallback (def_callbacks, GlobDefRegion_print);
+  OTF2_GlobalDefReaderCallbacks_SetClockPropertiesCallback (def_callbacks, GlobDefClockProperties_print);
 
   /* Read global definitions. */
-  OTF2_GlobDefReader* glob_def_reader  = OTF2_Reader_GetGlobDefReader (reader);
-  OTF2_Reader_RegisterGlobDefCallbacks (reader, glob_def_reader,
-                                        &register_defs,
-                                        sizeof (register_defs),
+  OTF2_GlobalDefReader* glob_def_reader  = OTF2_Reader_GetGlobalDefReader (reader);
+  OTF2_Reader_RegisterGlobalDefCallbacks (reader, glob_def_reader,
+                                        def_callbacks,
                                         user_data);
   uint64_t definitions_read = 0;
   OTF2_Reader_ReadGlobalDefinitions (reader, glob_def_reader,
@@ -314,20 +337,18 @@ int main (int argc, char **argv)
   }
 
   /* Define event callbacks. */
-  OTF2_GlobEvtReaderCallbacks print;
-  bzero(&print, sizeof(OTF2_GlobEvtReaderCallbacks));
-  print.Enter                = Enter_print;
-  print.Leave                = Leave_print;
+  OTF2_GlobalEvtReaderCallbacks* evt_callbacks = OTF2_GlobalEvtReaderCallbacks_New();
+  OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, Enter_print );
+  OTF2_GlobalEvtReaderCallbacks_SetLeaveCallback( evt_callbacks, Leave_print );
 
   /* Get global event reader. */
-  OTF2_GlobEvtReader *glob_evt_reader = OTF2_Reader_GetGlobEvtReader (reader);
+  OTF2_GlobalEvtReader *glob_evt_reader = OTF2_Reader_GetGlobalEvtReader (reader);
 
   /* Register the above defined callbacks to the global event reader. */
-  OTF2_Reader_RegisterGlobEvtCallbacks (reader,
-                                        glob_evt_reader,
-                                        &print,
-                                        sizeof (print),
-                                        user_data);
+  OTF2_Reader_RegisterGlobalEvtCallbacks (reader,
+                                          glob_evt_reader,
+                                          evt_callbacks,
+                                          user_data);
 
 
   /* Read until events are all read. */
@@ -346,6 +367,6 @@ int main (int argc, char **argv)
                          "PROCESS", mpi_process);
   }
 
-  OTF2_Reader_Delete (reader);
+  OTF2_Reader_Close (reader);
   return 0;
 }
