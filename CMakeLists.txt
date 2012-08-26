@@ -11,11 +11,15 @@ OPTION(SMPI
   OFF)
 
 OPTION(TAU
-  "Enable to create tau2paje converter"
+  "Enable to build tau2paje converter"
   OFF)
 
 OPTION(OTF2
-  "Enable to create otf22paje converter"
+  "Enable to build otf22paje converter"
+  OFF)
+
+OPTION(OTF
+  "Enable to build otf2paje converter"
   OFF)
 
 OPTION(DEBUG
@@ -33,6 +37,7 @@ SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -W
 CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
                "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
 
+SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c)
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/aky_paje.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/aky_paje.c src/aky_keys.c)
 
@@ -64,6 +69,11 @@ ENDIF(TAU)
 IF(OTF2)
   FIND_PACKAGE(OTF2 REQUIRED)
 ENDIF(OTF2)
+
+# otf2paje converter
+IF(OTF)
+  FIND_PACKAGE(OTF REQUIRED)
+ENDIF(OTF)
 
 add_subdirectory(librastro)
 add_subdirectory(examples)
@@ -97,6 +107,15 @@ if(TAU_FOUND)
   add_executable (tau2paje ${TAU_SOURCES})
   target_link_libraries (tau2paje TAU TAU_tf stdc++ m)
 endif(TAU_FOUND)
+
+if(OTF_FOUND)
+  INCLUDE_DIRECTORIES (${OTF_INCLUDE_PATH})
+  include_directories(${poti_SOURCE_DIR}/include/)
+  LINK_DIRECTORIES (${OTF_LIBRARY_PATH})
+  ADD_EXECUTABLE (otf2paje ${OTF_SOURCES})
+  TARGET_LINK_LIBRARIES (otf2paje otf)
+  TARGET_LINK_LIBRARIES (otf2paje poti)
+endif(OTF_FOUND)
 
 # Installation part
 INSTALL(TARGETS aky DESTINATION lib)
