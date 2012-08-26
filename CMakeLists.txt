@@ -76,6 +76,7 @@ IF(OTF)
 ENDIF(OTF)
 
 add_subdirectory(librastro)
+add_subdirectory(libpoti)
 add_subdirectory(examples)
 
 include_directories(${aky_SOURCE_DIR}/include/)
