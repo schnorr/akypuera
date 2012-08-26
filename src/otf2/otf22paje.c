@@ -259,7 +259,7 @@ int main (int argc, char **argv)
   bzero (&arguments, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
-            "[otf2paje] at %s, "
+            "[otf22paje] at %s, "
             "error during the parsing of parameters\n",
             __FUNCTION__);
     return 1;
@@ -268,7 +268,7 @@ int main (int argc, char **argv)
   OTF2_Reader* reader = OTF2_Reader_Open (arguments.input[0]);
   if (reader == NULL){
     fprintf(stderr,
-            "[otf2paje] at %s, "
+            "[otf22paje] at %s, "
             "creation of OTF2_Reader_New failed\n",
             __FUNCTION__);
     return 1;
@@ -310,7 +310,7 @@ int main (int argc, char **argv)
   OTF2_Reader_GetNumberOfGlobalDefinitions (reader, &defs_anchor);
   if (definitions_read != defs_anchor){
     fprintf(stderr,
-            "[otf2paje] at %s, "
+            "[otf22paje] at %s, "
             "Number of global definitions read and "
             "defined in anchor file do not match.\n",
             __FUNCTION__);   
