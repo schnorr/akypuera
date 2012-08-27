@@ -169,11 +169,12 @@ int main(int argc, char **argv)
   poti_header(arguments.basic);
   aky_paje_hierarchy();
 
+  double timestamp;
   while (rst_decode_event(&rastro, &event) && !fail) {
     static int root_created = 0;
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%ld", event.id1);
-    double timestamp = event.timestamp;
+    timestamp = event.timestamp;
     switch (event.type) {
     case AKY_PTP_SEND:
       if (!arguments.no_links){
@@ -509,6 +510,7 @@ int main(int argc, char **argv)
       break;
     }
   }
+  poti_DestroyContainer(timestamp, "ROOT", "root");
 
   rst_close (&rastro);
   aky_key_free();
