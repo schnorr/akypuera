@@ -14,263 +14,25 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <argp.h>
-#include <otf2/otf2.h>
-#include <scorep_utility/SCOREP_Hashtab.h>
-#include <scorep_utility/SCOREP_Vector.h>
-#include "aky_private.h"
-
-/* time_to_seconds */
-static double time_to_seconds(double time, double resolution)
-{
-  static double first_time = -1;
-  if (first_time == -1){
-    first_time = time;
-  }
-  return (time - first_time) / resolution;
-}
-
-/* Parameter handling */
-static char doc[] = "Converts an OTF2 archive to the Paje file format";
-static char args_doc[] = "ANCHORFILE";
-
-#define OTF2PAJE_INPUT_SIZE 200
-struct arguments {
-  char *input[OTF2PAJE_INPUT_SIZE];
-  int input_size;
-  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi;
-};
-static struct arguments arguments;
-
-static struct argp_option options[] = {
-  /* {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"}, */
-  /* {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"}, */
-  /* {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"}, */
-  {"only-mpi", 'm', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
-  /* {"normalize-mpi", 'n', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"}, */
-  { 0 }
-};
-
-static int parse_options (int key, char *arg, struct argp_state *state)
-{
-  struct arguments *arguments = state->input;
-  switch (key){
-  case 'i': arguments->ignore_errors = 1; break;
-  case 'l': arguments->no_links = 1; break;
-  case 's': arguments->no_states = 1; break;
-  case 'm': arguments->only_mpi = 1; break;
-  case 'n': arguments->normalize_mpi = 1; break;
-  case ARGP_KEY_ARG:
-    if (arguments->input_size == OTF2PAJE_INPUT_SIZE) {
-      /* Too many arguments. */
-      argp_usage (state);
-    }
-    arguments->input[state->arg_num] = arg;
-    arguments->input_size++;
-    break;
-  case ARGP_KEY_END:
-    if (state->arg_num < 1)
-      /* Not enough arguments. */
-      argp_usage (state);
-    break;
-  default: return ARGP_ERR_UNKNOWN;
-  }
-  return 0;
-}
-
-static struct argp argp = { options, parse_options, args_doc, doc };
-
-/* Data utilities for convertion */
-struct otf2paje_s
-{
-  OTF2_Reader*    reader;
-  SCOREP_Vector*  locations;
-  SCOREP_Hashtab* regions;
-  SCOREP_Hashtab* strings;
-  SCOREP_Hashtab* groups;
-  double last_timestamp;
-  double time_resolution;
-};
-typedef struct otf2paje_s otf2paje_t;
-
-struct otf2paje_region_s
-{
-    uint32_t region_id;
-    uint32_t string_id;
-};
-typedef struct otf2paje_region_s otf2paje_region_t;
-
-struct otf2paje_string_s
-{
-    uint32_t string_id;
-    char*    content;
-};
-typedef struct otf2paje_string_s otf2paje_string_t;
-
-/* Definition callbacks */
-static inline SCOREP_Error_Code
-GlobDefUnknown_print
-(
-    void* userData
-)
-{
-    /* Dummies to suppress compiler warnings for unused parameters. */
-    ( void )userData;
-
-    return SCOREP_SUCCESS;
-}
-
-
-static SCOREP_Error_Code GlobDefClockProperties_print (void *userData, uint64_t timer_resolution, uint64_t global_offset, uint64_t trace_length)
-{
-  otf2paje_t* data = (otf2paje_t*) userData;
-  data->time_resolution = timer_resolution;
-  return SCOREP_SUCCESS;
-}
-
-static inline SCOREP_Error_Code
-GlobDefString_print
-(
-    void*       userData,
-    uint32_t    stringID,
-    const char* string
-)
-{
-  otf2paje_t* data = (otf2paje_t*) userData;
-  size_t hint;
-  SCOREP_Hashtab_Entry* entry;
-  entry = SCOREP_Hashtab_Find (data->strings, &stringID, &hint);
-  if (entry) {
-    /* already defined? */
-    return SCOREP_SUCCESS;
-  }
-
-  otf2paje_string_t* new_string;
-  new_string = (otf2paje_string_t*) malloc (sizeof (otf2paje_string_t));
-  new_string->string_id = stringID;
-  new_string->content = (char*) malloc (strlen(string)+1);
-  strcpy (new_string->content, string);
-  SCOREP_Hashtab_Insert (data->strings,
-                         &new_string->string_id,
-                         new_string,
-                         &hint);
-  return SCOREP_SUCCESS;
-}
-
-static SCOREP_Error_Code GlobDefRegion_print (void* userData,
-                                              uint32_t regionID,
-                                              uint32_t stringID,
-                                              uint32_t description,
-                                              OTF2_RegionType regionType,
-                                              uint32_t sourceFile,
-                                              uint32_t beginLineNumber,
-                                              uint32_t endLineNumber)
-{
-  otf2paje_t* data = (otf2paje_t*) userData;
-  size_t hint;
-  SCOREP_Hashtab_Entry* entry;
-  entry = SCOREP_Hashtab_Find (data->regions, &regionID, &hint);
-  if (entry) {
-    /* already defined? */
-    return SCOREP_SUCCESS;
-  }
-  otf2paje_region_t* new_region = (otf2paje_region_t*) malloc (sizeof(otf2paje_region_t));
-  new_region->region_id = regionID;
-  new_region->string_id = stringID;
-  SCOREP_Hashtab_Insert( data->regions,
-                         &new_region->region_id,
-                         new_region,
-                         &hint );
-  return SCOREP_SUCCESS;
-}
-
-
-static inline SCOREP_Error_Code
-GlobDefLocation_print
-(
-    void*             userData,
-    uint64_t          locationID,
-    uint32_t          name,
-    OTF2_LocationType locationType,
-    uint64_t          numberOfEvents,
-    uint32_t          locationGroup
-)
-{
-  return SCOREP_SUCCESS;
-}
-
-
-/* Events callbacks */
-static SCOREP_Error_Code Enter_print (uint64_t locationID,
-                                      uint64_t time,
-                                      void *userData,
-                                      OTF2_AttributeList* attributes,
-                                      uint32_t regionID)
-{
-  otf2paje_t* data = (otf2paje_t*) userData;
-  SCOREP_Hashtab_Entry *e1 = SCOREP_Hashtab_Find (data->regions, &regionID, NULL);
-  otf2paje_region_t *region = (otf2paje_region_t*) e1->value;
-  SCOREP_Hashtab_Entry *e2 = SCOREP_Hashtab_Find (data->strings, &region->string_id,NULL);
-  otf2paje_string_t *string = (otf2paje_string_t*) e2->value;
-  char *state_name = string->content;
-
-  if (arguments.only_mpi && strstr(state_name, "MPI_") == NULL){
-    return SCOREP_SUCCESS;
-  }
-
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%lu", locationID);
-  poti_PushState(time_to_seconds(time, data->time_resolution),
-                 mpi_process, "STATE", state_name);
-  data->last_timestamp = time_to_seconds(time, data->time_resolution);
-  return SCOREP_SUCCESS;
-}
-
-static SCOREP_Error_Code Leave_print (uint64_t locationID,
-                                      uint64_t time,
-                                      void *userData,
-                                      OTF2_AttributeList* attributes,
-                                      uint32_t regionID)
-{
-  otf2paje_t* data = (otf2paje_t*) userData;
-  SCOREP_Hashtab_Entry *e1 = SCOREP_Hashtab_Find (data->regions, &regionID, NULL);
-  otf2paje_region_t *region = (otf2paje_region_t*) e1->value;
-  SCOREP_Hashtab_Entry *e2 = SCOREP_Hashtab_Find (data->strings, &region->string_id,NULL);
-  otf2paje_string_t *string = (otf2paje_string_t*) e2->value;
-  char *state_name = string->content;
-
-  if (arguments.only_mpi && strstr(state_name, "MPI_") == NULL){
-    return SCOREP_SUCCESS;
-  }
-
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%lu", locationID);
-  poti_PopState(time_to_seconds(time, data->time_resolution),
-                mpi_process, "STATE");
-  data->last_timestamp = time_to_seconds(time, data->time_resolution);
-  return SCOREP_SUCCESS;
-}
+#include "otf22paje.h"
 
 int main (int argc, char **argv)
 {
   bzero (&arguments, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
-            "[otf22paje] at %s, "
+            "[%s] at %s,"
             "error during the parsing of parameters\n",
-            __FUNCTION__);
+            PROGRAM, __FUNCTION__);
     return 1;
   }
 
   OTF2_Reader* reader = OTF2_Reader_Open (arguments.input[0]);
   if (reader == NULL){
     fprintf(stderr,
-            "[otf22paje] at %s, "
+            "[%s] at %s, "
             "creation of OTF2_Reader_New failed\n",
-            __FUNCTION__);
+            PROGRAM, __FUNCTION__);
     return 1;
   }
 
@@ -310,17 +72,31 @@ int main (int argc, char **argv)
   OTF2_Reader_GetNumberOfGlobalDefinitions (reader, &defs_anchor);
   if (definitions_read != defs_anchor){
     fprintf(stderr,
-            "[otf22paje] at %s, "
+            "[%s] at %s, "
             "Number of global definitions read and "
             "defined in anchor file do not match.\n",
-            __FUNCTION__);   
+            PROGRAM, __FUNCTION__);   
     return 1;
   }
 
   /* we start here to output the paje converted file */
-  poti_header(0);
-  aky_paje_hierarchy();
-  poti_CreateContainer (0, "root", "ROOT", "0", "root");
+  if (!arguments.dummy){
+    /* start output with comments */
+    if (arguments.comment){
+      aky_dump_comment (PROGRAM, arguments.comment);
+    }
+    if (arguments.comment_file){
+      if (aky_dump_comment_file (PROGRAM, arguments.comment_file) == 1){
+        return 1;
+      }
+    }
+
+    /* output build version, date and conversion for aky in the trace */
+    aky_dump_version (PROGRAM, argv, argc);
+    poti_header(arguments.basic);
+    aky_paje_hierarchy();
+    poti_CreateContainer (0, "root", "ROOT", "0", "root");
+  }
 
   /* Get number of locations from the anchor file. */
   uint64_t          num_locations = 0;
@@ -334,7 +110,9 @@ int main (int argc, char **argv)
 
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
-    poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
+    if (!arguments.dummy){
+      poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
+    }
   }
 
   /* Define event callbacks. */
@@ -364,8 +142,13 @@ int main (int argc, char **argv)
   for (i = 0; i < num_locations; i++){
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
-    poti_DestroyContainer(user_data->last_timestamp,
-                         "PROCESS", mpi_process);
+    if (!arguments.dummy){
+      poti_DestroyContainer(user_data->last_timestamp, "PROCESS", mpi_process);
+    }
+  }
+
+  if (!arguments.dummy){
+    poti_DestroyContainer(user_data->last_timestamp, "ROOT", "root");
   }
 
   OTF2_Reader_Close (reader);
