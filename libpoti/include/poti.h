@@ -27,37 +27,41 @@ extern "C" {
 /*
  * Function to open output into a file, else output to stdout
  */
-int pajeOpen (const char* filename);
+int poti_open (const char* filename);
 
 /*
  * Function to close opened file
  */
-void pajeClose (void);
+void poti_close (void);
 
 /*
  * Function to generate the header 
  */
-void pajeHeader (void);
+void poti_header (int basic);
 
 /*
  * Functions to define the type hierarchy of a Paje trace file 
  */
-void pajeDefineContainerType(const char *alias,
+void poti_DefineContainerType(const char *alias,
                              const char *containerType,
                              const char *name);
-void pajeDefineStateType(const char *alias,
+void poti_DefineVariableType(const char *alias,
+                             const char *containerType,
+                             const char *name,
+                             const char *color);
+void poti_DefineStateType(const char *alias,
                          const char *containerType,
                          const char *name);
-void pajeDefineLinkType(const char *alias,
+void poti_DefineEventType(const char *alias,
+                         const char *containerType,
+                         const char *name,
+                         const char *color);
+void poti_DefineLinkType(const char *alias,
                         const char *containerType,
                         const char *sourceContainerType,
                         const char *destContainerType,
                         const char *name);
-void pajeDefineEventType(const char *alias,
-                         const char *containerType,
-                         const char *name,
-                         const char *color);
-void pajeDefineEntityValue(const char *alias,
+void poti_DefineEntityValue(const char *alias,
                            const char *entityType,
                            const char *name,
                            const char *color);
@@ -65,40 +69,81 @@ void pajeDefineEntityValue(const char *alias,
 /*
  * Functions related to containers 
  */
-void pajeCreateContainer(double timestamp,
+void poti_CreateContainer(double timestamp,
                          const char *alias,
                          const char *type,
                          const char *container,
                          const char *name);
-void pajeDestroyContainer(double timestamp,
+void poti_DestroyContainer(double timestamp,
                           const char *type,
                           const char *container);
 
 /*
+ * Functions related to variables
+ */
+
+void poti_SetVariable (double timestamp,
+                       const char *type,
+                       const char *container,
+                       double value);
+void poti_AddVariable (double timestamp,
+                       const char *type,
+                       const char *container,
+                       double value);
+void poti_SubVariable (double timestamp,
+                       const char *type,
+                       const char *container,
+                       double value);
+
+/*
  * Functions related to states
  */
-void pajeSetState(double timestamp,
+void poti_SetState(double timestamp,
                   const char *container,
                   const char *type,
                   const char *value);
-void pajePushState(double timestamp,
+void poti_PushState(double timestamp,
                    const char *container,
                    const char *type,
                    const char *value);
-void pajePopState(double timestamp,
+void poti_PushStateMark(double timestamp,
+                        const char *container,
+                        const char *type,
+                        const char *value,
+                        const int mark);
+void poti_PopState(double timestamp,
                   const char *container,
                   const char *type);
+void poti_ResetState(double timestamp,
+                    const char *container,
+                    const char *type);
+
 
 /* 
  * Functions related to links
  */
-void pajeStartLink(double timestamp,
+void poti_StartLink(double timestamp,
                    const char *container,
                    const char *type,
                    const char *sourceContainer,
                    const char *value,
                    const char *key);
-void pajeEndLink(double timestamp,
+void poti_StartLinkSize(double timestamp,
+                        const char *container,
+                        const char *type,
+                        const char *sourceContainer,
+                        const char *value,
+                        const char *key,
+                        const int size);
+void poti_StartLinkSizeMark(double timestamp,
+                            const char *container,
+                            const char *type,
+                            const char *sourceContainer,
+                            const char *value,
+                            const char *key,
+                            const int size,
+                            const int mark);
+void poti_EndLink(double timestamp,
                  const char *container,
                  const char *type,
                  const char *endContainer,
@@ -108,7 +153,7 @@ void pajeEndLink(double timestamp,
 /*
  * Functions related to variables, instantaneous events
  */
-void pajeNewEvent(double timestamp,
+void poti_NewEvent(double timestamp,
                   const char *container,
                   const char *type,
                   const char *value );

@@ -29,7 +29,7 @@ CONFIGURE_FILE("${poti_SOURCE_DIR}/include/poti_config.h.in"
 
 
 SET(POTI_SRC
-  src/poti.c
+  src/poti.c src/poti_header.c src/poti_events.c
 )
 
 SET(POTI_HEADERS
@@ -46,12 +46,12 @@ SET_TARGET_PROPERTIES(
   poti
 PROPERTIES
 # bump when new function are added in the library
-  VERSION 1.0
+  VERSION 1.1
 # bump when ABI is broken (symbols removed or parameters changed)
-  SOVERSION 1
+  SOVERSION 2
 )
 # bump when the API change (new functions in the header file)
-SET(POTI_APIVERSION 1)
+SET(POTI_APIVERSION 2)
 
 ADD_SUBDIRECTORY(examples)
 ADD_SUBDIRECTORY(pkgconfig)
