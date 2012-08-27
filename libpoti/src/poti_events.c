@@ -202,13 +202,17 @@ void poti_PushStateMark(double timestamp,
                         const char *value,
                         const int mark)
 {
-  fprintf(paje_file,"%d %.9f %s %s %s %d\n",
-          PAJE_PushStateMark,
-          paje_event_timestamp(timestamp),
-          container,
-          type,
-          value,
-          mark);
+  if (paje_extended){
+    fprintf(paje_file,"%d %.9f %s %s %s %d\n",
+            PAJE_PushStateMark,
+            paje_event_timestamp(timestamp),
+            container,
+            type,
+            value,
+            mark);
+  }else{
+    poti_PushState (timestamp, container, type, value);
+  }
 }
 
 void poti_PopState(double timestamp,
