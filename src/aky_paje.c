@@ -15,17 +15,3 @@
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "aky_private.h"
-
-void aky_paje_hierarchy(void)
-{
-  printf ("#\n"
-          "# This is the type hierarchy for this trace file\n"
-          "#\n");
-  poti_DefineContainerType ("ROOT", "0", "ROOT");
-  poti_DefineContainerType("PROCESS", "ROOT", "PROCESS");
-  poti_DefineStateType("STATE", "PROCESS", "STATE");
-  poti_DefineLinkType("LINK", "ROOT", "PROCESS", "PROCESS", "LINK");
-  printf ("#\n"
-          "# Let the timestamped events describe behavior\n"
-          "#\n");
-}

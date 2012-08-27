@@ -36,12 +36,9 @@ void aky_key_free(void);
 char *aky_put_key(const char *type, int src, int dst, char *key, int n);
 char *aky_get_key(const char *type, int src, int dst, char *key, int n);
 void aky_paje_hierarchy(void);
-
-typedef struct paje_event {
-  const char *name;
-  const char *description;
-  int id;
-} s_paje_event_t, *paje_event_t;
+int aky_dump_version (const char *program, char **argv, int argc);
+int aky_dump_comment_file (const char *program, const char *filename);
+int aky_dump_comment (const char *program, const char *comment);
 
 //prototypes for aky_names.c
 void name_init (void);
