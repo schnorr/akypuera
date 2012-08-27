@@ -25,15 +25,17 @@
 #include <search.h>
 #include "aky_private.h"
 
+#define PROGRAM "otf2paje"
+
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int basic, dummy;
+  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic, dummy;
   char *comment;
   char *comment_file;
 };
-
 extern struct arguments arguments;
+extern struct argp argp;
 extern struct hsearch_data process_name_hash;
 
 int handleDefinitionComment( void* userData, uint32_t stream,
@@ -194,5 +196,7 @@ int handleDefMarker( void *userData, uint32_t stream, uint32_t token, const char
                      uint32_t type, OTF_KeyValueList* kvlist );
 int handleMarker( void *userData, uint64_t time, uint32_t process, 
                   uint32_t token, const char* text, OTF_KeyValueList* kvlist );
+
+extern double last_time;
 
 #endif

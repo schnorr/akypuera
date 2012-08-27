@@ -14,56 +14,25 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <otf.h>
-#include <argp.h>
-#include <stdio.h>
 #include "otf2paje.h"
-
-extern struct argp argp;
-
-static int dump_commented_file (char *filename)
-{
-  FILE *file = fopen (filename, "r");
-  if (file == NULL){
-    fprintf(stderr,
-            "[aky_converter] at %s, "
-            "comment file %s could not be opened for reading\n",
-            __FUNCTION__, filename);
-    return 1;
-  }
-  while (!feof(file)){
-    char c;
-    c = fgetc(file);
-    if (feof(file)) break;
-    printf ("# ");
-    while (c != '\n'){
-      printf ("%c", c);
-      c = fgetc(file);
-      if (feof(file)) break;
-    }
-    printf ("\n");
-  }
-  fclose(file);
-  return 0;
-}
 
 int main (int argc, char **argv)
 {
   bzero (&arguments, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
-            "[otf2paje] at %s,"
+            "[%s] at %s,"
             "error during the parsing of parameters\n",
-            __FUNCTION__);
+            PROGRAM, __FUNCTION__);
     return 1;
   }
 
   /* allocating hash tables */
   if (hcreate_r (1000, &process_name_hash) == 0){
     fprintf (stderr,
-             "[otf2paje] at %s,"
+             "[%s] at %s,"
              "hash table allocation for process names failed.",
-             __FUNCTION__);
+             PROGRAM, __FUNCTION__);
     return 1;
   }
 
@@ -199,32 +168,20 @@ int main (int argc, char **argv)
                                (OTF_FunctionPointer*) handleDefKeyValue,
                                OTF_DEFKEYVALUE_RECORD );
 
-  /* start output with comments */
-  if (arguments.comment){
-    printf ("# %s\n", arguments.comment);
-  }
-  if (arguments.comment_file){
-    if (dump_commented_file (arguments.comment_file) == 1){
-      return 1;
-    }
-  }
-
-  /* output build version, date and conversion for aky in the trace */
   if (!arguments.dummy){
-
-    printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
-    printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
-    printf ("#This file was generated using otf2paje (distributed with akypuera).\n");
-    {
-      printf ("#otf2paje's command line: ");
-      int i;
-      for (i = 0; i < argc; i++){
-        printf ("%s ", argv[i]);
+    /* start output with comments */
+    if (arguments.comment){
+      aky_dump_comment (PROGRAM, arguments.comment);
+    }
+    if (arguments.comment_file){
+      if (aky_dump_comment_file (PROGRAM, arguments.comment_file) == 1){
+        return 1;
       }
-      printf ("\n");
     }
 
-    poti_header (0);
+    /* output build version, date and conversion for aky in the trace */
+    aky_dump_version (PROGRAM, argv, argc);
+    poti_header (arguments.basic);
     aky_paje_hierarchy();
     poti_CreateContainer (0, "root", "ROOT", "0", "root");
   }
@@ -239,5 +196,8 @@ int main (int argc, char **argv)
   OTF_Reader_close (reader);
   OTF_HandlerArray_close (handlers);
   OTF_FileManager_close (manager);
+  if (!arguments.dummy){
+    poti_DestroyContainer (last_time, "ROOT", "root");
+  }
   return 0;
 }

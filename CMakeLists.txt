@@ -37,7 +37,7 @@ SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -W
 CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
                "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
 
-SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_paje.c)
+SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_utils.c)
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/aky_paje.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/tau/tau2paje_arguments.c src/tau/tau2paje_handlers.c src/aky_utils.c src/aky_keys.c)
 

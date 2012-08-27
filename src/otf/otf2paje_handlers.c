@@ -23,10 +23,12 @@
 
 static long long unsigned time_resolution;
 struct hsearch_data process_name_hash;
+double last_time = 0;
 
 static double ticks_to_seconds (unsigned long long ticks)
 {
-  return (double)ticks/(double)time_resolution;
+  last_time = (double)ticks/(double)time_resolution;
+  return last_time;
 }
 
 static void data_def (struct hsearch_data *hash, uint32_t id, const char *name)
@@ -133,7 +135,7 @@ int handleDefFunction(void *userData, uint32_t stream, uint32_t func,
   char alias[100];
   bzero(alias, 100);
   snprintf (alias, 100, "f%d", func);
-  if (!arguments.dummy){
+  if (!arguments.dummy && !arguments.no_states){
     poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
   }
   return OTF_RETURN_OK;
@@ -154,7 +156,7 @@ int handleDefCollectiveOperation(void *userData, uint32_t stream,
   char alias[100];
   bzero(alias, 100);
   snprintf (alias, 100, "c%d", collOp);
-  if (!arguments.dummy){
+  if (!arguments.dummy && !arguments.no_states){
     poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
   }
   return OTF_RETURN_OK;
@@ -302,7 +304,7 @@ int handleEnter(void *userData, uint64_t time, uint32_t function,
   char falias[100];
   bzero(falias, 100);
   snprintf (falias, 100, "f%d", function);
-  if (!arguments.dummy){
+  if (!arguments.dummy && !arguments.no_states){
     poti_PushState (ticks_to_seconds(time), palias, "STATE", falias);
   }
   return OTF_RETURN_OK;
@@ -316,7 +318,7 @@ int handleLeave(void *userData, uint64_t time, uint32_t function,
   char palias[100];
   bzero(palias, 100);
   snprintf (palias, 100, "p%d", process);
-  if (!arguments.dummy){
+  if (!arguments.dummy && !arguments.no_states){
     poti_PopState (ticks_to_seconds(time), palias, "STATE");
   }
   return OTF_RETURN_OK;
@@ -328,12 +330,6 @@ int handleSendMsg(void *userData, uint64_t time, uint32_t sender,
 		  uint32_t length, uint32_t source,
 		  OTF_KeyValueList * kvlist)
 {
-  /* fprintf(stdout, */
-  /*         "%llu SendMessage: sender %u, receiver %u, group %u, type %u, length %u, source %u\n", */
-  /*         (long long unsigned) time, */
-  /*         sender, receiver, group, type, length, source); */
-
-
   return OTF_RETURN_OK;
 }
 
@@ -343,12 +339,6 @@ int handleRecvMsg(void *userData, uint64_t time, uint32_t recvProc,
 		  uint32_t length, uint32_t source,
 		  OTF_KeyValueList * kvlist)
 {
-  /* fprintf(stdout, */
-  /*         "%llu ReceiveMessage: receiver %u, sender %u, group %u, type %u, length %u, source %u\n", */
-  /*         (long long unsigned) time, */
-  /*         recvProc, sendProc, group, type, length, source); */
-
-
   return OTF_RETURN_OK;
 }
 
@@ -385,7 +375,7 @@ int handleBeginCollectiveOperation(void *userData, uint64_t time,
   char calias[100];
   bzero(calias, 100);
   snprintf (calias, 100, "c%d", collOp);
-  if (!arguments.dummy){
+  if (!arguments.dummy && !arguments.no_states){
     poti_PushState (ticks_to_seconds(time), palias, "STATE", calias);
   }
   return OTF_RETURN_OK;
@@ -399,7 +389,7 @@ int handleEndCollectiveOperation(void *userData, uint64_t time,
   char palias[100];
   bzero(palias, 100);
   snprintf (palias, 100, "p%d", process);
-  if (!arguments.dummy){
+  if (!arguments.dummy && !arguments.no_states){
     poti_PopState (ticks_to_seconds(time), palias, "STATE");
   }
   return OTF_RETURN_OK;

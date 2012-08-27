@@ -14,19 +14,19 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdio.h>
-#include <argp.h>
-#include "aky_private.h"
 #include "otf2paje.h"
 
-/* Parameter handling */
 static char doc[] = "Converts _merged_ OTF trace files to the Paje file format";
-static char args_doc[] = "<archive.otf>";
-
+static char args_doc[] = "ANCHORFILE";
 struct arguments arguments;
 
 static struct argp_option options[] = {
   {"dummy", 'd', 0, OPTION_ARG_OPTIONAL, "Read input traces but won't translate (no output)"},
+  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore errors"},
+  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
+  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
+  {"only-mpi", 'o', 0, OPTION_ARG_OPTIONAL, "Only convert MPI states"},
+  {"normalize-mpi", 'z', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"},
   {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
   {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
@@ -38,6 +38,11 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   struct arguments *arguments = state->input;
   switch (key){
   case 'd': arguments->dummy = 1; break;
+  case 'i': arguments->ignore_errors = 1; break;
+  case 'l': arguments->no_links = 1; break;
+  case 's': arguments->no_states = 1; break;
+  case 'o': arguments->only_mpi = 1; break;
+  case 'z': arguments->normalize_mpi = 1; break;
   case 'b': arguments->basic = 1; break;
   case 'm': arguments->comment = arg; break;
   case 'n': arguments->comment_file = arg; break;
