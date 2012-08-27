@@ -14,106 +14,24 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "aky_private.h"
-#include <argp.h>
-
-static char doc[] = "Converts aky trace files to the Paje file format";
-static char args_doc[] = "{rastro-0-0.rst rastro-1-0.rst ...}";
-
-static struct argp_option options[] = {
-  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors"},
-  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
-  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
-  {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
-  {"sync", 'z', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)"},
-  {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
-  {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
-  { 0 }
-};
-
-struct arguments {
-  char *input[AKY_INPUT_SIZE];
-  int input_size;
-  int ignore_errors, no_links, no_states, basic;
-  char *synchronization_file;
-  char *comment;
-  char *comment_file;
-};
-
-static int parse_options (int key, char *arg, struct argp_state *state)
-{
-  struct arguments *arguments = state->input;
-  switch (key){
-  case 'i': arguments->ignore_errors = 1; break;
-  case 'l': arguments->no_links = 1; break;
-  case 's': arguments->no_states = 1; break;
-  case 'b': arguments->basic = 1; break;
-  case 'z': arguments->synchronization_file = arg; break;
-  case 'm': arguments->comment = arg; break;
-  case 'n': arguments->comment_file = arg; break;
-  case ARGP_KEY_ARG:
-    if (arguments->input_size == AKY_INPUT_SIZE) {
-      /* Too many arguments. */
-      argp_usage (state);
-    }
-    arguments->input[state->arg_num] = arg;
-    arguments->input_size++;
-    break;
-  case ARGP_KEY_END:
-    if (state->arg_num < 1)
-      /* Not enough arguments. */
-      argp_usage (state);
-    break;
-  default: return ARGP_ERR_UNKNOWN;
-  }
-  return 0;
-}
-
-static struct argp argp = { options, parse_options, args_doc, doc };
-
-static int dump_commented_file (char *filename)
-{
-  FILE *file = fopen (filename, "r");
-  if (file == NULL){
-    fprintf(stderr,
-            "[aky_converter] at %s, "
-            "comment file %s could not be opened for reading\n",
-            __FUNCTION__, filename);
-    return 1;
-  }
-  while (!feof(file)){
-    char c;
-    c = fgetc(file);
-    if (feof(file)) break;
-    printf ("# ");
-    while (c != '\n'){
-      printf ("%c", c);
-      c = fgetc(file);
-      if (feof(file)) break;
-    }
-    printf ("\n");
-  }
-  fclose(file);
-  return 0;
-}
+#include "aky2paje.h"
 
 int main(int argc, char **argv)
 {
-  struct arguments arguments;
   bzero (&arguments, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
-            "[aky_converter] at %s, "
+            "[%s] at %s, "
             "error during the parsing of parameters\n",
-            __FUNCTION__);
+            PROGRAM, __FUNCTION__);
     return 1;
   }
 
   if (aky_key_init() == 1){
    fprintf(stderr,
-            "[aky_converter] at %s,"
-            "error during hash table allocation\n",
-            __FUNCTION__);
+           "[%s] at %s,"
+           "error during hash table allocation\n",
+           PROGRAM, __FUNCTION__);
     return 1;
   }
 
@@ -129,45 +47,39 @@ int main(int argc, char **argv)
                             arguments.synchronization_file);
     if (ret == -1) {
       fprintf(stderr,
-              "[aky_converter] at %s, "
+              "[%s] at %s, "
               "trace file %s could not be opened\n",
-              __FUNCTION__, arguments.input[i]);
-      return 1;
-    }
-  }
-
-  if (arguments.comment){
-    printf ("# %s\n", arguments.comment);
-  }
-  if (arguments.comment_file){
-    if (dump_commented_file (arguments.comment_file) == 1){
+              PROGRAM, __FUNCTION__, arguments.input[i]);
       return 1;
     }
   }
 
   name_init();
 
-  /* output build version, date and conversion for aky in the trace */
-  printf ("#AKY_GIT_VERSION %s\n", GITVERSION);
-  printf ("#AKY_GIT_DATE (date of the cmake configuration) %s\n", GITDATE);
-  {
-    printf ("#AKY_CONVERSION: ");
-    int i;
-    for (i = 0; i < argc; i++){
-      printf ("%s ", argv[i]);
+  if (!arguments.dummy){
+    /* start output with comments */
+    if (arguments.comment){
+      aky_dump_comment (PROGRAM, arguments.comment);
     }
-    printf ("\n");
-  }
-  /* output contents of synchronization file if used */
-  if (arguments.synchronization_file){
-    if (dump_commented_file (arguments.synchronization_file) == 1){
-      return 1;
+    if (arguments.comment_file){
+      if (aky_dump_comment_file (PROGRAM, arguments.comment_file) == 1){
+        return 1;
+      }
     }
+
+    /* output contents of synchronization file if used */
+    if (arguments.synchronization_file){
+      if (aky_dump_comment_file (PROGRAM, arguments.synchronization_file) == 1){
+        return 1;
+      }
+    }
+
+    /* output build version, date and conversion for aky in the trace */
+    aky_dump_version (PROGRAM, argv, argc);
+    poti_header (arguments.basic);
+    aky_paje_hierarchy();
   }
 
-  /* start trace generation */
-  poti_header(arguments.basic);
-  aky_paje_hierarchy();
 
   double timestamp;
   while (rst_decode_event(&rastro, &event) && !fail) {

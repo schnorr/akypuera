@@ -90,7 +90,7 @@ add_library (aky SHARED src/aky.c src/aky_aux.c src/aky_rastro.c)
 target_link_libraries(aky rastro)
 target_link_libraries(aky m)
 
-add_executable(aky_converter src/aky_converter.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
+add_executable(aky_converter src/aky/aky_converter.c src/aky/aky_arguments.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
 target_link_libraries(aky_converter rastro)
 target_link_libraries(aky_converter m)
 target_link_libraries(aky_converter poti)
