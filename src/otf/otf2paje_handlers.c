@@ -134,7 +134,7 @@ int handleDefFunction(void *userData, uint32_t stream, uint32_t func,
   bzero(alias, 100);
   snprintf (alias, 100, "f%d", func);
   if (!arguments.dummy){
-    pajeDefineEntityValue (alias, "STATE", name, "0 0 0");
+    poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
   }
   return OTF_RETURN_OK;
 }
@@ -155,7 +155,7 @@ int handleDefCollectiveOperation(void *userData, uint32_t stream,
   bzero(alias, 100);
   snprintf (alias, 100, "c%d", collOp);
   if (!arguments.dummy){
-    pajeDefineEntityValue (alias, "STATE", name, "0 0 0");
+    poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
   }
   return OTF_RETURN_OK;
 }
@@ -303,7 +303,7 @@ int handleEnter(void *userData, uint64_t time, uint32_t function,
   bzero(falias, 100);
   snprintf (falias, 100, "f%d", function);
   if (!arguments.dummy){
-    pajePushState (ticks_to_seconds(time), palias, "STATE", falias);
+    poti_PushState (ticks_to_seconds(time), palias, "STATE", falias);
   }
   return OTF_RETURN_OK;
 }
@@ -317,7 +317,7 @@ int handleLeave(void *userData, uint64_t time, uint32_t function,
   bzero(palias, 100);
   snprintf (palias, 100, "p%d", process);
   if (!arguments.dummy){
-    pajePopState (ticks_to_seconds(time), palias, "STATE");
+    poti_PopState (ticks_to_seconds(time), palias, "STATE");
   }
   return OTF_RETURN_OK;
 }
@@ -386,7 +386,7 @@ int handleBeginCollectiveOperation(void *userData, uint64_t time,
   bzero(calias, 100);
   snprintf (calias, 100, "c%d", collOp);
   if (!arguments.dummy){
-    pajePushState (ticks_to_seconds(time), palias, "STATE", calias);
+    poti_PushState (ticks_to_seconds(time), palias, "STATE", calias);
   }
   return OTF_RETURN_OK;
 }
@@ -400,7 +400,7 @@ int handleEndCollectiveOperation(void *userData, uint64_t time,
   bzero(palias, 100);
   snprintf (palias, 100, "p%d", process);
   if (!arguments.dummy){
-    pajePopState (ticks_to_seconds(time), palias, "STATE");
+    poti_PopState (ticks_to_seconds(time), palias, "STATE");
   }
   return OTF_RETURN_OK;
 }
@@ -422,7 +422,7 @@ int handleBeginProcess(void *userData, uint64_t time, uint32_t process,
     bzero(alias, 100);
     snprintf (alias, 100, "p%d", process);
     if (!arguments.dummy){
-      pajeCreateContainer (ticks_to_seconds(time), alias, "PROCESS", "root", name); 
+      poti_CreateContainer (ticks_to_seconds(time), alias, "PROCESS", "root", name); 
     }
   }
   return OTF_RETURN_OK;
@@ -438,7 +438,7 @@ int handleEndProcess(void *userData, uint64_t time, uint32_t process,
     bzero(alias, 100);
     snprintf (alias, 100, "p%d", process);
     if (!arguments.dummy){
-      pajeDestroyContainer (ticks_to_seconds(time), "PROCESS", alias);
+      poti_DestroyContainer (ticks_to_seconds(time), "PROCESS", alias);
     }
   }
   return OTF_RETURN_OK;

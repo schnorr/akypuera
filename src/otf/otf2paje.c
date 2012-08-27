@@ -224,12 +224,9 @@ int main (int argc, char **argv)
       printf ("\n");
     }
 
-    pajeHeader ();
-    pajeDefineContainerType ("ROOT", "0", "ROOT");
-    pajeDefineContainerType("PROCESS", "ROOT", "PROCESS");
-    pajeDefineStateType("STATE", "PROCESS", "STATE");
-    pajeDefineLinkType("LINK", "ROOT", "PROCESS", "PROCESS", "LINK");
-    pajeCreateContainer (0, "root", "ROOT", "0", "root");
+    poti_header (0);
+    aky_paje_hierarchy();
+    poti_CreateContainer (0, "root", "ROOT", "0", "root");
   }
 
   /* read everything */

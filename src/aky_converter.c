@@ -166,10 +166,11 @@ int main(int argc, char **argv)
   }
 
   /* start trace generation */
-  paje_header(arguments.basic);
-  paje_hierarchy();
+  poti_header(arguments.basic);
+  aky_paje_hierarchy();
 
   while (rst_decode_event(&rastro, &event) && !fail) {
+    static int root_created = 0;
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%ld", event.id1);
     double timestamp = event.timestamp;
@@ -190,11 +191,11 @@ int main(int argc, char **argv)
         aky_put_key("n", event.id1, event.v_uint32[0], key, 
                     AKY_DEFAULT_STR_SIZE);
         if (messageSize != -1 && mark != -1){
-          pajeStartLinkWithMessageSizeAndMark(timestamp, "root", "LINK",
-                                              mpi_process, "PTP", key,
-                                              messageSize, mark);
+          poti_StartLinkSizeMark(timestamp, "root", "LINK",
+                                 mpi_process, "PTP", key,
+                                 messageSize, mark);
         }else{
-          pajeStartLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
+          poti_StartLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
         }
       }
       break;
@@ -214,12 +215,16 @@ int main(int argc, char **argv)
             fail = 1;
           }
         }
-        pajeEndLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
+        poti_EndLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
       }
       break;
     case MPI_INIT:
-      pajeCreateContainer(timestamp, mpi_process,
-                          "PROCESS", "root", mpi_process);
+      if (root_created == 0){
+        poti_CreateContainer (timestamp, "root", "ROOT", "0", "root");
+        root_created = 1;
+      }
+      poti_CreateContainer(timestamp, mpi_process,
+                           "PROCESS", "root", mpi_process);
       break;
     case MPI_COMM_SPAWN_IN:
     case MPI_COMM_GET_NAME_IN:
@@ -357,9 +362,9 @@ int main(int argc, char **argv)
         if (event.ct.n_uint64 == 1){
           /* has message mark */
           int mark = event.v_uint64[0];
-          pajePushStateWithMark(timestamp, mpi_process, "STATE", value, mark);
+          poti_PushStateMark(timestamp, mpi_process, "STATE", value, mark);
         }else{
-          pajePushState(timestamp, mpi_process, "STATE", value);
+          poti_PushState(timestamp, mpi_process, "STATE", value);
         }
       }
       break;
@@ -493,14 +498,14 @@ int main(int argc, char **argv)
     case MPI_CART_RANK_OUT:
     case MPI_CART_SUB_OUT:
       if (!arguments.no_states){
-        pajePopState(timestamp, mpi_process, "STATE");
+        poti_PopState(timestamp, mpi_process, "STATE");
       }
       break;
     case MPI_FINALIZE_OUT:
       if (!arguments.no_states){
-        pajePopState(timestamp, mpi_process, "STATE");
+        poti_PopState(timestamp, mpi_process, "STATE");
       }
-      pajeDestroyContainer(timestamp, "PROCESS", mpi_process);
+      poti_DestroyContainer(timestamp, "PROCESS", mpi_process);
       break;
     }
   }

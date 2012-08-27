@@ -223,8 +223,8 @@ static SCOREP_Error_Code Enter_print (uint64_t locationID,
 
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
-  pajePushState(time_to_seconds(time, data->time_resolution),
-                mpi_process, "STATE", state_name);
+  poti_PushState(time_to_seconds(time, data->time_resolution),
+                 mpi_process, "STATE", state_name);
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return SCOREP_SUCCESS;
 }
@@ -248,8 +248,8 @@ static SCOREP_Error_Code Leave_print (uint64_t locationID,
 
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%lu", locationID);
-  pajePopState(time_to_seconds(time, data->time_resolution),
-               mpi_process, "STATE");
+  poti_PopState(time_to_seconds(time, data->time_resolution),
+                mpi_process, "STATE");
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return SCOREP_SUCCESS;
 }
@@ -318,8 +318,9 @@ int main (int argc, char **argv)
   }
 
   /* we start here to output the paje converted file */
-  paje_header(1);
-  paje_hierarchy();
+  poti_header(0);
+  aky_paje_hierarchy();
+  poti_CreateContainer (0, "root", "ROOT", "0", "root");
 
   /* Get number of locations from the anchor file. */
   uint64_t          num_locations = 0;
@@ -333,7 +334,7 @@ int main (int argc, char **argv)
 
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
-    pajeCreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
+    poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
   }
 
   /* Define event callbacks. */
@@ -363,7 +364,7 @@ int main (int argc, char **argv)
   for (i = 0; i < num_locations; i++){
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%lu", i);
-    pajeDestroyContainer(user_data->last_timestamp,
+    poti_DestroyContainer(user_data->last_timestamp,
                          "PROCESS", mpi_process);
   }
 

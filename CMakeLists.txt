@@ -37,7 +37,7 @@ SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -W
 CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
                "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
 
-SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c)
+SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_paje.c)
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/aky_paje.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/aky_paje.c src/aky_keys.c)
 
@@ -92,6 +92,7 @@ target_link_libraries(aky m)
 add_executable(aky_converter src/aky_converter.c src/aky_paje.c src/aky_names.c src/aky_keys.c)
 target_link_libraries(aky_converter rastro)
 target_link_libraries(aky_converter m)
+target_link_libraries(aky_converter poti)
 
 if(OTF2_FOUND)
   INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
@@ -100,6 +101,7 @@ if(OTF2_FOUND)
   target_link_libraries(otf22paje otf2)
   target_link_libraries(otf22paje scorep_utilities)
   target_link_libraries(otf22paje m)
+  target_link_libraries(otf22paje poti)
 endif(OTF2_FOUND)
 
 if(TAU_FOUND)
@@ -107,6 +109,7 @@ if(TAU_FOUND)
   LINK_DIRECTORIES(${TAU_LIBRARY_PATH})
   add_executable (tau2paje ${TAU_SOURCES})
   target_link_libraries (tau2paje TAU TAU_tf stdc++ m)
+  target_link_libraries (tau2paje poti)
 endif(TAU_FOUND)
 
 if(OTF_FOUND)

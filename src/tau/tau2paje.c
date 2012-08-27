@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <argp.h>
+#include <poti.h>
 #include "aky_private.h"
 #define _GNU_SOURCE
 #define __USE_GNU
@@ -142,7 +143,7 @@ static int EnterState(void *userData, double time,
   snprintf(mpi_process, 100, "rank%d", nodeid);
 
   if (!arguments.dummy){
-    pajePushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
+    poti_PushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
   }
   return 0;
 }
@@ -175,7 +176,7 @@ static int LeaveState(void *userData, double time, unsigned int nodeid,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
   if (!arguments.dummy){
-    pajePopState(rank_last_time[nodeid], mpi_process, "STATE");
+    poti_PopState(rank_last_time[nodeid], mpi_process, "STATE");
   }
   return 0;
 }
@@ -192,7 +193,7 @@ static int DefThread(void *userData, unsigned int nodeid,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
   if (!arguments.dummy){
-    pajeCreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
+    poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
   }
   if (nodeid + 1 > total_number_of_ranks) {
     total_number_of_ranks = nodeid + 1;
@@ -208,7 +209,7 @@ static int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", nodeid);
   if (!arguments.dummy){
-    pajeDestroyContainer(rank_last_time[nodeid], "PROCESS", mpi_process);
+    poti_DestroyContainer(rank_last_time[nodeid], "PROCESS", mpi_process);
   }
   EndOfTrace = 1;
   return 0;
@@ -307,8 +308,8 @@ static int SendMessage(void *userData,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
   if (!arguments.dummy){
-    pajeStartLinkWithMessageSizeAndMark(rank_last_time[sourceNodeToken], "root", "LINK",
-                                        mpi_process, "PTP", key, messageSize, messageTag);
+    poti_StartLinkSizeMark(rank_last_time[sourceNodeToken], "root", "LINK",
+                           mpi_process, "PTP", key, messageSize, messageTag);
   }
 
   return 0;
@@ -348,7 +349,7 @@ static int RecvMessage(void *userData, double time,
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
   if (!arguments.dummy){
-    pajeEndLink(rank_last_time[destinationNodeToken], "root", "LINK",
+    poti_EndLink(rank_last_time[destinationNodeToken], "root", "LINK",
                 mpi_process, "PTP", key);
   }
   return 0;
@@ -477,8 +478,9 @@ int main(int argc, char **argv)
       printf ("\n");
     }
 
-    paje_header(arguments.basic);
-    paje_hierarchy();
+    poti_header (arguments.basic);
+    aky_paje_hierarchy ();
+    poti_CreateContainer (0, "root", "ROOT", "0", "root");
   }
 
   int recs_read;
