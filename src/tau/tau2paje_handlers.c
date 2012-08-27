@@ -17,7 +17,6 @@
 #include "tau2paje.h"
 
 struct hsearch_data state_name_hash;
-struct hsearch_data state_group_hash;
 static double *rank_last_time = NULL;
 static int total_number_of_ranks = 0;
 int EndOfTrace = 0;
@@ -150,45 +149,14 @@ int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
 int DefStateGroup(void *userData, unsigned int stateGroupToken,
                   const char *stateGroupName)
 {
-  char group_key[100];
-  bzero(group_key, 100);
-  snprintf (group_key, 100, "%d", stateGroupToken);
-
-  if (arguments.only_mpi && strcmp(stateGroupName, "MPI")!=0){
-    /* If we are supposed to only convert MPI states,
-       don't register group names different from MPI. */
-    return 0;
-  }
-
-  ENTRY e, *ep = NULL;
-  e.key = group_key;
-  e.data = NULL;
-  hsearch_r (e, FIND, &ep, &state_group_hash);
-  if (ep == NULL){
-    e.key = strdup(group_key);
-    e.data = strdup(stateGroupName);
-    hsearch_r (e, ENTER, &ep, &state_group_hash);
-  }
   return 0;
 }
 
 int DefState(void *userData, unsigned int stateid, const char *statename,
              unsigned int stateGroupToken)
 {
-  /* group check */
-  {
-    char group_key[100];
-    bzero(group_key, 100);
-    snprintf (group_key, 100, "%d", stateGroupToken);
-
-    ENTRY e, *ep = NULL;
-    e.key = group_key;
-    e.data = NULL;
-    hsearch_r (e, FIND, &ep, &state_group_hash);
-    if (ep == NULL){
-      /* The group is not registered, just ignore its state definitions */
-      return 0;
-    }
+  if (arguments.only_mpi && strstr(statename, "MPI_") == NULL){
+    return 0;
   }
 
   char state_key[100];

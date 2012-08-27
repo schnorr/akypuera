@@ -43,13 +43,6 @@ int main(int argc, char **argv)
              PROGRAM, __FUNCTION__);
     return 1;
   }
-  if (hcreate_r (10, &state_group_hash) == 0){
-    fprintf (stderr,
-             "[%s] at %s,"
-             "hash table allocation for state groups failed.",
-             PROGRAM, __FUNCTION__);
-    return 1;
-  }
 
   /* open trace file */
   Ttf_FileHandleT fh;
@@ -104,7 +97,6 @@ int main(int argc, char **argv)
   Ttf_CloseFile(fh);
   aky_key_free();
   hdestroy_r (&state_name_hash);
-  hdestroy_r (&state_group_hash);
 
   if (total_number_of_links_not_translated){
     fprintf (stderr,
