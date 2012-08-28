@@ -41,6 +41,12 @@ format](http://www.cs.uoregon.edu/Research/tau/) to the Paje's generic
 file format.
 [More about __tau2paje__ on Akypuera's wiki](https://github.com/schnorr/akypuera/wiki/TAUWithAkypuera).
 
+otf2paje
+--------
+
+Converts trace files from the [OTF trace file format](http://www.tu-dresden.de/zih/otf/).
+[More about __otf2paje__ on Akypuera's wiki](https://github.com/schnorr/akypuera/wiki/OTFWithAkypuera)
+
 otf22paje
 ---------
 
