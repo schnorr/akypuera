@@ -81,7 +81,7 @@ int main(int argc, char **argv)
   }
 
 
-  double timestamp;
+  double timestamp = -1;
   while (rst_decode_event(&rastro, &event) && !fail) {
     static int root_created = 0;
     char mpi_process[100];
@@ -422,7 +422,9 @@ int main(int argc, char **argv)
       break;
     }
   }
-  poti_DestroyContainer(timestamp, "ROOT", "root");
+  if (timestamp >= 0){
+    poti_DestroyContainer(timestamp, "ROOT", "root");
+  }
 
   rst_close (&rastro);
   aky_key_free();
