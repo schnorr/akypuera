@@ -1,51 +1,28 @@
-cmake_minimum_required (VERSION 2.6)
-if(POLICY CMP0015)
-  cmake_policy(SET CMP0015 NEW)
-endif(POLICY CMP0015)
-
+CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 PROJECT(aky)
+
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-OPTION(SMPI
-  "Enable to trace MPI applications linked against SMPI (THREADED required)"
-  OFF)
-
-OPTION(TAU
-  "Enable to build tau2paje converter"
-  OFF)
-
-OPTION(OTF2
-  "Enable to build otf22paje converter"
-  OFF)
-
-OPTION(OTF
-  "Enable to build otf2paje converter"
-  OFF)
-
-OPTION(DEBUG
-  "Debug akypuera"
-  OFF)
-
-EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --oneline -1"
-  OUTPUT_VARIABLE "GITVERSION")
-EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log -n 1 --format=%ai"
-  OUTPUT_VARIABLE "GITDATE")
-
-SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith -Wchar-subscripts -Wcomment -Wformat -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -Wno-strict-aliasing -Wno-format-nonliteral -Werror ")
-
-# aky_config.h.in file
-CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in"
-               "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
-
+# Source files
+SET(AKY_LIBRARY_SOURCES src/aky.c src/aky_aux.c src/aky_rastro.c)
+SET(AKY_CONVERTER_SOURCES src/aky/aky_converter.c src/aky/aky_arguments.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
 SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_utils.c)
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/otf2/otf22paje_arguments.c src/otf2/otf22paje_handlers.c src/aky_utils.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/tau/tau2paje_arguments.c src/tau/tau2paje_handlers.c src/aky_utils.c src/aky_keys.c)
 
-# debugging flags
-IF(DEBUG)
-  set(CMAKE_BUILD_TYPE Debug)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g")
-ENDIF(DEBUG)
+# Options
+OPTION(SMPI "Enable to trace MPI applications linked against SMPI (THREADED required)" OFF)
+OPTION(TAU  "Enable to build tau2paje converter" OFF)
+OPTION(OTF2 "Enable to build otf22paje converter" OFF)
+OPTION(OTF  "Enable to build otf2paje converter" OFF)
+
+# Sane parameters
+SET(CMAKE_C_FLAGS "-Wall -Wunused -Wmissing-prototypes -Wmissing-declarations -Wpointer-arith -Wchar-subscripts -Wcomment -Wformat -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -Wno-strict-aliasing -Wno-format-nonliteral -Werror ")
+
+# aky_config.h.in file
+EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --oneline -1" OUTPUT_VARIABLE "GITVERSION")
+EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log -n 1 --format=%ai" OUTPUT_VARIABLE "GITDATE")
+CONFIGURE_FILE("${aky_SOURCE_DIR}/include/aky_config.h.in" "${CMAKE_BINARY_DIR}/include/aky_config.h" @ONLY IMMEDIATE)
 
 # akypuera configuration for SMPI or MPI (but not both)
 IF(SMPI)
@@ -60,66 +37,80 @@ ELSE(SMPI)
   ENDIF(MPI_C_FOUND)
 ENDIF(SMPI)
 
-# tau2paje converter
+# check for tau2paje dependencies
 IF(TAU)
   FIND_PACKAGE(TAU REQUIRED)
 ENDIF(TAU)
 
-# otf22paje converter
-IF(OTF2)
-  FIND_PACKAGE(OTF2 REQUIRED)
-ENDIF(OTF2)
-
-# otf2paje converter
+# check for otf2paje dependencies
 IF(OTF)
   FIND_PACKAGE(OTF REQUIRED)
 ENDIF(OTF)
 
-add_subdirectory(librastro)
-add_subdirectory(libpoti)
-add_subdirectory(examples)
+# check for otf22paje dependencies
+IF(OTF2)
+  FIND_PACKAGE(OTF2 REQUIRED)
+ENDIF(OTF2)
 
-include_directories(${aky_SOURCE_DIR}/include/)
-include_directories(${aky_SOURCE_DIR}/src/)
-include_directories(${poti_SOURCE_DIR}/include/)
-include_directories(${rastro_SOURCE_DIR}/include/)
-include_directories(${rastro_SOURCE_DIR}/src/)
-include_directories(${aky_BINARY_DIR}/include/)
+# Independent subdirectories
+ADD_SUBDIRECTORY(librastro)
+ADD_SUBDIRECTORY(libpoti)
+ADD_SUBDIRECTORY(examples)
 
-add_library (aky SHARED src/aky.c src/aky_aux.c src/aky_rastro.c)
-target_link_libraries(aky rastro)
-target_link_libraries(aky m)
+# Include directories (shared by everyone)
+INCLUDE_DIRECTORIES(${aky_SOURCE_DIR}/include/)
+INCLUDE_DIRECTORIES(${aky_SOURCE_DIR}/src/)
+INCLUDE_DIRECTORIES(${poti_SOURCE_DIR}/include/)
+INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/include/)
+INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/src/)
+INCLUDE_DIRECTORIES(${aky_BINARY_DIR}/include/)
 
-add_executable(aky_converter src/aky/aky_converter.c src/aky/aky_arguments.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
-target_link_libraries(aky_converter rastro)
-target_link_libraries(aky_converter m)
-target_link_libraries(aky_converter poti)
+###################
+##### TARGETS #####
+###################
 
-if(OTF2_FOUND)
-  INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
-  LINK_DIRECTORIES(${OTF2_LIBRARY_PATH})
-  add_executable(otf22paje ${OTF2_SOURCES})
-  target_link_libraries(otf22paje otf2)
-  target_link_libraries(otf22paje scorep_utilities)
-  target_link_libraries(otf22paje m)
-  target_link_libraries(otf22paje poti)
-endif(OTF2_FOUND)
+# libaky.so
+ADD_LIBRARY(aky SHARED ${AKY_LIBRARY_SOURCES})
+TARGET_LINK_LIBRARIES(aky rastro)
+TARGET_LINK_LIBRARIES(aky m)
 
-if(TAU_FOUND)
+# aky_converter
+ADD_EXECUTABLE(aky_converter ${AKY_CONVERTER_SOURCES})
+TARGET_LINK_LIBRARIES(aky_converter rastro)
+TARGET_LINK_LIBRARIES(aky_converter poti)
+TARGET_LINK_LIBRARIES(aky_converter m)
+
+# tau2paje
+IF(TAU_FOUND)
   INCLUDE_DIRECTORIES(${TAU_INCLUDE_PATH})
   LINK_DIRECTORIES(${TAU_LIBRARY_PATH})
-  add_executable (tau2paje ${TAU_SOURCES})
-  target_link_libraries (tau2paje TAU TAU_tf stdc++ m)
-  target_link_libraries (tau2paje poti)
-endif(TAU_FOUND)
+  ADD_EXECUTABLE(tau2paje ${TAU_SOURCES})
+  TARGET_LINK_LIBRARIES(tau2paje TAU)
+  TARGET_LINK_LIBRARIES(tau2paje TAU_tf)
+  TARGET_LINK_LIBRARIES(tau2paje stdc++)
+  TARGET_LINK_LIBRARIES(tau2paje poti)
+  TARGET_LINK_LIBRARIES(tau2paje m)
+ENDIF(TAU_FOUND)
 
-if(OTF_FOUND)
+# otf2paje
+IF(OTF_FOUND)
   INCLUDE_DIRECTORIES (${OTF_INCLUDE_PATH})
   LINK_DIRECTORIES (${OTF_LIBRARY_PATH})
   ADD_EXECUTABLE (otf2paje ${OTF_SOURCES})
   TARGET_LINK_LIBRARIES (otf2paje otf)
   TARGET_LINK_LIBRARIES (otf2paje poti)
-endif(OTF_FOUND)
+ENDIF(OTF_FOUND)
+
+# otf22paje
+IF(OTF2_FOUND)
+  INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
+  LINK_DIRECTORIES(${OTF2_LIBRARY_PATH})
+  ADD_EXECUTABLE(otf22paje ${OTF2_SOURCES})
+  TARGET_LINK_LIBRARIES(otf22paje otf2)
+  TARGET_LINK_LIBRARIES(otf22paje scorep_utilities)
+  TARGET_LINK_LIBRARIES(otf22paje poti)
+  TARGET_LINK_LIBRARIES(otf22paje m)
+ENDIF(OTF2_FOUND)
 
 # Installation part
 INSTALL(TARGETS aky DESTINATION lib)
@@ -127,16 +118,9 @@ INSTALL(PROGRAMS ${aky_BINARY_DIR}/aky_converter DESTINATION bin)
 IF(TAU_FOUND)
   INSTALL(PROGRAMS ${aky_BINARY_DIR}/tau2paje DESTINATION bin)
 ENDIF(TAU_FOUND)
+IF(OTF_FOUND)
+  INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf2paje DESTINATION bin)
+ENDIF(OTF_FOUND)
 IF(OTF2_FOUND)
   INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf22paje DESTINATION bin)
 ENDIF(OTF2_FOUND)
-
-MARK_AS_ADVANCED(CMAKE_BUILD_TYPE)
-
-#packaging
-SET(CPACK_PACKAGE_VERSION_MAJOR "0")
-SET(CPACK_PACKAGE_VERSION_MINOR "1")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
-SET(CPACK_GENERATOR "TGZ")
-SET(CPACK_SOURCE_GENERATOR "TGZ")
-include(CPack)
