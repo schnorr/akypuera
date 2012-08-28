@@ -46,7 +46,7 @@ otf2paje
 
 Converts trace files from the [OTF trace file format](http://www.tu-dresden.de/zih/otf/) to the Paje's generic
 file format.
-[More about __otf2paje__ on Akypuera's wiki](https://github.com/schnorr/akypuera/wiki/OTFWithAkypuera)
+[More about __otf2paje__ on Akypuera's wiki](https://github.com/schnorr/akypuera/wiki/OTFWithAkypuera).
 
 otf22paje
 ---------
