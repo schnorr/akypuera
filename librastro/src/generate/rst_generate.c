@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     }
     while (feof(file)==0){
       char read_str[100];
-      fscanf (file, "%s", read_str);
+      if (fscanf (file, "%s", read_str) != 1) break;
       if (feof(file)) break;
 
       arguments.input[arguments.input_size] = strdup (read_str);
