@@ -1,28 +1,32 @@
-#
-# Akypuera installation file
-#
+Akypuera INSTALL
+================
 
-1/ Dependencies, recent versions of 
-  - gcc compiler (or the clang compiler)
-  - cmake
+Akypuera is a tracing library for MPI applications released under
+GPLv3. The only dependencies are __git__, a compiler (__gcc__ or
+clang) and __cmake__. We recommend an out-of-source compilation:
 
-2/ Out-of-source compilation
-  $ mkdir build
-  $ cmake ..
-  $ make
-  $ make install
+           $ git clone git://github.com/schnorr/akypuera.git
+           $ mkdir build
+           $ cmake ..
+           $ make
+           $ make install
 
-  => If you need to customize something, you can use 
-  $ ccmake .. # inside the build directory
+Run `ccmake .` on the build directory if you need to customize
+something (such as the installation directory).
 
-  => You can optionally configure it with TAU, to get tau2paje converter
-  $ cmake .. -DTAU_PATH=/path/to/tau/
+Akypuera is bundled with a bunch of other tools for trace file
+conversions towards the Paje file format. See the [Akypuera's
+wiki](https://github.com/schnorr/akypuera/wiki) for a detailed
+description of how to configure, build, and use each of them.
 
-  => You can optionally configure it to work with SimGrid's SMPI instead of MPI.
-  $ cmake .. -DSMPI_PATH=/path/to/smpi
+### Note
 
-Note: Akypuera has support for both OMPI (a real MPI implementation)
-and SMPI (the SimGrid's MPI interface to simulate MPI applications),
-but not at the same time. So if you want to trace OMPI, you need to
--DSMPI=OFF and use mpicc to compile your application. If you want to
-trace SMPI, you need to -DSMPI=ON and then use smpicc.
+Akypuera has support for both OMPI (a real MPI implementation) and
+SMPI (the [SimGrid's MPI interface to simulate MPI
+applications](http://simgrid.gforge.inria.fr/simgrid/3.7/doc/group__SMPI__API.html)),
+but __not at the same time__. So if you want to trace OMPI, you need
+to -DSMPI=OFF and use mpicc to compile your application. If you want
+to trace SMPI, you need to -DSMPI=ON and then use smpicc. [More
+details on this page of the Akypuera's
+wiki](https://github.com/schnorr/akypuera/wiki/SMPIWithAkypuera) to
+know how to configure aky with SMPI.
