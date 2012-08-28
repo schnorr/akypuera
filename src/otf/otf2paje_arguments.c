@@ -16,7 +16,7 @@
 */
 #include "otf2paje.h"
 
-static char doc[] = "Converts _merged_ OTF trace files to the Paje file format";
+static char doc[] = "Converts OTF trace files to the Paje file format";
 static char args_doc[] = "ANCHORFILE";
 struct arguments arguments;
 
