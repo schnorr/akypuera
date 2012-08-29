@@ -53,6 +53,3 @@ PROPERTIES
 # bump when the API change (new functions in the header file)
 SET(POTI_APIVERSION 2)
 
-ADD_SUBDIRECTORY(examples)
-ADD_SUBDIRECTORY(pkgconfig)
-
