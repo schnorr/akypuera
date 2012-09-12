@@ -4,9 +4,11 @@ INCLUDE(CheckLibraryExists)
 INCLUDE(CheckSymbolExists)
 INCLUDE(CheckFunctionExists)
 
-OPTION(THREADED
-  "Thread support"
-  OFF)
+# the cmake options
+OPTION(THREADED "Thread support" OFF)
+OPTION(RASTRO_GENERATE "Compile rastro_generate" ON)
+OPTION(RASTRO_TIMESYNC "Compile rastro_timesync" ON)
+OPTION(RASTRO_READ     "Compile rastro_read" ON)
 
 IF(THREADED)
   SET(LIBRASTRO_THREADED ON)
@@ -55,20 +57,25 @@ ENDIF(THREADED)
 IF(HAVE_CLOCKGETTIME)
   TARGET_LINK_LIBRARIES(rastro rt)
 ENDIF(HAVE_CLOCKGETTIME)
-ADD_EXECUTABLE(rastro_generate ${RASTRO_GENERATE_SRC})
-TARGET_LINK_LIBRARIES(rastro_generate rastro)
-ADD_EXECUTABLE(rastro_timesync ${RASTRO_TIMESYNC_SRC})
-TARGET_LINK_LIBRARIES(rastro_timesync rastro)
-ADD_EXECUTABLE(rastro_read ${RASTRO_READ_SRC})
-TARGET_LINK_LIBRARIES(rastro_read rastro)
+INSTALL(TARGETS rastro DESTINATION lib)
+INSTALL(FILES ${RASTRO_HEADERS} DESTINATION include)
 
-INSTALL(PROGRAMS ${rastro_BINARY_DIR}/rastro_generate
-                 ${rastro_BINARY_DIR}/rastro_timesync
-                 ${rastro_BINARY_DIR}/rastro_read
-        DESTINATION bin)
-INSTALL(TARGETS rastro
-        DESTINATION lib)
-INSTALL(FILES ${RASTRO_HEADERS}
-        DESTINATION include)
+IF(RASTRO_GENERATE)
+  ADD_EXECUTABLE(rastro_generate ${RASTRO_GENERATE_SRC})
+  TARGET_LINK_LIBRARIES(rastro_generate rastro)
+  INSTALL(PROGRAMS ${rastro_BINARY_DIR}/rastro_generate DESTINATION bin)
+ENDIF(RASTRO_GENERATE)
+
+IF(RASTRO_TIMESYNC)
+  ADD_EXECUTABLE(rastro_timesync ${RASTRO_TIMESYNC_SRC})
+  TARGET_LINK_LIBRARIES(rastro_timesync rastro)
+  INSTALL(PROGRAMS ${rastro_BINARY_DIR}/rastro_timesync DESTINATION bin)
+ENDIF(RASTRO_TIMESYNC)
+
+IF(RASTRO_READ)
+  ADD_EXECUTABLE(rastro_read ${RASTRO_READ_SRC})
+  TARGET_LINK_LIBRARIES(rastro_read rastro)
+  INSTALL(PROGRAMS ${rastro_BINARY_DIR}/rastro_read DESTINATION bin)
+ENDIF(RASTRO_READ)
 
 ADD_SUBDIRECTORY(examples)
