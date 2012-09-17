@@ -200,6 +200,10 @@ int SendMessage(void *userData,
                 unsigned int messageSize,
                 unsigned int messageTag, unsigned int messageComm)
 {
+  if (arguments.no_links){
+    return 0;
+  }
+
   char key[AKY_DEFAULT_STR_SIZE];
   bzero(key, AKY_DEFAULT_STR_SIZE);
   aky_put_key("n", sourceNodeToken, destinationNodeToken, key,
@@ -208,7 +212,7 @@ int SendMessage(void *userData,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
-  if (!arguments.dummy && !arguments.no_links){
+  if (!arguments.dummy){
     poti_StartLinkSizeMark(rank_last_time[sourceNodeToken], "root", "LINK",
                            mpi_process, "PTP", key, messageSize, messageTag);
   }
@@ -224,6 +228,11 @@ int RecvMessage(void *userData, double time,
                 unsigned int messageSize,
                 unsigned int messageTag, unsigned int messageComm)
 {
+
+  if (arguments.no_links){
+    return 0;
+  }
+
   char key[AKY_DEFAULT_STR_SIZE];
   bzero(key, AKY_DEFAULT_STR_SIZE);
   char *result = aky_get_key("n", sourceNodeToken, destinationNodeToken, key,
@@ -249,7 +258,7 @@ int RecvMessage(void *userData, double time,
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
   char mpi_process[100];
   snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
-  if (!arguments.dummy && !arguments.no_links){
+  if (!arguments.dummy){
     poti_EndLink(rank_last_time[destinationNodeToken], "root", "LINK",
                 mpi_process, "PTP", key);
   }
