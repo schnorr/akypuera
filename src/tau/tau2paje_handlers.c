@@ -25,7 +25,12 @@ double last_time = 0;
 
 static double time_to_seconds(double time)
 {
-  return time / 1000000;
+  double resolution = arguments.resolution;
+  if (!resolution){
+    resolution = 1e6;
+  }
+  return time / resolution;
+
 }
 
 /* implementation of callback routines */
