@@ -14,7 +14,7 @@
 #
 FIND_LIBRARY(TAU_LIBRARY
   NAMES TAU
-  PATHS /usr/lib /usr/local/lib ${TAU_PATH}/lib ${TAU_PATH}/x86_64/lib/ ${TAU_PAT}/i386_linux/lib)
+  PATHS /usr/lib /usr/local/lib ${TAU_PATH}/lib ${TAU_PATH}/x86_64/lib/ ${TAU_PATH}/i386_linux/lib)
 
 IF(TAU_LIBRARY)
   MESSAGE ( STATUS "Found TAU: ${TAU_LIBRARY}" )
