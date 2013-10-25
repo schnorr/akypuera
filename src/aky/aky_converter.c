@@ -85,7 +85,7 @@ int main(int argc, char **argv)
   while (rst_decode_event(&rastro, &event) && !fail) {
     static int root_created = 0;
     char mpi_process[100];
-    snprintf(mpi_process, 100, "rank%ld", event.id1);
+    snprintf(mpi_process, 100, "rank%"PRIu64"", event.id1);
     timestamp = event.timestamp;
     switch (event.type) {
     case AKY_PTP_SEND:
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
         if (result == NULL){
           fprintf (stderr,
                    "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
-                   "[aky_converter] got a receive at dst = %lu from src = %d\n"
+                   "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
                    "[aky_converter] but no send for this receive yet,\n"
                    "[aky_converter] do you synchronize your input traces?\n",
                    __FUNCTION__, event.id1, event.v_uint32[0]);
