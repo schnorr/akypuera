@@ -109,7 +109,7 @@ int main (int argc, char **argv)
     OTF2_Reader_CloseDefReader (reader, def_reader);
 
     char mpi_process[100];
-    snprintf(mpi_process, 100, "rank%lu", i);
+    snprintf(mpi_process, 100, "rank%zu", i);
     if (!arguments.dummy){
       poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
     }
@@ -141,7 +141,7 @@ int main (int argc, char **argv)
 
   for (i = 0; i < num_locations; i++){
     char mpi_process[100];
-    snprintf(mpi_process, 100, "rank%lu", i);
+    snprintf(mpi_process, 100, "rank%zu", i);
     if (!arguments.dummy){
       poti_DestroyContainer(user_data->last_timestamp, "PROCESS", mpi_process);
     }
