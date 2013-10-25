@@ -107,7 +107,7 @@ SCOREP_Error_Code Enter_print (uint64_t locationID, uint64_t time, void *userDat
   }
 
   char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%lu", locationID);
+  snprintf(mpi_process, 100, "rank%"PRId64"", locationID);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState(time_to_seconds(time, data->time_resolution),
                    mpi_process, "STATE", state_name);
@@ -130,7 +130,7 @@ SCOREP_Error_Code Leave_print (uint64_t locationID, uint64_t time, void *userDat
   }
 
   char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%lu", locationID);
+  snprintf(mpi_process, 100, "rank%"PRId64"", locationID);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState(time_to_seconds(time, data->time_resolution),
                   mpi_process, "STATE");
