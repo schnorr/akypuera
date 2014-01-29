@@ -26,7 +26,7 @@ ELSE(OTF2_LIBRARY)
 ENDIF(OTF2_LIBRARY)
 
 FIND_LIBRARY(SCOREP_LIBRARY
-  NAMES scorep_utilities
+  NAMES scorep_mpp_mpi
   PATHS /usr/lib /usr/local/lib ${OTF2_PATH}/lib)
 
 IF(SCOREP_LIBRARY)
