@@ -21,7 +21,6 @@
 
 static struct hsearch_data hash;
 
-
 typedef struct elem {
   char *data;
   struct elem *head;
