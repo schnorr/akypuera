@@ -1,0 +1,5 @@
+How to initialize the poti library:
+
+poti_init (0, 0) - works with pj_dump, pajeng, viva and all tools relying on libpaje
+poti_init (1, 0) - works with the development version of ViTE
+poti_init (1, 1) - works with ViTE 1.2

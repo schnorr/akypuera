@@ -30,6 +30,11 @@ extern "C" {
 int poti_open (const char* filename);
 
 /*
+ * Function to init poti with an external file descriptor
+ */
+int poti_init (FILE *file);
+
+/*
  * Function to close opened file
  */
 void poti_close (void);
@@ -37,7 +42,7 @@ void poti_close (void);
 /*
  * Function to generate the header 
  */
-void poti_header (int basic);
+void poti_header (int basic, int old_header);
 
 /*
  * Functions to define the type hierarchy of a Paje trace file 
@@ -53,13 +58,12 @@ void poti_DefineStateType(const char *alias,
                          const char *containerType,
                          const char *name);
 void poti_DefineEventType(const char *alias,
-                         const char *containerType,
-                         const char *name,
-                         const char *color);
+                          const char *containerType,
+                          const char *name);
 void poti_DefineLinkType(const char *alias,
                         const char *containerType,
-                        const char *sourceContainerType,
-                        const char *destContainerType,
+                        const char *startContainerType,
+                        const char *endContainerType,
                         const char *name);
 void poti_DefineEntityValue(const char *alias,
                            const char *entityType,
@@ -83,16 +87,16 @@ void poti_DestroyContainer(double timestamp,
  */
 
 void poti_SetVariable (double timestamp,
-                       const char *type,
                        const char *container,
+                       const char *type,
                        double value);
 void poti_AddVariable (double timestamp,
-                       const char *type,
                        const char *container,
+                       const char *type,
                        double value);
 void poti_SubVariable (double timestamp,
-                       const char *type,
                        const char *container,
+                       const char *type,
                        double value);
 
 /*

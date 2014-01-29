@@ -12,5 +12,11 @@
 #
 # You should have received a copy of the GNU Lesser Public License
 # along with Poti. If not, see <http://www.gnu.org/licenses/>.
-ADD_EXECUTABLE(ex1 ex1.c)
-TARGET_LINK_LIBRARIES(ex1 poti)
+ADD_EXECUTABLE(main_example main_example.c)
+TARGET_LINK_LIBRARIES(main_example poti)
+
+ADD_EXECUTABLE(vite-1.2 vite-1.2.c)
+TARGET_LINK_LIBRARIES(vite-1.2 poti)
+
+ADD_EXECUTABLE(vite-svn vite-svn.c)
+TARGET_LINK_LIBRARIES(vite-svn poti)

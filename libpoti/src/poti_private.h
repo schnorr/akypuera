@@ -46,6 +46,6 @@ typedef enum {
   PAJE_NewEvent,
 } e_event_type;
 
-void _poti_header (int basic);
+void _poti_header (int basic, int old_header);
 
 #endif

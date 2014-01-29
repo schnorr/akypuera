@@ -44,7 +44,7 @@ void poti_DefineVariableType(const char *alias,
                              const char *name,
                              const char *color)
 {
-  fprintf (paje_file,"%d %s %s %s \"%s\"\n",
+  fprintf (paje_file,"%d %s %s \"%s\" \"%s\"\n",
            PAJE_DefineVariableType,
            alias,
            containerType,
@@ -64,30 +64,28 @@ void poti_DefineStateType(const char *alias,
 }
 
 void poti_DefineEventType(const char *alias,
-                        const char *containerType,
-                        const char *name,
-                        const char *color)
+                          const char *containerType,
+                          const char *name)
 {
-  fprintf(paje_file,"%d %s %s \"%s\" \"%s\"\n",
+  fprintf(paje_file,"%d %s %s \"%s\"\n",
           PAJE_DefineEventType,
           alias,
           containerType,
-          name,
-          color);
+          name);
 }
 
 void poti_DefineLinkType(const char *alias,
                         const char *containerType,
-                        const char *sourceContainerType,
-                        const char *destContainerType,
+                        const char *startContainerType,
+                        const char *endContainerType,
                         const char *name)
 {
   fprintf(paje_file,"%d %s %s %s %s \"%s\"\n",
          PAJE_DefineLinkType,
          alias,
          containerType,
-         sourceContainerType,
-         destContainerType,
+         startContainerType,
+         endContainerType,
          name);
 }
 

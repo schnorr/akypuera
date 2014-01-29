@@ -18,8 +18,11 @@
 
 int main (int argc, char **argv)
 {
-  //first, dump the pajeheader
-  poti_header (0);
+  //Vite-SVN requires a trace file with no extended events)
+  //So:
+  //first parameter set to 1 means basic header with no extended events
+  //second parameter set to 0 means *new* header
+  poti_header (1, 0);
 
   //Defining my types
   poti_DefineContainerType ("ROOT", "0", "ROOT");
