@@ -21,8 +21,6 @@
 #include <string.h>
 #include <argp.h>
 #include <otf2/otf2.h>
-#include <scorep_utility/SCOREP_Hashtab.h>
-#include <scorep_utility/SCOREP_Vector.h>
 #include <poti.h>
 #define _GNU_SOURCE
 #define __USE_GNU
@@ -46,13 +44,10 @@ extern struct argp argp;
 struct otf2paje_s
 {
   OTF2_Reader*    reader;
-  SCOREP_Vector*  locations;
-  SCOREP_Hashtab* regions;
-  SCOREP_Hashtab* strings;
-  SCOREP_Hashtab* groups;
   double last_timestamp;
   double time_resolution;
 };
+
 typedef struct otf2paje_s otf2paje_t;
 
 struct otf2paje_region_s
@@ -69,12 +64,12 @@ struct otf2paje_string_s
 };
 typedef struct otf2paje_string_s otf2paje_string_t;
 
-SCOREP_Error_Code GlobDefUnknown_print (void* userData);
-SCOREP_Error_Code GlobDefClockProperties_print (void *userData, uint64_t timer_resolution, uint64_t global_offset, uint64_t trace_length);
-SCOREP_Error_Code GlobDefString_print (void *userData, uint32_t stringID, const char* string);
-SCOREP_Error_Code GlobDefRegion_print (void* userData, uint32_t regionID, uint32_t stringID, uint32_t description, OTF2_RegionType regionType, uint32_t sourceFile, uint32_t beginLineNumber, uint32_t endLineNumber);
-SCOREP_Error_Code GlobDefLocation_print (void* userData, uint64_t locationID, uint32_t name, OTF2_LocationType locationType, uint64_t numberOfEvents, uint32_t locationGroup);
-SCOREP_Error_Code Enter_print (uint64_t locationID, uint64_t time, void *userData, OTF2_AttributeList* attributes, uint32_t regionID);
-SCOREP_Error_Code Leave_print (uint64_t locationID, uint64_t time, void *userData, OTF2_AttributeList* attributes, uint32_t regionID);
+OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID);
+OTF2_CallbackCode otf22paje_leave (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID);
+
+OTF2_CallbackCode otf22paje_unknown (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes);
+OTF2_CallbackCode otf22paje_global_def_clock_properties (void *userData, uint64_t timerResolution, uint64_t globalOffset, uint64_t traceLength);
+OTF2_CallbackCode otf22paje_global_def_string (void *userData, OTF2_StringRef self, const char *string);
+OTF2_CallbackCode otf22paje_global_def_region (void *userData, OTF2_RegionRef self, OTF2_StringRef name, OTF2_StringRef canonicalName, OTF2_StringRef description, OTF2_RegionRole regionRole, OTF2_Paradigm paradigm, OTF2_RegionFlag regionFlags, OTF2_StringRef sourceFile, uint32_t beginLineNumber, uint32_t endLineNumber);
 
 #endif

@@ -16,6 +16,10 @@
 */
 #include "otf22paje.h"
 
+static char **string_hash = NULL;
+static int string_hash_current_size = 0;
+static int *region_name_map = NULL;
+static int region_name_map_current_size = 0;
 
 /* time_to_seconds */
 static double time_to_seconds(double time, double resolution)
@@ -28,82 +32,44 @@ static double time_to_seconds(double time, double resolution)
 }
 
 /* Definition callbacks */
-SCOREP_Error_Code GlobDefUnknown_print (void* userData)
+OTF2_CallbackCode otf22paje_unknown (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes)
 {
-    ( void )userData;
-    return SCOREP_SUCCESS;
+    return OTF2_CALLBACK_SUCCESS;
 }
 
-
-SCOREP_Error_Code GlobDefClockProperties_print (void *userData, uint64_t timer_resolution, uint64_t global_offset, uint64_t trace_length)
+OTF2_CallbackCode otf22paje_global_def_clock_properties (void *userData, uint64_t timerResolution, uint64_t globalOffset, uint64_t traceLength)
 {
   otf2paje_t* data = (otf2paje_t*) userData;
-  data->time_resolution = timer_resolution;
-  return SCOREP_SUCCESS;
+  data->time_resolution = timerResolution;
+  return OTF2_CALLBACK_SUCCESS;
 }
 
-SCOREP_Error_Code GlobDefString_print (void *userData, uint32_t stringID, const char* string)
+OTF2_CallbackCode otf22paje_global_def_string (void *userData, OTF2_StringRef self, const char *string)
 {
-  otf2paje_t* data = (otf2paje_t*) userData;
-  size_t hint;
-  SCOREP_Hashtab_Entry* entry;
-  entry = SCOREP_Hashtab_Find (data->strings, &stringID, &hint);
-  if (entry) {
-    /* already defined? */
-    return SCOREP_SUCCESS;
-  }
-
-  otf2paje_string_t* new_string;
-  new_string = (otf2paje_string_t*) malloc (sizeof (otf2paje_string_t));
-  new_string->string_id = stringID;
-  new_string->content = (char*) malloc (strlen(string)+1);
-  strcpy (new_string->content, string);
-  SCOREP_Hashtab_Insert (data->strings,
-                         &new_string->string_id,
-                         new_string,
-                         &hint);
-  return SCOREP_SUCCESS;
+  string_hash_current_size = self + 1;
+  string_hash = (char**)realloc (string_hash, string_hash_current_size*sizeof(char*));
+  string_hash[self] = (char*) malloc (strlen(string)+1);
+  strcpy (string_hash[self], string);
+  return OTF2_CALLBACK_SUCCESS;
 }
 
-SCOREP_Error_Code GlobDefRegion_print (void* userData, uint32_t regionID, uint32_t stringID, uint32_t description, OTF2_RegionType regionType, uint32_t sourceFile, uint32_t beginLineNumber, uint32_t endLineNumber)
+OTF2_CallbackCode otf22paje_global_def_region (void *userData, OTF2_RegionRef self, OTF2_StringRef name, OTF2_StringRef canonicalName, OTF2_StringRef description, OTF2_RegionRole regionRole, OTF2_Paradigm paradigm, OTF2_RegionFlag regionFlags, OTF2_StringRef sourceFile, uint32_t beginLineNumber, uint32_t endLineNumber)
 {
-  otf2paje_t* data = (otf2paje_t*) userData;
-  size_t hint;
-  SCOREP_Hashtab_Entry* entry;
-  entry = SCOREP_Hashtab_Find (data->regions, &regionID, &hint);
-  if (entry) {
-    /* already defined? */
-    return SCOREP_SUCCESS;
-  }
-  otf2paje_region_t* new_region = (otf2paje_region_t*) malloc (sizeof(otf2paje_region_t));
-  new_region->region_id = regionID;
-  new_region->string_id = stringID;
-  SCOREP_Hashtab_Insert( data->regions,
-                         &new_region->region_id,
-                         new_region,
-                         &hint );
-  return SCOREP_SUCCESS;
-}
-
-
-SCOREP_Error_Code GlobDefLocation_print (void* userData, uint64_t locationID, uint32_t name, OTF2_LocationType locationType, uint64_t numberOfEvents, uint32_t locationGroup)
-{
-  return SCOREP_SUCCESS;
+  region_name_map_current_size = self + 1;
+  region_name_map = (int*) realloc (region_name_map, region_name_map_current_size*sizeof(int));
+  region_name_map[self] = name;
+  return OTF2_CALLBACK_SUCCESS;
 }
 
 
 /* Events callbacks */
-SCOREP_Error_Code Enter_print (uint64_t locationID, uint64_t time, void *userData, OTF2_AttributeList* attributes, uint32_t regionID)
+OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID)
 {
   otf2paje_t* data = (otf2paje_t*) userData;
-  SCOREP_Hashtab_Entry *e1 = SCOREP_Hashtab_Find (data->regions, &regionID, NULL);
-  otf2paje_region_t *region = (otf2paje_region_t*) e1->value;
-  SCOREP_Hashtab_Entry *e2 = SCOREP_Hashtab_Find (data->strings, &region->string_id,NULL);
-  otf2paje_string_t *string = (otf2paje_string_t*) e2->value;
-  char *state_name = string->content;
+  const char *state_name = string_hash[region_name_map[regionID]];
 
   if (arguments.only_mpi && strstr(state_name, "MPI_") == NULL){
-    return SCOREP_SUCCESS;
+    return OTF2_CALLBACK_SUCCESS;
   }
 
   char mpi_process[100];
@@ -113,20 +79,16 @@ SCOREP_Error_Code Enter_print (uint64_t locationID, uint64_t time, void *userDat
                    mpi_process, "STATE", state_name);
   }
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
-  return SCOREP_SUCCESS;
+  return OTF2_CALLBACK_SUCCESS;
 }
 
-SCOREP_Error_Code Leave_print (uint64_t locationID, uint64_t time, void *userData, OTF2_AttributeList* attributes, uint32_t regionID)
+OTF2_CallbackCode otf22paje_leave (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID)
 {
   otf2paje_t* data = (otf2paje_t*) userData;
-  SCOREP_Hashtab_Entry *e1 = SCOREP_Hashtab_Find (data->regions, &regionID, NULL);
-  otf2paje_region_t *region = (otf2paje_region_t*) e1->value;
-  SCOREP_Hashtab_Entry *e2 = SCOREP_Hashtab_Find (data->strings, &region->string_id,NULL);
-  otf2paje_string_t *string = (otf2paje_string_t*) e2->value;
-  char *state_name = string->content;
+  const char *state_name = string_hash[region_name_map[regionID]];
 
   if (arguments.only_mpi && strstr(state_name, "MPI_") == NULL){
-    return SCOREP_SUCCESS;
+    return OTF2_CALLBACK_SUCCESS;
   }
 
   char mpi_process[100];
@@ -136,6 +98,8 @@ SCOREP_Error_Code Leave_print (uint64_t locationID, uint64_t time, void *userDat
                   mpi_process, "STATE");
   }
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
-  return SCOREP_SUCCESS;
+  return OTF2_CALLBACK_SUCCESS;
 }
+
+
 

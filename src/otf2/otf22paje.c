@@ -27,6 +27,7 @@ int main (int argc, char **argv)
     return 1;
   }
 
+  /* create reader based on anchorfile passed as parameter */
   OTF2_Reader* reader = OTF2_Reader_Open (arguments.input[0]);
   if (reader == NULL){
     fprintf(stderr,
@@ -36,26 +37,16 @@ int main (int argc, char **argv)
     return 1;
   }
 
+  /* read global definitions */
   /* User data for callbacks. */
   otf2paje_t *user_data = (otf2paje_t*) malloc (sizeof (otf2paje_t));
-  user_data->reader    = reader;
-  user_data->locations = SCOREP_Vector_Create();
-  user_data->regions   = SCOREP_Hashtab_CreateSize( 128,
-                                                    SCOREP_Hashtab_HashInt32,
-                                                    SCOREP_Hashtab_CompareUint32 );
-  user_data->strings = SCOREP_Hashtab_CreateSize( 256,
-                                                  SCOREP_Hashtab_HashInt32,
-                                                  SCOREP_Hashtab_CompareUint32 );
-  user_data->groups = SCOREP_Hashtab_CreateSize( 128,
-                                                 SCOREP_Hashtab_HashInt64,
-                                                 SCOREP_Hashtab_CompareUint64 );
+  user_data->reader = reader;
 
   /* Define definition callbacks. */
   OTF2_GlobalDefReaderCallbacks *def_callbacks = OTF2_GlobalDefReaderCallbacks_New();
-  OTF2_GlobalDefReaderCallbacks_SetStringCallback (def_callbacks, GlobDefString_print);
-  OTF2_GlobalDefReaderCallbacks_SetLocationCallback (def_callbacks, GlobDefLocation_print);
-  OTF2_GlobalDefReaderCallbacks_SetRegionCallback (def_callbacks, GlobDefRegion_print);
-  OTF2_GlobalDefReaderCallbacks_SetClockPropertiesCallback (def_callbacks, GlobDefClockProperties_print);
+  OTF2_GlobalDefReaderCallbacks_SetStringCallback (def_callbacks, otf22paje_global_def_string);
+  OTF2_GlobalDefReaderCallbacks_SetRegionCallback (def_callbacks, otf22paje_global_def_region);
+  OTF2_GlobalDefReaderCallbacks_SetClockPropertiesCallback (def_callbacks, otf22paje_global_def_clock_properties);
 
   /* Read global definitions. */
   OTF2_GlobalDefReader* glob_def_reader  = OTF2_Reader_GetGlobalDefReader (reader);
@@ -93,7 +84,7 @@ int main (int argc, char **argv)
 
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
-    poti_header(arguments.basic);
+    poti_header(arguments.basic, 0);
     aky_paje_hierarchy();
     poti_CreateContainer (0, "root", "ROOT", "0", "root");
   }
@@ -117,8 +108,8 @@ int main (int argc, char **argv)
 
   /* Define event callbacks. */
   OTF2_GlobalEvtReaderCallbacks* evt_callbacks = OTF2_GlobalEvtReaderCallbacks_New();
-  OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, Enter_print );
-  OTF2_GlobalEvtReaderCallbacks_SetLeaveCallback( evt_callbacks, Leave_print );
+  OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, otf22paje_enter );
+  OTF2_GlobalEvtReaderCallbacks_SetLeaveCallback( evt_callbacks, otf22paje_leave );
 
   /* Get global event reader. */
   OTF2_GlobalEvtReader *glob_evt_reader = OTF2_Reader_GetGlobalEvtReader (reader);
