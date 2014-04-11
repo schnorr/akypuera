@@ -37,6 +37,24 @@ int main (int argc, char **argv)
     return 1;
   }
 
+
+  /* we start here to output the paje converted file */
+  if (!arguments.dummy){
+    /* start output with comments */
+    if (arguments.comment){
+      aky_dump_comment (PROGRAM, arguments.comment);
+    }
+    if (arguments.comment_file){
+      if (aky_dump_comment_file (PROGRAM, arguments.comment_file) == 1){
+        return 1;
+      }
+    }
+
+    /* output build version, date and conversion for aky in the trace */
+    aky_dump_version (PROGRAM, argv, argc);
+    poti_header(arguments.basic, 0);
+  }
+
   /* read global definitions */
   /* User data for callbacks. */
   otf2paje_t *user_data = (otf2paje_t*) malloc (sizeof (otf2paje_t));
@@ -47,6 +65,11 @@ int main (int argc, char **argv)
   OTF2_GlobalDefReaderCallbacks_SetStringCallback (def_callbacks, otf22paje_global_def_string);
   OTF2_GlobalDefReaderCallbacks_SetRegionCallback (def_callbacks, otf22paje_global_def_region);
   OTF2_GlobalDefReaderCallbacks_SetClockPropertiesCallback (def_callbacks, otf22paje_global_def_clock_properties);
+  OTF2_GlobalDefReaderCallbacks_SetLocationGroupCallback (def_callbacks, otf22paje_global_def_location_group);
+  OTF2_GlobalDefReaderCallbacks_SetLocationCallback (def_callbacks, otf22paje_global_def_location);
+  OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeCallback (def_callbacks, otf22paje_global_def_system_tree_node);
+  OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodePropertyCallback (def_callbacks, otf22paje_global_def_system_tree_node_property);
+  OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeDomainCallback (def_callbacks, otf22paje_global_def_system_tree_node_domain);
 
   /* Read global definitions. */
   OTF2_GlobalDefReader* glob_def_reader  = OTF2_Reader_GetGlobalDefReader (reader);
@@ -70,24 +93,6 @@ int main (int argc, char **argv)
     return 1;
   }
 
-  /* we start here to output the paje converted file */
-  if (!arguments.dummy){
-    /* start output with comments */
-    if (arguments.comment){
-      aky_dump_comment (PROGRAM, arguments.comment);
-    }
-    if (arguments.comment_file){
-      if (aky_dump_comment_file (PROGRAM, arguments.comment_file) == 1){
-        return 1;
-      }
-    }
-
-    /* output build version, date and conversion for aky in the trace */
-    aky_dump_version (PROGRAM, argv, argc);
-    poti_header(arguments.basic, 0);
-    aky_paje_hierarchy();
-    poti_CreateContainer (0, "root", "ROOT", "0", "root");
-  }
 
   /* Get number of locations from the anchor file. */
   uint64_t          num_locations = 0;
@@ -98,12 +103,6 @@ int main (int argc, char **argv)
     uint64_t definitions_read = 0;
     OTF2_Reader_ReadAllLocalDefinitions (reader, def_reader, &definitions_read);
     OTF2_Reader_CloseDefReader (reader, def_reader);
-
-    char mpi_process[100];
-    snprintf(mpi_process, 100, "rank%zu", i);
-    if (!arguments.dummy){
-      poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
-    }
   }
 
   /* Define event callbacks. */
@@ -134,12 +133,8 @@ int main (int argc, char **argv)
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%zu", i);
     if (!arguments.dummy){
-      poti_DestroyContainer(user_data->last_timestamp, "PROCESS", mpi_process);
+      poti_DestroyContainer(user_data->last_timestamp, "process", mpi_process);
     }
-  }
-
-  if (!arguments.dummy){
-    poti_DestroyContainer(user_data->last_timestamp, "ROOT", "root");
   }
 
   OTF2_Reader_Close (reader);
