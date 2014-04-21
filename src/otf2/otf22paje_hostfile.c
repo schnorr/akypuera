@@ -22,7 +22,7 @@
 static char **hostnames = NULL;
 static int hostnames_size = 0;
 
-static int nf_hostname_add (char *host)
+static void nf_hostname_add (char *host)
 {
   if (host){
     hostnames_size++;
@@ -44,7 +44,7 @@ int nf_hostnames_search (char *host)
   return 0;
 }
 
-int nf_hostnames_clear (void)
+void nf_hostnames_clear (void)
 {
   int j;
   for (j = 0; j < hostnames_size; j++){
@@ -53,7 +53,7 @@ int nf_hostnames_clear (void)
   free (hostnames);
 }
 
-static void nf_container_type_declare (char *new_container_type, char *container_type)
+static void nf_container_type_declare (const char *new_container_type, const char *container_type)
 {
   static char **types = NULL;
   static int n = 0, i;
@@ -71,7 +71,7 @@ static void nf_container_type_declare (char *new_container_type, char *container
   fprintf (stderr, "PajeDefineContainerType %s %s\n", new_container_type, container_type);
 }
 
-static void nf_container_create (char *new_container, char *new_container_type, char *container)
+static void nf_container_create (const char *new_container, const char *new_container_type, const char *container)
 {
   static char **containers = NULL;
   static int n = 0, i;

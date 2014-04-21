@@ -18,7 +18,7 @@
 #define __OTF22PAJE_HOSTFILE_H
 
 int nf_hostnames_search (char *host);
-int nf_hostnames_clear (void);
+void nf_hostnames_clear (void);
 int nf_read_and_create_hierarchy (char *filename);
 
 #endif
