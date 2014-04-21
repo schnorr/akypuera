@@ -104,7 +104,6 @@ int nf_read_and_create_hierarchy (char *filename)
     }
 
     line[bytes_read-1] = '\0';
-    fprintf (stderr, "[%s] %d\n", line, feof(arq));
 
     //tokenize
     char *token = NULL, *str1 = NULL, *saveptr1 = NULL;
@@ -117,7 +116,6 @@ int nf_read_and_create_hierarchy (char *filename)
 	break;
       hierarchy = (char **) realloc (hierarchy, (j+1)*sizeof(char*));
       hierarchy[j] = token;
-      //fprintf (stderr, "%d: %s\n", j, token);
     }
 
     //sanity check on number of fields
