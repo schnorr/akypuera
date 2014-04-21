@@ -75,6 +75,35 @@ static const char *find_type_tree_name (const char *name)
   return NULL;
 }
 
+OTF2_CallbackCode otf22paje_global_def_location_group_hostfile (void *userData, OTF2_LocationGroupRef self, OTF2_StringRef name, OTF2_LocationGroupType locationGroupType, OTF2_SystemTreeNodeRef systemTreeParent)
+{
+  const char *name_str = string_hash[name];
+
+  /* create the container */
+  int p = (int)systemTreeParent;
+  const char *container = container_tree_hash[p];
+
+  /* find the first dot of container name and put a \0 on it */
+  int i;
+  char *sanitized_container = strdup (container);
+  for (i = 0; i < strlen (sanitized_container); i++){
+    if (sanitized_container[i] == '.') {
+      sanitized_container[i] = '\0';
+      break;
+    }
+  }
+
+  char mpi_process[100];
+  snprintf(mpi_process, 100, "rank%d", (int)self);
+  if (!arguments.dummy){
+    nf_container_type_declare ("P", "H");
+    poti_CreateContainer(0, mpi_process, "P", sanitized_container, name_str);
+  }
+
+  free (sanitized_container);
+  return OTF2_CALLBACK_SUCCESS;
+}
+
 OTF2_CallbackCode otf22paje_global_def_location_group (void *userData, OTF2_LocationGroupRef self, OTF2_StringRef name, OTF2_LocationGroupType locationGroupType, OTF2_SystemTreeNodeRef systemTreeParent)
 {
   const char *name_str = string_hash[name];
@@ -127,6 +156,19 @@ static char *deblank (char* input)
   }
   output[j]=0;
   return output;
+}
+
+OTF2_CallbackCode otf22paje_global_def_system_tree_node_hostfile (void *userData, OTF2_SystemTreeNodeRef self, OTF2_StringRef name, OTF2_StringRef className, OTF2_SystemTreeNodeRef parent)
+{
+  const char *name_str = deblank(string_hash[name]);
+
+  //registering the container creation
+  int s = (int)self;
+  container_tree_current_size++;
+  container_tree_hash = (char**)realloc (container_tree_hash, container_tree_current_size*sizeof(char*));
+  container_tree_hash[s] = strdup(name_str);
+
+  return OTF2_CALLBACK_SUCCESS;
 }
 
 OTF2_CallbackCode otf22paje_global_def_system_tree_node (void *userData, OTF2_SystemTreeNodeRef self, OTF2_StringRef name, OTF2_StringRef className, OTF2_SystemTreeNodeRef parent)
