@@ -53,7 +53,7 @@ void nf_hostnames_clear (void)
   free (hostnames);
 }
 
-static void nf_container_type_declare (const char *new_container_type, const char *container_type)
+void nf_container_type_declare (const char *new_container_type, const char *container_type)
 {
   static char **types = NULL;
   static int n = 0, i;

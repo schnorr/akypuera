@@ -20,5 +20,6 @@
 int nf_hostnames_search (char *host);
 void nf_hostnames_clear (void);
 int nf_read_and_create_hierarchy (char *filename);
+void nf_container_type_declare (const char *new_container_type, const char *container_type);
 
 #endif
