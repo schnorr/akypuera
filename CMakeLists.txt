@@ -21,7 +21,7 @@ SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 SET(AKY_LIBRARY_SOURCES src/aky.c src/aky_aux.c src/aky_rastro.c)
 SET(AKY_CONVERTER_SOURCES src/aky/aky_converter.c src/aky/aky_arguments.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
 SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_utils.c)
-SET(OTF2_SOURCES src/otf2/otf22paje.c src/otf2/otf22paje_arguments.c src/otf2/otf22paje_handlers.c src/aky_utils.c)
+SET(OTF2_SOURCES src/otf2/otf22paje.c src/otf2/otf22paje_arguments.c src/otf2/otf22paje_handlers.c src/otf2/otf22paje_hostfile.c  src/aky_utils.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/tau/tau2paje_arguments.c src/tau/tau2paje_handlers.c src/aky_utils.c src/aky_keys.c)
 
 # Options

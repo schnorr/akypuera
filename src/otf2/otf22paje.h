@@ -25,6 +25,7 @@
 #define _GNU_SOURCE
 #define __USE_GNU
 #include <search.h>
+#include "otf22paje_hostfile.h"
 #include "aky_private.h"
 
 #define PROGRAM "otf22paje"
