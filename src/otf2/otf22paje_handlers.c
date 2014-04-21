@@ -97,6 +97,8 @@ OTF2_CallbackCode otf22paje_global_def_location_group_hostfile (void *userData, 
   snprintf(mpi_process, 100, "rank%d", (int)self);
   if (!arguments.dummy){
     nf_container_type_declare ("P", "H");
+    nf_state_type_declare ("STATE", "P");
+    nf_link_type_declare ("LINK", "0", "P", "P");
     poti_CreateContainer(0, mpi_process, "P", sanitized_container, name_str);
   }
 
