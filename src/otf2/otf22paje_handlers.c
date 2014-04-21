@@ -110,7 +110,7 @@ OTF2_CallbackCode otf22paje_global_def_location_group (void *userData, OTF2_Loca
   /* Define the type for the location group */
 
   const char *containerType = type_tree_hash[locationGroupType];
-  const char *newTypeName = "process";
+  const char *newTypeName = "P";
   int newTypeIndex = locationGroupType + 1;
 
   if (!find_type_tree_name (newTypeName)){

@@ -139,7 +139,7 @@ int main (int argc, char **argv)
     char mpi_process[100];
     snprintf(mpi_process, 100, "rank%zu", i);
     if (!arguments.dummy){
-      poti_DestroyContainer(user_data->last_timestamp, "process", mpi_process);
+      poti_DestroyContainer(user_data->last_timestamp, "P", mpi_process);
     }
   }
 
