@@ -21,5 +21,7 @@ int nf_hostnames_search (char *host);
 void nf_hostnames_clear (void);
 int nf_read_and_create_hierarchy (char *filename);
 void nf_container_type_declare (const char *new_container_type, const char *container_type);
+void nf_state_type_declare (const char *new_state_type, const char *container_type);
+void nf_link_type_declare (const char *new_link_type, const char *container_type, const char *source_cont_type, const char *dest_cont_type);
 
 #endif

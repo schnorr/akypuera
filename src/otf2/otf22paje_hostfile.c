@@ -22,6 +22,9 @@
 static char **hostnames = NULL;
 static int hostnames_size = 0;
 
+static char **types = NULL;
+static int n_types = 0;
+
 static void nf_hostname_add (char *host)
 {
   if (host){
@@ -53,21 +56,51 @@ void nf_hostnames_clear (void)
   free (hostnames);
 }
 
-void nf_container_type_declare (const char *new_container_type, const char *container_type)
+static int nf_type_declared (const char *type)
 {
-  static char **types = NULL;
-  static int n = 0, i;
+  int i;
 
   //check if already declared
-  for (i = 0; i < n; i++){
-    if (strcmp (types[i], new_container_type) == 0) return;
+  for (i = 0; i < n_types; i++){
+    if (strcmp (types[i], type) == 0) return 1;
   }
 
+  return 0;
+}
+
+static void nf_type_declare (const char *type)
+{
   //add
-  n++;
-  types = realloc (types, n*sizeof(char*));
-  types[n-1] = strdup (new_container_type);
+  n_types++;
+  types = realloc (types, n_types*sizeof(char*));
+  types[n_types-1] = strdup (type);
+}
+
+void nf_container_type_declare (const char *new_container_type, const char *container_type)
+{
+  if (nf_type_declared (new_container_type)) return;
+  nf_type_declare (new_container_type);
+
+  if (container_type == NULL){
+    container_type = "0";
+  }
   poti_DefineContainerType (new_container_type, container_type, new_container_type);
+}
+
+void nf_state_type_declare (const char *new_state_type, const char *container_type)
+{
+  if (nf_type_declared (new_state_type)) return;
+  nf_type_declare (new_state_type);
+
+  poti_DefineStateType (new_state_type, container_type, new_state_type);
+}
+
+void nf_link_type_declare (const char *new_link_type, const char *container_type, const char *source_cont_type, const char *dest_cont_type)
+{
+  if (nf_type_declared (new_link_type)) return;
+  nf_type_declare (new_link_type);
+
+  poti_DefineLinkType(new_link_type, container_type, source_cont_type, dest_cont_type, new_link_type);
 }
 
 static void nf_container_create (const char *new_container, const char *new_container_type, const char *container)
@@ -84,6 +117,9 @@ static void nf_container_create (const char *new_container, const char *new_cont
   n++;
   containers = realloc (containers, n*sizeof(char*));
   containers[n-1] = strdup (new_container);
+  if (container == NULL){
+    container = "0";
+  }
   poti_CreateContainer (0, new_container, new_container_type, container, new_container);
 }
 
