@@ -30,6 +30,7 @@ static struct argp_option options[] = {
   {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
   {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
+  {"hostfile", 'h', "FILE", 0, "MPI hostfile to create system hierarchy"},
   { 0 }
 };
 
@@ -46,6 +47,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'b': arguments->basic = 1; break;
   case 'm': arguments->comment = arg; break;
   case 'n': arguments->comment_file = arg; break;
+  case 'h': arguments->hostfile = arg; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */

@@ -36,6 +36,7 @@ struct arguments {
   int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic, dummy;
   char *comment;
   char *comment_file;
+  char *hostfile;
 };
 extern struct arguments arguments;
 extern struct argp argp;
