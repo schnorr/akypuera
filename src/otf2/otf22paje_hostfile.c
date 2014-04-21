@@ -123,7 +123,12 @@ int nf_read_and_create_hierarchy (char *filename)
       depth = j;
     }else{
       if (depth != j){
-	//ERROR, different number of fields on %s, line
+	fprintf(stderr,
+		"[%s] at %s,"
+		"different number of hierarchy fields in hostfile.\n"
+		"Hierarchy fields are separated by a dot.\n",
+		PROGRAM, __FUNCTION__);
+	exit(1);
       }
     }
 
@@ -171,7 +176,12 @@ int nf_read_and_create_hierarchy (char *filename)
 
     //sanity check on number of fields for cluster-host
     if (j != 2){
-      //ERROR, different number of fields expected for cluster-host pair
+      fprintf(stderr,
+	      "[%s] at %s,"
+	      "different number of fields expected for cluster-host pair\n"
+	      "Cluster-host pair fields are separated by a dash.\n",
+            PROGRAM, __FUNCTION__);
+      exit(1);
     }
 
     //create things (cluster)
