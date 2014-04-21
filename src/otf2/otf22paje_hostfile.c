@@ -67,8 +67,7 @@ static void nf_container_type_declare (const char *new_container_type, const cha
   n++;
   types = realloc (types, n*sizeof(char*));
   types[n-1] = strdup (new_container_type);
-  //  poti_DefineContainerType (new_container_type, container_type, new_container_type);
-  fprintf (stderr, "PajeDefineContainerType %s %s\n", new_container_type, container_type);
+  poti_DefineContainerType (new_container_type, container_type, new_container_type);
 }
 
 static void nf_container_create (const char *new_container, const char *new_container_type, const char *container)
@@ -85,9 +84,7 @@ static void nf_container_create (const char *new_container, const char *new_cont
   n++;
   containers = realloc (containers, n*sizeof(char*));
   containers[n-1] = strdup (new_container);
-  //  poti_CreateContainer (0, new_container, new_container_type, container, new_container);
-  fprintf (stderr, "PajeCreateContainer %s %s %s\n", new_container_type, new_container, container);
-
+  poti_CreateContainer (0, new_container, new_container_type, container, new_container);
 }
 
 int nf_read_and_create_hierarchy (char *filename)
