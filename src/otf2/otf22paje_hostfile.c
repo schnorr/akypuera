@@ -140,15 +140,18 @@ int nf_read_and_create_hierarchy (char *filename)
       char new_container_type[100];
       {
 	//type
-	char container_type[100];
 	snprintf (new_container_type, 100, "L%d", j);
-	snprintf (container_type, 100, "L%d", j+1);
-	nf_container_type_declare (new_container_type, container_type);
+	if (j+1 == depth){
+	  nf_container_type_declare (new_container_type, NULL);
+	}else{
+	  char container_type[100];
+	  snprintf (container_type, 100, "L%d", j+1);
+	  nf_container_type_declare (new_container_type, container_type);
+	}
       }
       {
 	//container
 	nf_container_create (new_container, new_container_type, container);
-
       }
     }
 
