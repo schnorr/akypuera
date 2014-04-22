@@ -74,16 +74,25 @@ int main (int argc, char **argv)
   OTF2_GlobalDefReaderCallbacks_SetStringCallback (def_callbacks, otf22paje_global_def_string);
   OTF2_GlobalDefReaderCallbacks_SetRegionCallback (def_callbacks, otf22paje_global_def_region);
   OTF2_GlobalDefReaderCallbacks_SetClockPropertiesCallback (def_callbacks, otf22paje_global_def_clock_properties);
-  if (!arguments.hostfile){
+
+  if (arguments.hostfile){
+    if (nf_read_and_create_hierarchy (arguments.hostfile)){
+      fprintf(stderr,
+	      "[%s] at %s, "
+	      "Parsing hostfile %s did not work.\n",
+	      PROGRAM, __FUNCTION__, arguments.hostfile);
+      return 1;
+    }
+    OTF2_GlobalDefReaderCallbacks_SetLocationGroupCallback (def_callbacks, otf22paje_global_def_location_group_hostfile);
+    OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeCallback (def_callbacks, otf22paje_global_def_system_tree_node_hostfile);
+  }else if (arguments.flat){
+    OTF2_GlobalDefReaderCallbacks_SetLocationGroupCallback (def_callbacks, otf22paje_global_def_location_group_flat);
+  }else{
     OTF2_GlobalDefReaderCallbacks_SetLocationGroupCallback (def_callbacks, otf22paje_global_def_location_group);
     OTF2_GlobalDefReaderCallbacks_SetLocationCallback (def_callbacks, otf22paje_global_def_location);
     OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeCallback (def_callbacks, otf22paje_global_def_system_tree_node);
     OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodePropertyCallback (def_callbacks, otf22paje_global_def_system_tree_node_property);
     OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeDomainCallback (def_callbacks, otf22paje_global_def_system_tree_node_domain);
-  }else{
-    nf_read_and_create_hierarchy (arguments.hostfile);
-    OTF2_GlobalDefReaderCallbacks_SetLocationGroupCallback (def_callbacks, otf22paje_global_def_location_group_hostfile);
-    OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeCallback (def_callbacks, otf22paje_global_def_system_tree_node_hostfile);
   }
 
   /* Read global definitions. */
