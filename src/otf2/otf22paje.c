@@ -37,6 +37,15 @@ int main (int argc, char **argv)
     return 1;
   }
 
+  /* parameter check about hierarchy */
+  if (arguments.hostfile && arguments.flat){
+    fprintf(stderr,
+            "[%s] at %s, "
+            "Choose only one between -h and -f (see ./otf22paje --help)\n",
+            PROGRAM, __FUNCTION__);
+    return 1;
+  }
+
 
   /* we start here to output the paje converted file */
   if (!arguments.dummy){

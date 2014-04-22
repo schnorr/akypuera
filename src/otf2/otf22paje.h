@@ -33,7 +33,7 @@
 struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
-  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic, dummy;
+  int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic, dummy, flat;
   char *comment;
   char *comment_file;
   char *hostfile;
