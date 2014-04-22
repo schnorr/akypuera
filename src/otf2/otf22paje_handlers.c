@@ -75,6 +75,22 @@ static const char *find_type_tree_name (const char *name)
   return NULL;
 }
 
+OTF2_CallbackCode otf22paje_global_def_location_group_flat (void *userData, OTF2_LocationGroupRef self, OTF2_StringRef name, OTF2_LocationGroupType locationGroupType, OTF2_SystemTreeNodeRef systemTreeParen)
+{
+  const char *name_str = string_hash[name];
+
+  char mpi_process[100];
+  snprintf(mpi_process, 100, "rank%d", (int)self);
+  if (!arguments.dummy){
+    nf_container_type_declare ("P", "0");
+    nf_state_type_declare ("STATE", "P");
+    nf_link_type_declare ("LINK", "0", "P", "P");
+    poti_CreateContainer(0, mpi_process, "P", "0", name_str);
+  }
+  return OTF2_CALLBACK_SUCCESS;
+
+}
+
 OTF2_CallbackCode otf22paje_global_def_location_group_hostfile (void *userData, OTF2_LocationGroupRef self, OTF2_StringRef name, OTF2_LocationGroupType locationGroupType, OTF2_SystemTreeNodeRef systemTreeParent)
 {
   const char *name_str = string_hash[name];
