@@ -122,6 +122,8 @@ int main (int argc, char **argv)
   /* Get number of locations from the anchor file. */
   uint64_t          num_locations = 0;
   OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
+
+  /* Read definitions */
   size_t i;
   for ( i = 0; i < num_locations; i++ ){
     OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, i);
