@@ -132,6 +132,11 @@ int main (int argc, char **argv)
     OTF2_Reader_CloseDefReader (reader, def_reader);
   }
 
+  /* Create event readers */
+  for (i = 0; i < num_locations; i++){
+    OTF2_Reader_GetEvtReader (reader, i);
+  }
+
   /* Define event callbacks. */
   OTF2_GlobalEvtReaderCallbacks* evt_callbacks = OTF2_GlobalEvtReaderCallbacks_New();
   OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, otf22paje_enter );
