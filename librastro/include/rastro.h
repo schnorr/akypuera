@@ -1,6 +1,6 @@
 /*
     Copyright (c) 1998--2006 Benhur Stein
-    
+
     This file is part of Pajé.
 
     Pajé is free software; you can redistribute it and/or modify it under
@@ -149,7 +149,7 @@ typedef struct {
   int rst_fd;
   char *rst_buffer_ptr;
   char *rst_buffer;
-  int rst_buffer_size;
+  size_t rst_buffer_size;
   u_int64_t id1;
   u_int64_t id2;
 } rst_buffer_t;
@@ -179,7 +179,7 @@ void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type);
 void rst_startevent(rst_buffer_t *ptr, u_int32_t header);
 void rst_endevent(rst_buffer_t * ptr);
 
-/* 
+/*
   Reading Interface
 */
 int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *syncfilename);
@@ -188,7 +188,7 @@ void rst_close(rst_rastro_t *rastro);
 void rst_print_event(rst_event_t *event);
 
 /*
- Generate Interface 
+ Generate Interface
 */
 int rst_generate_function_header (char *types, char *header, int header_len);
 int rst_generate_function_implementation (char *types, char *implem, int implem_len);
