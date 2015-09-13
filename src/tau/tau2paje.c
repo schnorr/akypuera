@@ -54,6 +54,11 @@ int main(int argc, char **argv)
             PROGRAM, __FUNCTION__);
     return 1;
   }
+  if (arguments.literal_timestamps){
+    Ttf_SetSubtractFirstTimestamp(fh, 0);
+  }else{
+    Ttf_SetSubtractFirstTimestamp(fh, 1);
+  }
 
   /* Fill the callback struct */
   Ttf_CallbacksT cb;

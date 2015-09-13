@@ -31,6 +31,7 @@ static struct argp_option options[] = {
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
   {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
   {"resolution", 'r', "RES", 0, "1E6 for microsecs (default), 1E9 for nanosecs"},
+  {"literal-timestamps", 't', 0, OPTION_ARG_OPTIONAL, "Do not subtract first timestamp"},
   { 0 }
 };
 
@@ -48,6 +49,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'b': arguments->basic = 1; break;
   case 'm': arguments->comment = arg; break;
   case 'n': arguments->comment_file = arg; break;
+  case 't': arguments->literal_timestamps = 1; break;
   case ARGP_KEY_ARG:
     if (arguments->input_size == AKY_INPUT_SIZE) {
       /* Too many arguments. */
