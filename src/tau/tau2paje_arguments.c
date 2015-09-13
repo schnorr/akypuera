@@ -30,7 +30,6 @@ static struct argp_option options[] = {
   {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
   {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
-  {"resolution", 'r', "RES", 0, "1E6 for microsecs (default), 1E9 for nanosecs"},
   {"literal-timestamps", 't', 0, OPTION_ARG_OPTIONAL, "Do not subtract first timestamp"},
   { 0 }
 };
@@ -39,7 +38,6 @@ static int parse_options (int key, char *arg, struct argp_state *state)
 {
   struct arguments *arguments = state->input;
   switch (key){
-  case 'r': arguments->resolution = atof(arg); break;
   case 'd': arguments->dummy = 1; break;
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
