@@ -1,6 +1,6 @@
 /*
     Copyright (c) 1998--2006 Benhur Stein
-    
+
     This file is part of Pajé.
 
     Pajé is free software; you can redistribute it and/or modify it under
@@ -18,6 +18,8 @@
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
 #include "rst_private.h"
+#include <stdlib.h>
+#include <errno.h>
 
 #ifndef LIBRASTRO_THREADED
 rst_buffer_t *rst_global_buffer;
@@ -100,7 +102,21 @@ static void __rst_init(rst_buffer_t *ptr,
   ptr->id1 = id1;
   ptr->id2 = id2;
   ptr->write_first_hour = 1;
-  ptr->rst_buffer_size = 100000;
+  char *env = getenv("RST_BUFFER_SIZE");
+  if (env) {
+    errno = 0;
+    /*
+     * Negative values don't trigger errno nor any error value is returned.
+     * They are interpreted as SIZE_MAX - abs(val) + 1
+     */
+    if (sscanf(env, "%zu", &(ptr->rst_buffer_size)) != 1 || errno) {
+      ptr->rst_buffer_size = 100000;
+      fprintf(stderr, "Error %d reading RST_BUFFER_SIZE, using default value:"\
+          "%zu.\n", errno, ptr->rst_buffer_size);
+    }
+  } else {
+    ptr->rst_buffer_size = 100000;
+  }
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
   bzero(ptr->rst_buffer, ptr->rst_buffer_size);
   RST_RESET(ptr);
@@ -223,7 +239,7 @@ void rst_event_ptr(rst_buffer_t * ptr, u_int16_t type)
 
 /*
  * lls event to be used by rastro itself (for the first event)
- */ 
+ */
 static void rst_event_lls_ptr(rst_buffer_t * ptr, u_int16_t type,
                               u_int64_t l0, u_int64_t l1, char *s0)
 {
