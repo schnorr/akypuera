@@ -120,6 +120,7 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
 
 int ClockPeriod(void *userData, double clkPeriod)
 {
+  arguments.resolution = 1/clkPeriod;
   return 0;
 }
 
