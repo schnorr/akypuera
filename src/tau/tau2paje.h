@@ -33,6 +33,7 @@ struct arguments {
   char *input[AKY_INPUT_SIZE];
   int input_size;
   int ignore_errors, no_links, no_states, only_mpi, normalize_mpi, basic, dummy;
+  int literal_timestamps;
   char *comment;
   char *comment_file;
   double resolution;
