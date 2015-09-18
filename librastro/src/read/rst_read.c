@@ -60,7 +60,7 @@ int main (int argc, char *argv[])
 
   /* opening rst files */
   for (i = 0; i < arguments.input_size; i++){
-    int status = rst_open_file (&rastro, 100000,
+    int status = rst_open_file (&rastro, RST_DEFAULT_BUFFER_SIZE,
                                 arguments.input[i],
                                 arguments.synchronization_file);
     if (status == RST_NOK){
