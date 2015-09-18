@@ -37,6 +37,7 @@
 #include <dirent.h>
 #include <rastro_config.h>
 
+#define RST_DEFAULT_BUFFER_SIZE 102400 //in bytes
 #define RST_MAX_INPUT_SIZE 1000
 
 #define RST_MICROSECONDS 1000000

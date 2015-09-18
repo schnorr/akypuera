@@ -110,12 +110,12 @@ static void __rst_init(rst_buffer_t *ptr,
      * They are interpreted as SIZE_MAX - abs(val) + 1
      */
     if (sscanf(env, "%zu", &(ptr->rst_buffer_size)) != 1 || errno) {
-      ptr->rst_buffer_size = 100000;
+      ptr->rst_buffer_size = RST_DEFAULT_BUFFER_SIZE;
       fprintf(stderr, "Error %d reading RST_BUFFER_SIZE, using default value:"\
           "%zu.\n", errno, ptr->rst_buffer_size);
     }
   } else {
-    ptr->rst_buffer_size = 100000;
+    ptr->rst_buffer_size = RST_DEFAULT_BUFFER_SIZE;
   }
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
   bzero(ptr->rst_buffer, ptr->rst_buffer_size);
