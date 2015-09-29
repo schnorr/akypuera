@@ -20,6 +20,7 @@
 #include "rst_private.h"
 #include <stdlib.h>
 #include <errno.h>
+#include <stdio.h>
 
 #ifndef LIBRASTRO_THREADED
 rst_buffer_t *rst_global_buffer;
@@ -218,6 +219,9 @@ void rst_endevent(rst_buffer_t * ptr)
 {
     ptr->rst_buffer_ptr = ALIGN_PTR(ptr->rst_buffer_ptr);
     if (RST_BUF_COUNT(ptr) > (RST_BUF_SIZE(ptr) - RST_MAX_EVENT_SIZE)) {
+      fprintf(stderr, "librastro: Buffer size exceeded, flushing to disk. "
+          "Consider using a larger buffer size, defined by the environment "
+          "variable RST_BUFFER_SIZE\n");
         rst_flush(ptr);
     }
 }
