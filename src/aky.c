@@ -734,9 +734,11 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
-  rst_event(MPI_BSEND_IN);
+  rst_event_l(MPI_BSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal = PMPI_Bsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_BSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -1100,9 +1102,11 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
-  rst_event(MPI_SSEND_IN);
+  rst_event_l(MPI_SSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal = PMPI_Ssend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
