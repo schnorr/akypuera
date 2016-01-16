@@ -909,7 +909,6 @@ MPI_Request *request;
 {
   rst_event_l(MPI_IRSEND_IN, send_mark);
   rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
-  rst_event(MPI_IRSEND_IN);
   int returnVal =
       PMPI_Irsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IRSEND_OUT);
