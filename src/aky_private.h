@@ -22,6 +22,7 @@
 #include <rastro.h>
 #include <string.h>
 #include <poti.h>
+#include <limits.h>
 #include "aky.h"
 #include "aky_config.h"
 #include "aky_rastro.h"

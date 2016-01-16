@@ -116,9 +116,9 @@ int main(int argc, char **argv)
       if (!arguments.no_links){
         char key[AKY_DEFAULT_STR_SIZE];
         char *result = NULL;
-        if (event.v_uint32[0] == -32766) {
+        if (event.v_uint32[0] == MPI_UNDEFINED) {
           int src = 0;
-          while (result == NULL && src < 32767) {
+          while (result == NULL && src < INT_MAX) {
             result = aky_find_key("n", src, event.id1, key,
                 AKY_DEFAULT_STR_SIZE);
             src++;
