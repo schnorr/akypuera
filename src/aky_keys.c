@@ -97,6 +97,12 @@ static elem_t *dequeue(desc_t * desc)
   }
 }
 
+static elem_t *dequeue_(desc_t * desc) {
+  if (desc->n == 0)
+    return NULL;
+  return dequeue(desc);
+}
+
 static elem_t *new_element(int src, int dst, char *key, int n)
 {
   //zeroe the key
@@ -176,12 +182,8 @@ char *aky_find_key(const char *type, int src, int dst, char *key, int n)
   hsearch_r (e, FIND, &ep, &hash);
   if (ep == NULL)
     return NULL;
-  elem_t *elem = dequeue(ep->data);
+  elem_t *elem = dequeue_(ep->data);
   if (elem == NULL) {
-    fprintf (stderr,
-             "[aky_keys] at %s (no key), there is no key available\n"
-             "[aky_keys] when type = %s, src = %d, dst = %d.\n",
-             __FUNCTION__, type, src, dst);
     return NULL;
   }
 
