@@ -162,10 +162,40 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
   return key;
 }
 
+char *aky_find_key(const char *type, int src, int dst, char *key, int n)
+{
+  bzero (key, n);
+
+  char aux[100];
+  bzero (aux, 100);
+  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  ENTRY e, *ep;
+  e.key = aux;
+  e.data = NULL;
+
+  hsearch_r (e, FIND, &ep, &hash);
+  if (ep == NULL)
+    return NULL;
+  elem_t *elem = dequeue(ep->data);
+  if (elem == NULL) {
+    fprintf (stderr,
+             "[aky_keys] at %s (no key), there is no key available\n"
+             "[aky_keys] when type = %s, src = %d, dst = %d.\n",
+             __FUNCTION__, type, src, dst);
+    return NULL;
+  }
+
+  //copy key into output
+  snprintf(key, n, "%s", elem->data);
+  free_element(elem);
+  return key;
+}
+
 char *aky_get_key(const char *type, int src, int dst, char *key, int n)
 {
   //zeroe key
   bzero (key, n);
+
 
   char aux[100];
   bzero (aux, 100);
