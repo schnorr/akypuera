@@ -97,6 +97,12 @@ static elem_t *dequeue(desc_t * desc)
   }
 }
 
+static elem_t *dequeue_(desc_t * desc) {
+  if (desc->n == 0)
+    return NULL;
+  return dequeue(desc);
+}
+
 static elem_t *new_element(int src, int dst, char *key, int n)
 {
   //zeroe the key
@@ -162,10 +168,36 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
   return key;
 }
 
+char *aky_find_key(const char *type, int src, int dst, char *key, int n)
+{
+  bzero (key, n);
+
+  char aux[100];
+  bzero (aux, 100);
+  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  ENTRY e, *ep;
+  e.key = aux;
+  e.data = NULL;
+
+  hsearch_r (e, FIND, &ep, &hash);
+  if (ep == NULL)
+    return NULL;
+  elem_t *elem = dequeue_(ep->data);
+  if (elem == NULL) {
+    return NULL;
+  }
+
+  //copy key into output
+  snprintf(key, n, "%s", elem->data);
+  free_element(elem);
+  return key;
+}
+
 char *aky_get_key(const char *type, int src, int dst, char *key, int n)
 {
   //zeroe key
   bzero (key, n);
+
 
   char aux[100];
   bzero (aux, 100);

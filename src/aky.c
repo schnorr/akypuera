@@ -734,9 +734,11 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
-  rst_event(MPI_BSEND_IN);
+  rst_event_l(MPI_BSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal = PMPI_Bsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_BSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -857,10 +859,12 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
-  rst_event(MPI_IBSEND_IN);
+  rst_event_l(MPI_IBSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal =
       PMPI_Ibsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IBSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -903,10 +907,12 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
-  rst_event(MPI_IRSEND_IN);
+  rst_event_l(MPI_IRSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal =
       PMPI_Irsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IRSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -937,10 +943,12 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
-  rst_event(MPI_ISSEND_IN);
+  rst_event_l(MPI_ISSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal =
       PMPI_Issend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -1010,9 +1018,11 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
-  rst_event(MPI_RSEND_IN);
+  rst_event_l(MPI_RSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal = PMPI_Rsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_RSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
@@ -1100,9 +1110,11 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
-  rst_event(MPI_SSEND_IN);
+  rst_event_l(MPI_SSEND_IN, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
   int returnVal = PMPI_Ssend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SSEND_OUT);
+  send_mark++;
   return returnVal;
 }
 
