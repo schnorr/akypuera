@@ -1002,11 +1002,14 @@ int tag;
 MPI_Comm comm;
 MPI_Status *status;
 {
+  MPI_Status stat2;
   rst_event(MPI_RECV_IN);
   int returnVal =
-      PMPI_Recv(buf, count, datatype, source, tag, comm, status);
-  rst_event_i(AKY_PTP_RECV, AKY_translate_rank(comm, source));
+      PMPI_Recv(buf, count, datatype, source, tag, comm, &stat2);
+  rst_event_i(AKY_PTP_RECV, AKY_translate_rank(comm, stat2.MPI_SOURCE));
   rst_event(MPI_RECV_OUT);
+  if (status != MPI_STATUS_IGNORE)
+    *status = stat2;
   return returnVal;
 }
 
