@@ -5,14 +5,6 @@ endif(POLICY CMP0015)
 
 link_directories (../)
 
-IF(SMPI)
-  FIND_PACKAGE(SMPI REQUIRED)
-  SET(CMAKE_C_COMPILER smpicc)
-ELSE(SMPI)
-  FIND_PACKAGE(MPI REQUIRED)
-  SET(CMAKE_C_COMPILER mpicc)
-ENDIF(SMPI)
-
 add_executable(ring ring.c)
 add_executable(prog prog.c)
 add_executable(scatter scatter.c)
