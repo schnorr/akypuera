@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env julia
 
 # This file is part of Akypuera
 
