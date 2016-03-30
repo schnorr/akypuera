@@ -15,16 +15,15 @@
 # You should have received a copy of the GNU Public License
 # along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 
-INPUT=$1
+if length(ARGS) != 1 || !isfile(ARGS[1])
+    println("Wrong usage.")
+    println("Provide the traces.otf2 file within a scorep directory.")
+    exit(1)
+end
 
-if [ -z $INPUT ]
-then
-    echo "Provide the traces.otf2 file within a scorep directory."
-    exit
-fi
-
-echo "#This trace was generated with: otf2ompprint2paje.sh $INPUT
-#otf2ompprint2paje.sh is available at https://github.com/schnorr/akypuera/
+header = """
+#This trace was generated with: otf2ompprint2paje.jl $(ARGS[1])
+#otf2ompprint2paje.jl is available at https://github.com/schnorr/akypuera/
 #The script relies on the availability of otf2-print executable (ScoreP)
 %EventDef PajeDefineContainerType 0
 %       Alias string
@@ -134,7 +133,9 @@ echo "#This trace was generated with: otf2ompprint2paje.sh $INPUT
 %       Type string
 %       Value string
 %EndEventDef"
+"""
 
+#=
 # print type hierarchy
 
 echo "0 THREAD 0 \"THREAD\"
@@ -192,3 +193,4 @@ otf2-print $INPUT | tail -n +6 |
 	    ;;
 	esac
     done
+=#
