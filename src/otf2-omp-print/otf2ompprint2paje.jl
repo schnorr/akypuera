@@ -132,65 +132,53 @@ header = """
 %       Container string
 %       Type string
 %       Value string
-%EndEventDef"
-"""
+%EndEventDef"""
 
-#=
+# print header
+println(header)
+
 # print type hierarchy
-
-echo "0 THREAD 0 \"THREAD\"
-2 STATE THREAD \"STATE\""
+println("0 THREAD 0 \"THREAD\"")
+println("2 STATE THREAD \"STATE\"")
 
 # convert events
-declare -A tids
+# declare -A tids # ?
+tids = AbstractString[]
 
-FIRST_TIMESTAMP=""
-RESOLUTION=1000000
+FIRST_TIMESTAMP = -Inf
+RESOLUTION = 1000000
 
-otf2-print $INPUT | tail -n +6 |
-    while read LINHA
-    do
-	CODE=`echo $LINHA | cut -d" " -f1`
-	TID=`echo $LINHA | cut -d" " -f2`
-	TIMESTAMP=`echo $LINHA | cut -d" " -f3`
+for l in split(readall(pipeline(`otf2-print $(ARGS[1])`, `tail -n +6`)), '\n')
+    splitline = split(l)
+    if length(splitline) >= 3
+        code = splitline[1]
+        tid = splitline[2]
+        timestamp = parse(Float64, splitline[3])
 
-	if [ -z $FIRST_TIMESTAMP ]; then
-	    FIRST_TIMESTAMP=$TIMESTAMP
-	fi
+        if FIRST_TIMESTAMP < 0
+            FIRST_TIMESTAMP = timestamp
+        end
+        
+        timestamp = (timestamp - FIRST_TIMESTAMP)/RESOLUTION
 
-	TIMESTAMP=`echo "($TIMESTAMP - $FIRST_TIMESTAMP) / $RESOLUTION" | bc -l | sed "s/0*$/0/"`
-	
-	#TID equals 0 should be renamed to "zero" so Paje can accept it
-	if [ $TID == "0" ] ; then
-	    TID="zero"
-	fi
-	
-	# check if TID was already PajeCreateContainer
-	if [ -z "${tids[$TID]}" ] ; then
-	    echo "6 $TIMESTAMP $TID THREAD 0 $TID" #PajeCreateContainer
-	    tids[$TID]="1"
-	fi
+        # TID equals 0 should be renamed to "zero" so Paje can accept it
+        if tid == "0"
+            tid = "zero"
+        end
 
-	case $CODE in
-	    "ENTER" )
-		STATE=`echo $LINHA | cut -d" " -f5-20 | sed "s/\"//g"`
-		echo "12 $TIMESTAMP $TID STATE \"$STATE\"" #PajePushState
-		;;
+        # check if TID was already PajeCreateContainer
+        if !(tid in tids)
+            println("6 $timestamp $tid THREAD 0 $tid") #PajeCreateContainer
+            push!(tids, tid)
+        end
 
-	    "LEAVE" )
-		STATE=`echo $LINHA | cut -d" " -f5-20 | sed "s/\"//g"`
-		echo "14 $TIMESTAMP $TID STATE" #PajePopState
-		;;
-	    "THREAD_FORK" )
-		;;
-	    "THREAD_TEAM_BEGIN" )
-		;;
-	    "THREAD_TEAM_END" )
-		;;
-	    "THREAD_JOIN" )
-		;;
-	    * )
-	    ;;
-	esac
-    done
-=#
+        if code == "ENTER"
+            state = replace(join(splitline[5:end], " "), "\"", "")
+            println("12 $timestamp $tid STATE \"$state\"") #PajePushState
+        elseif code == "LEAVE"
+            println("14 $timestamp $tid STATE") #PajePopState
+        end
+    end
+end
+
+exit(0)
