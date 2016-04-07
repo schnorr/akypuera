@@ -1651,3 +1651,11 @@ int *top_type;
   rst_event(MPI_TOPO_TEST_OUT);
   return returnVal;
 }
+
+double MPI_Wtime()
+{
+  rst_event(MPI_WTIME_IN);
+  double returnVal = PMPI_Wtime();
+  rst_event(MPI_WTIME_OUT);
+  return returnVal;
+}
