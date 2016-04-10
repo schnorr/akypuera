@@ -16,7 +16,7 @@ sub main {
     header($arg);
 
     # thread zero is created in the beginning
-    print "6 0.0 zero T 0 zero\n";
+    bufferize ("6 0.0 zero T 0 zero\n");
     
     while ($line =  <OTF2PRINT> )
     {
@@ -41,9 +41,9 @@ sub main {
 	    if ($thread == "0") {$thread = "zero";}
 
 	    if ($event =~ /^ENTER/) {
-		print "12 $time $thread S \"$region\"\n";
+		bufferize("12 $time $thread S \"$region\"\n");
 	    }elsif ($event =~ /^LEAVE/) {
-		print "14 $time $thread S\n";
+		bufferize("14 $time $thread S\n");
 	    }
 	}elsif(($line =~ /^THREAD_TEAM_BEGIN/)){ # || ($line =~ /^THREAD_TEAM_END/)){ # Destroy container is disable for now
 	    chomp $line;
@@ -55,7 +55,7 @@ sub main {
 	    $time -= $first_timestamp;
 	    $time /= $resolution;
 	    if (!($thread == "0")) {
-		print "6 $time $thread T 0 $thread\n";
+		bufferize("6 $time $thread T 0 $thread\n");
 	    }
 	}
     }
@@ -64,9 +64,20 @@ sub main {
 
 main();
 
+my $strbuffer;
+sub bufferize {
+    my $str = @_[0];
+    $strbuffer .= $str;
+    if (length($strbuffer) > 3*1024){ # Every 3KBytes
+	print $strbuffer;
+	$strbuffer = "";
+	$counter++;
+    }
+}
+
 sub header(){
     my $file = @_[0];
-print "#This trace was generated with: otf2ompprint2paje.pl $file
+bufferize("#This trace was generated with: otf2ompprint2paje.pl $file
 #otf2ompprint2paje.pl is available at https://github.com/schnorr/akypuera/
 #The script relies on the availability of otf2-print executable (ScoreP)
 %EventDef PajeDefineContainerType 0
@@ -102,11 +113,11 @@ print "#This trace was generated with: otf2ompprint2paje.pl $file
 %       Container string
 %       Type string
 %EndEventDef
-";
+");
 
 # print type hierarchy
 
-print "0 T 0 T
+bufferize("0 T 0 T
 2 S T S
-"
+");
     }
