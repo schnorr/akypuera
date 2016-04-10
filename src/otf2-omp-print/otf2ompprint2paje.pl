@@ -45,7 +45,7 @@ sub main {
 	    }elsif ($event =~ /^LEAVE/) {
 		bufferize("14 $time $thread S\n");
 	    }
-	}elsif(($line =~ /^THREAD_TEAM_BEGIN/)){ # || ($line =~ /^THREAD_TEAM_END/)){ # Destroy container is disable for now
+	}elsif(($line =~ /^THREAD_TEAM_BEGIN/)){ # || ($line =~ /^THREAD_TEAM_END/)){ # Destroy container is disabled for now
 	    chomp $line;
 	    $line =~ s/ +/:/g;
 	    my($event,$thread,$time) = split(/:/, $line);
