@@ -27,8 +27,8 @@ sub main {
 	    $region =~ s/"[^"]*$//;
 	    
 	    $line =~ s/:([1234567890])/_\1/g;
-	    $line =~ s/://g;
-	    $line =~ s/"/#/g;
+	    $line =~ tr/://;
+	    $line =~ tr/"/#/;
 	    $line =~ s/#.*#//;
 	    $line =~ s/ +/:/g;
 	    my($event,$thread,$time,$kind) = split(/:/, $line);
