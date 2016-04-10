@@ -5,8 +5,7 @@ sub main {
 
     $arg = shift(@ARGV);
     if (!defined($arg)){
-	print "Provide the traces.otf2 file within a scorep directory.";
-	exit(1);
+	die "Provide the traces.otf2 file within a scorep directory.";
     }
 
     open(OTF2PRINT,"otf2-print $arg | ") || die "Failed: $!\n";
