@@ -83,7 +83,6 @@ sub bufferize {
     if (length($strbuffer) > 3*1024){ # Every 3KBytes
 	print $strbuffer;
 	$strbuffer = "";
-	$counter++;
     }
 }
 
