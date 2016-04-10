@@ -16,7 +16,7 @@ sub main {
     header($arg);
 
     # thread zero is created in the beginning
-    bufferize ("6 0.0 zero T 0 zero\n");
+    create ("zero", "6 0.0 zero T 0 zero\n");
     
     while ($line =  <OTF2PRINT> )
     {
@@ -54,8 +54,9 @@ sub main {
 	    }
 	    $time -= $first_timestamp;
 	    $time /= $resolution;
+
 	    if (!($thread == "0")) {
-		bufferize("6 $time $thread T 0 $thread\n");
+		create($thread, "6 $time $thread T 0 $thread\n");
 	    }
 	}
     }
@@ -63,6 +64,17 @@ sub main {
 }
 
 main();
+
+my %created_containers;
+sub create {
+    my $thread = @_[0];
+    my $strevent = @_[1];
+
+    if (!exists $created_containers{$thread}){
+	bufferize ($strevent);
+	$created_containers{$thread} = 1;
+    }
+}
 
 my $strbuffer;
 sub bufferize {
