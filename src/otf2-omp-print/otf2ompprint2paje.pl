@@ -9,7 +9,7 @@ sub main {
 	exit(1);
     }
 
-    open(OTF2PRINT,"/home/schnorr/install/stow/bin/otf2-print $arg | ") || die "Failed: $!\n";
+    open(OTF2PRINT,"otf2-print $arg | ") || die "Failed: $!\n";
 
     my $resolution = 1000000;
     my $first_timestamp;
