@@ -57,7 +57,8 @@ int aky_check(MPI_Request * req, void **root)
   snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
   const void *ret = tfind(new, root, aky_compare);
   if (ret) {
-    return new->mark ? new->mark : -1;
+    aky_t *ans = (*(aky_t **)ret);
+    return ans->mark ? ans->mark : -1;
   } else {
     return 0;
   }
