@@ -40,12 +40,12 @@ int poti_init (FILE *file);
 void poti_close (void);
 
 /*
- * Function to generate the header 
+ * Function to generate the header
  */
 void poti_header (int basic, int old_header);
 
 /*
- * Functions to define the type hierarchy of a Paje trace file 
+ * Functions to define the type hierarchy of a Paje trace file
  */
 void poti_DefineContainerType(const char *alias,
                              const char *containerType,
@@ -71,7 +71,7 @@ void poti_DefineEntityValue(const char *alias,
                            const char *color);
 
 /*
- * Functions related to containers 
+ * Functions related to containers
  */
 void poti_CreateContainer(double timestamp,
                          const char *alias,
@@ -118,12 +118,16 @@ void poti_PushStateMark(double timestamp,
 void poti_PopState(double timestamp,
                   const char *container,
                   const char *type);
+void poti_PopStateMark(double timestamp,
+                  const char *container,
+                  const char *type,
+                  int mark);
 void poti_ResetState(double timestamp,
                     const char *container,
                     const char *type);
 
 
-/* 
+/*
  * Functions related to links
  */
 void poti_StartLink(double timestamp,

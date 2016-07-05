@@ -38,6 +38,7 @@ typedef enum {
   PAJE_PushState,
   PAJE_PushStateMark,
   PAJE_PopState,
+  PAJE_PopStateMark,
   PAJE_ResetState,
   PAJE_StartLink,
   PAJE_StartLinkSize,

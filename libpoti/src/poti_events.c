@@ -224,6 +224,23 @@ void poti_PopState(double timestamp,
          type);
 }
 
+void poti_PopStateMark(double timestamp,
+                        const char *container,
+                        const char *type,
+                        const int mark)
+{
+  if (paje_extended){
+    fprintf(paje_file,"%d %.15f %s %s %d\n",
+            PAJE_PopStateMark,
+            paje_event_timestamp(timestamp),
+            container,
+            type,
+            mark);
+  }else{
+    poti_PopState (timestamp, container, type);
+  }
+}
+
 void poti_ResetState(double timestamp,
                    const char *container,
                    const char *type)

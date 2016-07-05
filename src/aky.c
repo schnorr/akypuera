@@ -894,7 +894,7 @@ MPI_Request *request;
   int returnVal =
       PMPI_Irecv(buf, count, datatype, source, tag, comm, request);
   rst_event(MPI_IRECV_OUT);
-  aky_insert(request);
+  aky_insert_irecv(request);
   return returnVal;
 }
 
@@ -930,6 +930,7 @@ MPI_Request *request;
   int returnVal =
       PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISEND_OUT);
+  aky_insert_isend(request, send_mark);
   send_mark++;
   return returnVal;
 }
@@ -1387,12 +1388,18 @@ MPI_Status *status;
   if (status != MPI_STATUS_IGNORE) {
     *status = stat2;
   }
-
-  if (aky_check(request)) {
+  int isend = aky_check_isend(request);
+  int irecv = aky_check_irecv(request);
+  if (irecv) {
     rst_event_i(AKY_PTP_RECV, stat2.MPI_SOURCE);
-    aky_remove(request);
+    aky_remove_irecv(request);
+    rst_event(MPI_WAIT_OUT);
+  } else if (isend) {
+    aky_remove_isend(request);
+    rst_event_l(MPI_WAIT_OUT, isend == -1 ? 0 : isend);
+  } else {
+    rst_event(MPI_WAIT_OUT);
   }
-  rst_event(MPI_WAIT_OUT);
   return returnVal;
 }
 
@@ -1410,9 +1417,9 @@ MPI_Status *array_of_statuses;
       array_of_statuses[i] = stat2[i];
     }
     MPI_Request *req = &array_of_requests[i];
-    if (aky_check(req)) {
+    if (aky_check_irecv(req)) {
       rst_event_i(AKY_PTP_RECV, stat2[i].MPI_SOURCE);
-      aky_remove(req);
+      aky_remove_irecv(req);
     }
   }
   free(stat2);
@@ -1433,9 +1440,9 @@ MPI_Status *status;
     *status = stat2;
   }
   MPI_Request *req = &array_of_requests[*index];
-  if (aky_check(req)) {
+  if (aky_check_irecv(req)) {
     rst_event_i(AKY_PTP_RECV, stat2.MPI_SOURCE);
-    aky_remove(req);
+    aky_remove_irecv(req);
   }
   rst_event(MPI_WAITANY_OUT);
   return returnVal;
