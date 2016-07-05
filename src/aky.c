@@ -1381,25 +1381,23 @@ MPI_Request *request;
 MPI_Status *status;
 {
   MPI_Status stat2;
-
-  rst_event(MPI_WAIT_IN);
+  int isend = aky_check_isend(request);
+  if (isend) {
+    aky_remove_isend(request);
+    rst_event_l(MPI_WAIT_IN, isend == -1 ? 0 : isend);
+  } else {
+    rst_event(MPI_WAIT_IN);
+  }
   int returnVal = PMPI_Wait(request, &stat2);
 
   if (status != MPI_STATUS_IGNORE) {
     *status = stat2;
   }
-  int isend = aky_check_isend(request);
-  int irecv = aky_check_irecv(request);
-  if (irecv) {
+  if (aky_check_irecv(request)) {
     rst_event_i(AKY_PTP_RECV, stat2.MPI_SOURCE);
     aky_remove_irecv(request);
-    rst_event(MPI_WAIT_OUT);
-  } else if (isend) {
-    aky_remove_isend(request);
-    rst_event_l(MPI_WAIT_OUT, isend == -1 ? 0 : isend);
-  } else {
-    rst_event(MPI_WAIT_OUT);
   }
+  rst_event(MPI_WAIT_OUT);
   return returnVal;
 }
 

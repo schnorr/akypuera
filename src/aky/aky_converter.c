@@ -411,13 +411,7 @@ int main(int argc, char **argv)
     case MPI_CART_RANK_OUT:
     case MPI_CART_SUB_OUT:
       if (!arguments.no_states){
-        if (event.ct.n_uint64 == 1){
-          /* has message mark */
-          int mark = event.v_uint64[0];
-          poti_PopStateMark(timestamp, mpi_process, "STATE", mark);
-        } else {
-          poti_PopState(timestamp, mpi_process, "STATE");
-        }
+        poti_PopState(timestamp, mpi_process, "STATE");
       }
       break;
     case MPI_FINALIZE_OUT:

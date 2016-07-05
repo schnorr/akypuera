@@ -194,16 +194,6 @@ static void poti_header_PajePopState (int old_header)
   fprintf(paje_file, "%%EndEventDef\n");
 }
 
-static void poti_header_PajePopStateMark (int old_header)
-{
-  fprintf(paje_file, "%%EventDef PajePopState %d\n", PAJE_PopStateMark);
-  fprintf(paje_file, "%%       Time date\n");
-  fprintf(paje_file, "%%       Container string\n");
-  fprintf(paje_file, "%%       Type string\n");
-  fprintf(paje_file, "%%       Mark string\n");
-  fprintf(paje_file, "%%EndEventDef\n");
-}
-
 static void poti_header_PajeResetState (int old_header)
 {
   if (old_header) return;
@@ -336,5 +326,4 @@ void _poti_header(int basic, int old_header)
   poti_header_PajePushStateMark (old_header);
   poti_header_PajeStartLinkSize (old_header);
   poti_header_PajeStartLinkSizeMark (old_header);
-  poti_header_PajePopStateMark (old_header);
 }

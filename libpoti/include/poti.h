@@ -118,10 +118,6 @@ void poti_PushStateMark(double timestamp,
 void poti_PopState(double timestamp,
                   const char *container,
                   const char *type);
-void poti_PopStateMark(double timestamp,
-                  const char *container,
-                  const char *type,
-                  int mark);
 void poti_ResetState(double timestamp,
                     const char *container,
                     const char *type);
