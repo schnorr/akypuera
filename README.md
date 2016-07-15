@@ -31,6 +31,11 @@ generate this list of files:
     rastro-1-0.rst
     rastro-2-0.rst
 
+Alternatively, you can link an already compiled MPI application with libaky
+using `LD_PRELOAD`:
+
+    LD_PRELOAD=/path/to/libaky.so:/path/to/libmpi.so.1 mpirun -np n ./myapp
+
 aky_converter
 -------------
 

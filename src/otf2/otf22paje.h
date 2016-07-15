@@ -82,7 +82,8 @@ OTF2_CallbackCode otf22paje_global_def_location (void* userData, OTF2_LocationRe
 OTF2_CallbackCode otf22paje_global_def_system_tree_node( void*      userData, OTF2_SystemTreeNodeRef self, OTF2_StringRef   name, OTF2_StringRef   className, OTF2_SystemTreeNodeRef parent );
 OTF2_CallbackCode otf22paje_global_def_system_tree_node_hostfile( void*      userData, OTF2_SystemTreeNodeRef self, OTF2_StringRef   name, OTF2_StringRef   className, OTF2_SystemTreeNodeRef parent );
 
-OTF2_CallbackCode otf22paje_global_def_system_tree_node_property( void*      userData, OTF2_SystemTreeNodeRef systemTreeNode, OTF2_StringRef   name, OTF2_StringRef   value );
+OTF2_CallbackCode otf22paje_global_def_system_tree_node_property(void *userData, unsigned int systemTreeNode, unsigned int ignore, unsigned char name, union OTF2_AttributeValue_union value);
+
 
 OTF2_CallbackCode otf22paje_global_def_system_tree_node_domain( void* userData, OTF2_SystemTreeNodeRef systemTreeNode, OTF2_SystemTreeDomain  systemTreeDomain );
 

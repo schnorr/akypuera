@@ -234,7 +234,7 @@ OTF2_CallbackCode otf22paje_global_def_system_tree_node (void *userData, OTF2_Sy
   return OTF2_CALLBACK_SUCCESS;
 }
 
-OTF2_CallbackCode otf22paje_global_def_system_tree_node_property (void *userData, OTF2_SystemTreeNodeRef systemTreeNode, OTF2_StringRef name, OTF2_StringRef value)
+OTF2_CallbackCode otf22paje_global_def_system_tree_node_property (void *userData, unsigned int systemTreeNode, unsigned int ignore, unsigned char name, union OTF2_AttributeValue_union value)
 {
   return OTF2_CALLBACK_SUCCESS;
 }
