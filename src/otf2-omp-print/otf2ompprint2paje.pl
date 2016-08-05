@@ -8,7 +8,8 @@ sub main {
 	die "Provide the traces.otf2 file within a scorep directory.";
     }
 
-    open(OTF2PRINT,"otf2-print $arg | ") || die "Failed: $!\n";
+    # otf2-print is a dependency which comes with scorep
+    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not open otf2-print: $!\n";
 
     my $resolution = 1000000;
     my $first_timestamp;
@@ -17,7 +18,7 @@ sub main {
 
     # thread zero is created in the beginning
     create ("zero", "6 0.0 zero T 0 zero\n");
-    
+
     while ($line =  <OTF2PRINT> )
     {
         if(($line =~ /^ENTER/) || ($line =~ /^LEAVE/)) {
@@ -25,7 +26,7 @@ sub main {
 	    my($region) = $line;
 	    $region =~ s/^[^"]*"//;
 	    $region =~ s/"[^"]*$//;
-	    
+
 	    $line =~ s/:([1234567890])/_\1/g;
 	    $line =~ tr/://;
 	    $line =~ tr/"/#/;
