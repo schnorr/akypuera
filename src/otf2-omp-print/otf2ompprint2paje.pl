@@ -75,6 +75,7 @@ sub main {
 	    }
 	}
     }
+    flush_buffer();
     return;
 }
 
@@ -99,6 +100,12 @@ sub bufferize {
 	print $strbuffer;
 	$strbuffer = "";
     }
+}
+
+sub flush_buffer()
+{
+    print $strbuffer;
+    $strbuffer = "";
 }
 
 sub header(){
