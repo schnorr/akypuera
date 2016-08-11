@@ -29,6 +29,7 @@ static struct argp_option options[] = {
   {"normalize-mpi", 'z', 0, OPTION_ARG_OPTIONAL, "Try to normalize MPI state names"},
   {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
+  {"resolution", 'r', "RESOLUTION", 0, "Resolution of the output"},
   {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
   {"literal-timestamps", 't', 0, OPTION_ARG_OPTIONAL, "Do not subtract first timestamp"},
   { 0 }
@@ -45,6 +46,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'o': arguments->only_mpi = 1; break;
   case 'z': arguments->normalize_mpi = 1; break;
   case 'b': arguments->basic = 1; break;
+  case 'r': arguments->resolution = atof(arg); break;
   case 'm': arguments->comment = arg; break;
   case 'n': arguments->comment_file = arg; break;
   case 't': arguments->literal_timestamps = 1; break;
