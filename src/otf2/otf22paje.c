@@ -162,8 +162,8 @@ int main (int argc, char **argv)
   }
 
   for (i = 0; i < num_locations; i++){
-    char mpi_process[100];
-    snprintf(mpi_process, 100, "rank%zu", i);
+    char mpi_process[AKY_DEFAULT_STR_SIZE];
+    snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%zu", i);
     if (!arguments.dummy){
       poti_DestroyContainer(user_data->last_timestamp, "P", mpi_process);
     }

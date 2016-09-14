@@ -120,7 +120,7 @@ static void free_element(elem_t * elem)
 
 int aky_key_init (void)
 {
-  if (hcreate_r (1000, &hash) == 0){
+  if (hcreate_r (AKY_KEY_TABLE_SIZE, &hash) == 0){
     fprintf (stderr,
              "[aky_keys] at %s,"
              "hash table allocation failed.",
@@ -140,9 +140,9 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
   //zeroe key
   bzero (key, n);
 
-  char aux[100];
-  bzero (aux, 100);
-  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  char aux[AKY_DEFAULT_STR_SIZE];
+  bzero (aux, AKY_DEFAULT_STR_SIZE);
+  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep = NULL;
   e.key = aux;
   e.data = NULL;
@@ -170,9 +170,9 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
   bzero (key, n);
 
 
-  char aux[100];
-  bzero (aux, 100);
-  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  char aux[AKY_DEFAULT_STR_SIZE];
+  bzero (aux, AKY_DEFAULT_STR_SIZE);
+  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep;
   e.key = aux;
   e.data = NULL;

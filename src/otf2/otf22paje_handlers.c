@@ -79,8 +79,8 @@ OTF2_CallbackCode otf22paje_global_def_location_group_flat (void *userData, OTF2
 {
   const char *name_str = string_hash[name];
 
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", (int)self);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", (int)self);
   if (!arguments.dummy){
     nf_container_type_declare ("P", "0");
     nf_state_type_declare ("STATE", "P");
@@ -109,8 +109,8 @@ OTF2_CallbackCode otf22paje_global_def_location_group_hostfile (void *userData, 
     }
   }
 
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", (int)self);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", (int)self);
   if (!arguments.dummy){
     nf_container_type_declare ("P", "H");
     nf_state_type_declare ("STATE", "P");
@@ -148,8 +148,8 @@ OTF2_CallbackCode otf22paje_global_def_location_group (void *userData, OTF2_Loca
   int p = (int)systemTreeParent;
   const char *container = container_tree_hash[p];
 
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", (int)self);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", (int)self);
   if (!arguments.dummy){
     poti_CreateContainer(0, mpi_process, newTypeName, container, name_str);
   }
@@ -256,8 +256,8 @@ OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp t
     return OTF2_CALLBACK_SUCCESS;
   }
 
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%"PRId64"", locationID);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%"PRId64"", locationID);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState(time_to_seconds(time, data->time_resolution),
                    mpi_process, "STATE", state_name);
@@ -275,8 +275,8 @@ OTF2_CallbackCode otf22paje_leave (OTF2_LocationRef locationID, OTF2_TimeStamp t
     return OTF2_CALLBACK_SUCCESS;
   }
 
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%"PRId64"", locationID);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%"PRId64"", locationID);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState(time_to_seconds(time, data->time_resolution),
                   mpi_process, "STATE");

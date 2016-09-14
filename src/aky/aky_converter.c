@@ -84,8 +84,8 @@ int main(int argc, char **argv)
   double timestamp = -1;
   while (rst_decode_event(&rastro, &event) && !fail) {
     static int root_created = 0;
-    char mpi_process[100];
-    snprintf(mpi_process, 100, "rank%"PRIu64"", event.id1);
+    char mpi_process[AKY_DEFAULT_STR_SIZE];
+    snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%"PRIu64"", event.id1);
     timestamp = event.timestamp;
     switch (event.type) {
     case AKY_PTP_SEND:
@@ -270,8 +270,8 @@ int main(int argc, char **argv)
     case MPI_CART_SUB_IN:
     case MPI_FINALIZE_IN:
       if (!arguments.no_states){
-        char value[100];
-        snprintf(value, 100, "%s", name_get(event.type));
+        char value[AKY_DEFAULT_STR_SIZE];
+        snprintf(value, AKY_DEFAULT_STR_SIZE, "%s", name_get(event.type));
         if (event.ct.n_uint64 == 1){
           /* has message mark */
           int mark = event.v_uint64[0];

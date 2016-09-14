@@ -33,9 +33,9 @@ static double ticks_to_seconds (unsigned long long ticks)
 
 static void data_def (struct hsearch_data *hash, uint32_t id, const char *name)
 {
-  char key[100];
-  bzero(key, 100);
-  snprintf (key, 100, "%d", id);
+  char key[AKY_DEFAULT_STR_SIZE];
+  bzero(key, AKY_DEFAULT_STR_SIZE);
+  snprintf (key, AKY_DEFAULT_STR_SIZE, "%d", id);
 
   ENTRY e, *ep = NULL;
   e.key = key;
@@ -53,9 +53,9 @@ static char *data_get (struct hsearch_data *hash, uint32_t id)
   /* Find process name */
   char *name = NULL;
   {
-    char key[100];
-    bzero(key, 100);
-    snprintf (key, 100, "%d", id);
+    char key[AKY_DEFAULT_STR_SIZE];
+    bzero(key, AKY_DEFAULT_STR_SIZE);
+    snprintf (key, AKY_DEFAULT_STR_SIZE, "%d", id);
 
     ENTRY e, *ep = NULL;
     e.key = key;
@@ -132,9 +132,9 @@ int handleDefFunction(void *userData, uint32_t stream, uint32_t func,
 		      const char *name, uint32_t funcGroup,
 		      uint32_t source, OTF_KeyValueList * kvlist)
 {
-  char alias[100];
-  bzero(alias, 100);
-  snprintf (alias, 100, "f%d", func);
+  char alias[AKY_DEFAULT_STR_SIZE];
+  bzero(alias, AKY_DEFAULT_STR_SIZE);
+  snprintf (alias, AKY_DEFAULT_STR_SIZE, "f%d", func);
   if (!arguments.dummy && !arguments.no_states){
     poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
   }
@@ -153,9 +153,9 @@ int handleDefCollectiveOperation(void *userData, uint32_t stream,
 				 uint32_t collOp, const char *name,
 				 uint32_t type, OTF_KeyValueList * kvlist)
 {
-  char alias[100];
-  bzero(alias, 100);
-  snprintf (alias, 100, "c%d", collOp);
+  char alias[AKY_DEFAULT_STR_SIZE];
+  bzero(alias, AKY_DEFAULT_STR_SIZE);
+  snprintf (alias, AKY_DEFAULT_STR_SIZE, "c%d", collOp);
   if (!arguments.dummy && !arguments.no_states){
     poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
   }
@@ -298,12 +298,12 @@ int handleEnter(void *userData, uint64_t time, uint32_t function,
 		uint32_t process, uint32_t source,
 		OTF_KeyValueList * kvlist)
 {
-  char palias[100];
-  bzero(palias, 100);
-  snprintf (palias, 100, "p%d", process);
-  char falias[100];
-  bzero(falias, 100);
-  snprintf (falias, 100, "f%d", function);
+  char palias[AKY_DEFAULT_STR_SIZE];
+  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
+  char falias[AKY_DEFAULT_STR_SIZE];
+  bzero(falias, AKY_DEFAULT_STR_SIZE);
+  snprintf (falias, AKY_DEFAULT_STR_SIZE, "f%d", function);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState (ticks_to_seconds(time), palias, "STATE", falias);
   }
@@ -315,9 +315,9 @@ int handleLeave(void *userData, uint64_t time, uint32_t function,
 		uint32_t process, uint32_t source,
 		OTF_KeyValueList * kvlist)
 {
-  char palias[100];
-  bzero(palias, 100);
-  snprintf (palias, 100, "p%d", process);
+  char palias[AKY_DEFAULT_STR_SIZE];
+  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState (ticks_to_seconds(time), palias, "STATE");
   }
@@ -369,12 +369,12 @@ int handleBeginCollectiveOperation(void *userData, uint64_t time,
 				   uint64_t received, uint32_t scltoken,
 				   OTF_KeyValueList * kvlist)
 {
-  char palias[100];
-  bzero(palias, 100);
-  snprintf (palias, 100, "p%d", process);
-  char calias[100];
-  bzero(calias, 100);
-  snprintf (calias, 100, "c%d", collOp);
+  char palias[AKY_DEFAULT_STR_SIZE];
+  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
+  char calias[AKY_DEFAULT_STR_SIZE];
+  bzero(calias, AKY_DEFAULT_STR_SIZE);
+  snprintf (calias, AKY_DEFAULT_STR_SIZE, "c%d", collOp);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState (ticks_to_seconds(time), palias, "STATE", calias);
   }
@@ -386,9 +386,9 @@ int handleEndCollectiveOperation(void *userData, uint64_t time,
 				 uint32_t process, uint64_t matchingId,
 				 OTF_KeyValueList * kvlist)
 {
-  char palias[100];
-  bzero(palias, 100);
-  snprintf (palias, 100, "p%d", process);
+  char palias[AKY_DEFAULT_STR_SIZE];
+  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState (ticks_to_seconds(time), palias, "STATE");
   }
@@ -408,9 +408,9 @@ int handleBeginProcess(void *userData, uint64_t time, uint32_t process,
 {
   char *name = data_get(&process_name_hash, process);
   if (name){
-    char alias[100];
-    bzero(alias, 100);
-    snprintf (alias, 100, "p%d", process);
+    char alias[AKY_DEFAULT_STR_SIZE];
+    bzero(alias, AKY_DEFAULT_STR_SIZE);
+    snprintf (alias, AKY_DEFAULT_STR_SIZE, "p%d", process);
     if (!arguments.dummy){
       poti_CreateContainer (ticks_to_seconds(time), alias, "PROCESS", "root", name); 
     }
@@ -424,9 +424,9 @@ int handleEndProcess(void *userData, uint64_t time, uint32_t process,
 {
   char *name = data_get(&process_name_hash, process);
   if (name){
-    char alias[100];
-    bzero(alias, 100);
-    snprintf (alias, 100, "p%d", process);
+    char alias[AKY_DEFAULT_STR_SIZE];
+    bzero(alias, AKY_DEFAULT_STR_SIZE);
+    snprintf (alias, AKY_DEFAULT_STR_SIZE, "p%d", process);
     if (!arguments.dummy){
       poti_DestroyContainer (ticks_to_seconds(time), "PROCESS", alias);
     }
