@@ -154,7 +154,10 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
     ((desc_t *) e.data)->first = NULL;
     ((desc_t *) e.data)->last = NULL;
     ((desc_t *) e.data)->n = 0;
-    hsearch_r (e, ENTER, &ep, &hash);
+    if (!hsearch_r (e, ENTER, &ep, &hash)) {
+      perror(__func__);
+      return NULL;
+    }
   }
   elem_t *new = new_element(src, dst, key, n);
   enqueue(ep->data, new);
