@@ -50,7 +50,6 @@ static void enqueue(desc_t * desc, elem_t * new)
 {
   if (desc->n == 0){
     /* queue is empty, add in the beginning */
-    desc->n++;
     desc->first = new;
     desc->last = new;
 
@@ -59,7 +58,6 @@ static void enqueue(desc_t * desc, elem_t * new)
     new->tail = NULL;
   }else{
     /* queue is NOT empty, add at the end */
-    desc->n++;
 
     elem_t *old_last = desc->last;
     old_last->tail = new;
@@ -67,6 +65,7 @@ static void enqueue(desc_t * desc, elem_t * new)
     new->tail = NULL;
     desc->last = new;
   }
+  desc->n++;
 }
 
 static elem_t *dequeue(desc_t * desc)
