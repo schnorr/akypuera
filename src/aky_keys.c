@@ -50,7 +50,6 @@ static void enqueue(desc_t * desc, elem_t * new)
 {
   if (desc->n == 0){
     /* queue is empty, add in the beginning */
-    desc->n++;
     desc->first = new;
     desc->last = new;
 
@@ -59,7 +58,6 @@ static void enqueue(desc_t * desc, elem_t * new)
     new->tail = NULL;
   }else{
     /* queue is NOT empty, add at the end */
-    desc->n++;
 
     elem_t *old_last = desc->last;
     old_last->tail = new;
@@ -67,6 +65,7 @@ static void enqueue(desc_t * desc, elem_t * new)
     new->tail = NULL;
     desc->last = new;
   }
+  desc->n++;
 }
 
 static elem_t *dequeue(desc_t * desc)
@@ -121,7 +120,7 @@ static void free_element(elem_t * elem)
 
 int aky_key_init (void)
 {
-  if (hcreate_r (1000, &hash) == 0){
+  if (hcreate_r (AKY_KEY_TABLE_SIZE, &hash) == 0){
     fprintf (stderr,
              "[aky_keys] at %s,"
              "hash table allocation failed.",
@@ -141,9 +140,9 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
   //zeroe key
   bzero (key, n);
 
-  char aux[100];
-  bzero (aux, 100);
-  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  char aux[AKY_DEFAULT_STR_SIZE];
+  bzero (aux, AKY_DEFAULT_STR_SIZE);
+  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep = NULL;
   e.key = aux;
   e.data = NULL;
@@ -155,7 +154,10 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
     ((desc_t *) e.data)->first = NULL;
     ((desc_t *) e.data)->last = NULL;
     ((desc_t *) e.data)->n = 0;
-    hsearch_r (e, ENTER, &ep, &hash);
+    if (!hsearch_r (e, ENTER, &ep, &hash)) {
+      perror(__func__);
+      return NULL;
+    }
   }
   elem_t *new = new_element(src, dst, key, n);
   enqueue(ep->data, new);
@@ -168,9 +170,9 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
   bzero (key, n);
 
 
-  char aux[100];
-  bzero (aux, 100);
-  snprintf(aux, 100, "%s#%d#%d", type, src, dst);
+  char aux[AKY_DEFAULT_STR_SIZE];
+  bzero (aux, AKY_DEFAULT_STR_SIZE);
+  snprintf(aux, AKY_DEFAULT_STR_SIZE, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep;
   e.key = aux;
   e.data = NULL;

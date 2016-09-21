@@ -40,9 +40,9 @@ int EnterState(void *userData, double time,
   /* Find state name */
   char *state_name = NULL;
   {
-    char state_key[100];
-    bzero(state_key, 100);
-    snprintf (state_key, 100, "%d", stateid);
+    char state_key[AKY_DEFAULT_STR_SIZE];
+    bzero(state_key, AKY_DEFAULT_STR_SIZE);
+    snprintf (state_key, AKY_DEFAULT_STR_SIZE, "%d", stateid);
 
     ENTRY e, *ep = NULL;
     e.key = state_key;
@@ -73,8 +73,8 @@ int EnterState(void *userData, double time,
   }
 
   rank_last_time[nodeid] = time_to_seconds(time);
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", nodeid);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", nodeid);
 
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState(rank_last_time[nodeid], mpi_process, "STATE", state_name);
@@ -89,9 +89,9 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
   /* Find state name */
   char *state_name = NULL;
   {
-    char state_key[100];
-    bzero(state_key, 100);
-    snprintf (state_key, 100, "%d", stateid);
+    char state_key[AKY_DEFAULT_STR_SIZE];
+    bzero(state_key, AKY_DEFAULT_STR_SIZE);
+    snprintf (state_key, AKY_DEFAULT_STR_SIZE, "%d", stateid);
 
     ENTRY e, *ep = NULL;
     e.key = state_key;
@@ -108,8 +108,8 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
     return 0;
   }
   rank_last_time[nodeid] = time_to_seconds(time);
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", nodeid);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", nodeid);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState(rank_last_time[nodeid], mpi_process, "STATE");
   }
@@ -127,8 +127,8 @@ int ClockPeriod(void *userData, double clkPeriod)
 int DefThread(void *userData, unsigned int nodeid,
               unsigned int threadToken, const char *threadName)
 {
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", nodeid);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", nodeid);
   if (!arguments.dummy){
     poti_CreateContainer(0, mpi_process, "PROCESS", "root", mpi_process);
   }
@@ -143,8 +143,8 @@ int DefThread(void *userData, unsigned int nodeid,
 
 int EndTrace(void *userData, unsigned int nodeid, unsigned int threadid)
 {
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", nodeid);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", nodeid);
   if (!arguments.dummy){
     poti_DestroyContainer(rank_last_time[nodeid], "PROCESS", mpi_process);
   }
@@ -165,9 +165,9 @@ int DefState(void *userData, unsigned int stateid, const char *statename,
     return 0;
   }
 
-  char state_key[100];
-  bzero(state_key, 100);
-  snprintf (state_key, 100, "%d", stateid);
+  char state_key[AKY_DEFAULT_STR_SIZE];
+  bzero(state_key, AKY_DEFAULT_STR_SIZE);
+  snprintf (state_key, AKY_DEFAULT_STR_SIZE, "%d", stateid);
 
   ENTRY e, *ep = NULL;
   e.key = state_key;
@@ -216,8 +216,8 @@ int SendMessage(void *userData,
               AKY_DEFAULT_STR_SIZE);
   rank_last_time[sourceNodeToken] = time_to_seconds(time);
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", sourceNodeToken);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", sourceNodeToken);
   if (!arguments.dummy){
     poti_StartLinkSizeMark(rank_last_time[sourceNodeToken], "root", "LINK",
                            mpi_process, "PTP", key, messageSize, messageTag);
@@ -262,8 +262,8 @@ int RecvMessage(void *userData, double time,
   }
   rank_last_time[sourceNodeToken] = time_to_seconds(time);
   rank_last_time[destinationNodeToken] = time_to_seconds(time);
-  char mpi_process[100];
-  snprintf(mpi_process, 100, "rank%d", destinationNodeToken);
+  char mpi_process[AKY_DEFAULT_STR_SIZE];
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", destinationNodeToken);
   if (!arguments.dummy){
     poti_EndLink(rank_last_time[destinationNodeToken], "root", "LINK",
                 mpi_process, "PTP", key);
