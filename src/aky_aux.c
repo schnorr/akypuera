@@ -20,7 +20,7 @@
 void *aky_ptp_root = NULL;
 
 typedef struct aky {
-  char key[100];
+  char key[AKY_DEFAULT_STR_SIZE];
 } aky_t;
 
 static int aky_compare(const void *a, const void *b)
@@ -35,7 +35,7 @@ void aky_insert(MPI_Request * req)
 {
   aky_t *new;
   new = (aky_t *) calloc(1, sizeof(aky_t));
-  snprintf(new->key, 100, "%p", req);
+  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
   tsearch(new, &aky_ptp_root, aky_compare);
 }
 
@@ -43,7 +43,7 @@ void aky_remove(MPI_Request * req)
 {
   aky_t *new;
   new = (aky_t *) calloc(1, sizeof(aky_t));
-  snprintf(new->key, 100, "%p", req);
+  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
   tdelete(new, &aky_ptp_root, aky_compare);
 }
 
@@ -51,7 +51,7 @@ int aky_check(MPI_Request * req)
 {
   aky_t *new;
   new = (aky_t *) calloc(1, sizeof(aky_t));
-  snprintf(new->key, 100, "%p", req);
+  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
   const void *ret = tfind(new, &aky_ptp_root, aky_compare);
   if (ret) {
     return 1;

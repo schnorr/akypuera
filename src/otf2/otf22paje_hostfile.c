@@ -178,15 +178,15 @@ int nf_read_and_create_hierarchy (char *filename)
       }
       char *new_container = hierarchy[j];
 
-      char new_container_type[100];
+      char new_container_type[AKY_DEFAULT_STR_SIZE];
       {
 	//type
-	snprintf (new_container_type, 100, "L%d", j);
+	snprintf (new_container_type, AKY_DEFAULT_STR_SIZE, "L%d", j);
 	if (j+1 == depth){
 	  nf_container_type_declare (new_container_type, NULL);
 	}else{
-	  char container_type[100];
-	  snprintf (container_type, 100, "L%d", j+1);
+	  char container_type[AKY_DEFAULT_STR_SIZE];
+	  snprintf (container_type, AKY_DEFAULT_STR_SIZE, "L%d", j+1);
 	  nf_container_type_declare (new_container_type, container_type);
 	}
       }
@@ -222,12 +222,12 @@ int nf_read_and_create_hierarchy (char *filename)
 
     //create things (cluster)
     for (j = 0; j < 1; j++){
-      char new_container_type[100];
+      char new_container_type[AKY_DEFAULT_STR_SIZE];
       {
-	char container_type[100];
+	char container_type[AKY_DEFAULT_STR_SIZE];
 	//type
-	snprintf (new_container_type, 100, "L%d", j);
-	snprintf (container_type, 100, "L%d", j+1);
+	snprintf (new_container_type, AKY_DEFAULT_STR_SIZE, "L%d", j);
+	snprintf (container_type, AKY_DEFAULT_STR_SIZE, "L%d", j+1);
 	nf_container_type_declare (new_container_type, container_type);
       }
       {
