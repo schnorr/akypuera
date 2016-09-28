@@ -1,0 +1,11 @@
+$ "./aky_converter ../examples/prog/traces/*.rst | grep -vPe '^[#|%]'"
+> 0 ROOT 0 "ROOT"
+> 0 PROCESS ROOT "PROCESS"
+> 2 STATE PROCESS "STATE"
+> 4 LINK ROOT PROCESS PROCESS "LINK"
+> 6 0.000000000 root ROOT 0 "root"
+> 6 0.000000000 rank0 PROCESS root "rank0"
+> 12 1.000184774 rank0 STATE MPI_Finalize
+> 14 1.002101421 rank0 STATE
+> 7 1.002101421 PROCESS rank0
+> 7 1.002101421 ROOT root
