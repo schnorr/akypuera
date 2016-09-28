@@ -16,6 +16,7 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 PROJECT(aky)
 
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+enable_testing()
 
 # Source files
 SET(AKY_LIBRARY_SOURCES src/aky.c src/aky_aux.c src/aky_rastro.c)
@@ -140,3 +141,23 @@ IF(OTF2_FOUND)
   INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf22paje DESTINATION bin)
   INSTALL(PROGRAMS src/otf2-omp-print/otf2ompprint2paje.sh DESTINATION bin)
 ENDIF(OTF2_FOUND)
+
+# Tests
+FILE(COPY ${CMAKE_HOME_DIRECTORY}/tests/scripts/ DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+# the macro to add tesh'es
+SET(TESH_COMMAND perl -I${CMAKE_BINARY_DIR}/bin/ ${CMAKE_BINARY_DIR}/bin/tesh)
+MACRO(ADD_TESH NAME)
+  SET(ARGT ${ARGV})
+  LIST(REMOVE_AT ARGT 0)
+  ADD_TEST(${NAME} ${TESH_COMMAND} ${TESH_OPTION} ${ARGT})
+ENDMACRO()
+
+# include all tesh scripts in the tests directory
+FILE(GLOB tests "${CMAKE_HOME_DIRECTORY}/tests/*.tesh")
+LIST(SORT tests)
+FOREACH(file ${tests})
+  STRING(REGEX REPLACE "^.*/tests/" "" name ${file})
+  STRING(REGEX REPLACE ".tesh$" "" testname ${name})
+  ADD_TESH(${testname}  --cd "${CMAKE_BINARY_DIR}" ${file})
+ENDFOREACH()
