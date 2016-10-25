@@ -308,5 +308,7 @@
 //aky stuff
 #define AKY_PTP_SEND 5000
 #define AKY_PTP_RECV 5001
+#define AKY_1TN_SEND 5002
+#define AKY_1TN_RECV 5003
 
 #endif //__AKY_H
