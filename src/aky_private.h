@@ -54,6 +54,7 @@ char *name_get (u_int16_t id);
 #define AKY_DEFAULT_STR_SIZE 200
 #define AKY_INPUT_SIZE 10000
 #define AKY_KEY_TABLE_SIZE 1000
+#define AKY_KEY_PTP "ptp"
 
 
 #endif //__AKY_PRIVATE_H_
