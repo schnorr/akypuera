@@ -245,17 +245,15 @@ MPI_Comm comm;
   int rank;
   PMPI_Comm_rank(comm, &rank);
   if (rank == root) {
-    // TODO should the send mark be the same as that of PTP comms?
-    rst_event_l(MPI_SCATTER_IN, send_mark);
     /*
      * The semantics are a tad different from the ptp comms: We register the
-     * communicator size instead of the recv rank. This is useful for
-     * aky_converter.
+     * communicator size instead of the recv rank and of the send mark. This is
+     * useful for, respectively, aky_converter and pj_compensate.
      */
     int size;
     PMPI_Comm_size(comm, &size);
-    rst_event_iil(AKY_1TN_SEND, size, sendcnt, send_mark);
-    send_mark++;
+    rst_event_l(MPI_SCATTER_IN, size);
+    rst_event_iil(AKY_1TN_SEND, size, sendcnt, size);
   } else {
     rst_event(MPI_SCATTER_IN);
   }
