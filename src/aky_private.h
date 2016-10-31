@@ -56,5 +56,6 @@ char *name_get (u_int16_t id);
 #define AKY_KEY_TABLE_SIZE 1000
 #define AKY_KEY_PTP "ptp"
 #define AKY_KEY_1TN "1tn"
+#define AKY_KEY_NT1 "1tn"
 
 #endif //__AKY_PRIVATE_H_
