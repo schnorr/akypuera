@@ -131,6 +131,27 @@ int main(int argc, char **argv)
         poti_EndLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
       }
       break;
+    // TODO DRY
+    case AKY_NT1_SEND:
+      if (!arguments.no_links){
+        char key[AKY_DEFAULT_STR_SIZE];
+        int messageSize = -1;
+        int mark = -1;
+        if (event.ct.n_uint32 == 2) {
+          messageSize = event.v_uint32[1];
+          if (event.ct.n_uint64 == 1)
+            mark = event.v_uint64[0];
+        }
+        aky_put_key(AKY_KEY_NT1, event.id1, event.v_uint32[0], key,
+                    AKY_DEFAULT_STR_SIZE);
+        if (messageSize != -1 && mark != -1){
+          poti_StartLinkSizeMark(timestamp, "root", "LINK", mpi_process, "NT1",
+              key, messageSize, mark);
+        }else{
+          poti_StartLink(timestamp, "root", "LINK", mpi_process, "NT1", key);
+        }
+      }
+      break;
     case AKY_1TN_SEND:
       if (!arguments.no_links) {
         char key[AKY_DEFAULT_STR_SIZE];
@@ -154,6 +175,31 @@ int main(int argc, char **argv)
             else
               poti_StartLink(timestamp, "root", "LINK", mpi_process, "1TN",
                   key);
+          }
+        }
+      }
+      break;
+    case AKY_NT1_RECV:
+      if (!arguments.no_links) {
+        char key[AKY_DEFAULT_STR_SIZE];
+        u_int32_t rank;
+        for (rank = 0; rank < event.v_uint32[0]; rank++) {
+        /*                    ^ comm size */
+          if (rank != event.id1) {
+          /*          ^ rank */
+            char *result = aky_get_key(AKY_KEY_NT1, rank, event.id1, key,
+                AKY_DEFAULT_STR_SIZE);
+            if (!result) {
+              fprintf (stderr,
+                  "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
+                  "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
+                  "[aky_converter] but no send for this receive yet,\n"
+                  "[aky_converter] do you synchronize your input traces?\n",
+                  __FUNCTION__, event.id1, rank);
+              if (!arguments.ignore_errors)
+                fail = 1;
+            }
+            poti_EndLink(timestamp, "root", "LINK", mpi_process, "NT1", key);
           }
         }
       }
