@@ -80,7 +80,7 @@ sub main {
 	    foreach my $counter (@counters) {
 		$counter =~ s/\(".*UINT64; //;
 		$counter =~ s/\)//;
-		push @metrics, $counter;
+		push (@metrics, $counter);
 	    }
 	}elsif(($line =~ /^THREAD_TEAM_BEGIN/)){ # || ($line =~ /^THREAD_TEAM_END/)){ # Destroy container is disabled for now
 	    chomp $line;
@@ -198,7 +198,7 @@ sub get_metrics_description {
 	    my @counters = split(',', $line);
 	    foreach my $counter (@counters) {
 		$counter =~ s/\("(.*)\".*$/\1/;
-		push @metricsdesc, $counter;
+		push (@metricsdesc, $counter);
 	    }
 	    last;
 	}
