@@ -23,9 +23,6 @@ sub main {
 	die "Provide the traces.otf2 file within a scorep directory.";
     }
 
-    # otf2-print is a dependency which comes with scorep
-    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not find the application otf2-print: $!\n";
-
     my $resolution = 1000000;
     my $first_timestamp;
 
@@ -37,6 +34,8 @@ sub main {
 
     my @metrics = ();
 
+    # otf2-print is a dependency which comes with scorep
+    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not find the application otf2-print: $!\n";
     while ($line =  <OTF2PRINT> )
     {
         if(($line =~ /^ENTER/) || ($line =~ /^LEAVE/)) {
