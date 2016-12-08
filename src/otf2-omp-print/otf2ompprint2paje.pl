@@ -24,7 +24,7 @@ sub main {
     }
 
     # otf2-print is a dependency which comes with scorep
-    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not open otf2-print: $!\n";
+    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not find the application otf2-print: $!\n";
 
     my $resolution = 1000000;
     my $first_timestamp;
