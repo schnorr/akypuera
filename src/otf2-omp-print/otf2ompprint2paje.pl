@@ -186,7 +186,7 @@ bufferize("0 T 0 T
 
 sub get_metrics_description {
     my $filename = @_[0];
-    open (OTF2FD, $filename);
+    open(OTF2PRINT,"otf2-print $filename | ") || die "Could not find the application otf2-print: $!\n";
     my $linecount = 0;
     my @metricsdesc = ();
     while ($line =  <OTF2FD> ) {
