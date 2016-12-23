@@ -20,7 +20,7 @@ static u_int64_t send_mark = 0;
 
 int MPI_Allgather(sendbuf, sendcount, sendtype, recvbuf, recvcount,
                   recvtype, comm)
-void *sendbuf;
+const void *sendbuf;
 int sendcount;
 MPI_Datatype sendtype;
 void *recvbuf;
@@ -37,12 +37,12 @@ MPI_Comm comm;
 
 int MPI_Allgatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts,
                    displs, recvtype, comm)
-void *sendbuf;
+const void *sendbuf;
 int sendcount;
 MPI_Datatype sendtype;
 void *recvbuf;
-int *recvcounts;
-int *displs;
+const int *recvcounts;
+const int *displs;
 MPI_Datatype recvtype;
 MPI_Comm comm;
 {
@@ -54,7 +54,7 @@ MPI_Comm comm;
 }
 
 int MPI_Allreduce(sendbuf, recvbuf, count, datatype, op, comm)
-void *sendbuf;
+const void *sendbuf;
 void *recvbuf;
 int count;
 MPI_Datatype datatype;
@@ -70,7 +70,7 @@ MPI_Comm comm;
 
 int MPI_Alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcnt, recvtype,
                  comm)
-void *sendbuf;
+const void *sendbuf;
 int sendcount;
 MPI_Datatype sendtype;
 void *recvbuf;
@@ -87,13 +87,13 @@ MPI_Comm comm;
 
 int MPI_Alltoallv(sendbuf, sendcnts, sdispls, sendtype, recvbuf, recvcnts,
                   rdispls, recvtype, comm)
-void *sendbuf;
-int *sendcnts;
-int *sdispls;
+const void *sendbuf;
+const int *sendcnts;
+const int *sdispls;
 MPI_Datatype sendtype;
 void *recvbuf;
-int *recvcnts;
-int *rdispls;
+const int *recvcnts;
+const int *rdispls;
 MPI_Datatype recvtype;
 MPI_Comm comm;
 {
@@ -129,7 +129,7 @@ MPI_Comm comm;
 
 int MPI_Gather(sendbuf, sendcnt, sendtype, recvbuf, recvcount, recvtype,
                root, comm)
-void *sendbuf;
+const void *sendbuf;
 int sendcnt;
 MPI_Datatype sendtype;
 void *recvbuf;
@@ -148,12 +148,12 @@ MPI_Comm comm;
 
 int MPI_Gatherv(sendbuf, sendcnt, sendtype, recvbuf, recvcnts, displs,
                 recvtype, root, comm)
-void *sendbuf;
+const void *sendbuf;
 int sendcnt;
 MPI_Datatype sendtype;
 void *recvbuf;
-int *recvcnts;
-int *displs;
+const int *recvcnts;
+const int *displs;
 MPI_Datatype recvtype;
 int root;
 MPI_Comm comm;
@@ -187,9 +187,9 @@ MPI_Op *op;
 }
 
 int MPI_Reduce_scatter(sendbuf, recvbuf, recvcnts, datatype, op, comm)
-void *sendbuf;
+const void *sendbuf;
 void *recvbuf;
-int *recvcnts;
+const int *recvcnts;
 MPI_Datatype datatype;
 MPI_Op op;
 MPI_Comm comm;
@@ -202,7 +202,7 @@ MPI_Comm comm;
 }
 
 int MPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm)
-void *sendbuf;
+const void *sendbuf;
 void *recvbuf;
 int count;
 MPI_Datatype datatype;
@@ -218,7 +218,7 @@ MPI_Comm comm;
 }
 
 int MPI_Scan(sendbuf, recvbuf, count, datatype, op, comm)
-void *sendbuf;
+const void *sendbuf;
 void *recvbuf;
 int count;
 MPI_Datatype datatype;
@@ -233,7 +233,7 @@ MPI_Comm comm;
 
 int MPI_Scatter(sendbuf, sendcnt, sendtype, recvbuf, recvcnt, recvtype,
                 root, comm)
-void *sendbuf;
+const void *sendbuf;
 int sendcnt;
 MPI_Datatype sendtype;
 void *recvbuf;
@@ -270,9 +270,9 @@ MPI_Comm comm;
 
 int MPI_Scatterv(sendbuf, sendcnts, displs, sendtype, recvbuf, recvcnt,
                  recvtype, root, comm)
-void *sendbuf;
-int *sendcnts;
-int *displs;
+const void *sendbuf;
+const int *sendcnts;
+const int *displs;
 MPI_Datatype sendtype;
 void *recvbuf;
 int recvcnt;
@@ -288,35 +288,35 @@ MPI_Comm comm;
   return returnVal;
 }
 
-int MPI_Attr_delete(comm, keyval)
+int MPI_Comm_delete_attr(comm, keyval)
 MPI_Comm comm;
 int keyval;
 {
   rst_event(MPI_ATTR_DELETE_IN);
-  int returnVal = PMPI_Attr_delete(comm, keyval);
+  int returnVal = PMPI_Comm_delete_attr(comm, keyval);
   rst_event(MPI_ATTR_DELETE_OUT);
   return returnVal;
 }
 
-int MPI_Attr_get(comm, keyval, attr_value, flag)
+int MPI_Comm_get_attr(comm, keyval, attr_value, flag)
 MPI_Comm comm;
 int keyval;
 void *attr_value;
 int *flag;
 {
   rst_event(MPI_ATTR_GET_IN);
-  int returnVal = PMPI_Attr_get(comm, keyval, attr_value, flag);
+  int returnVal = PMPI_Comm_get_attr(comm, keyval, attr_value, flag);
   rst_event(MPI_ATTR_GET_OUT);
   return returnVal;
 }
 
-int MPI_Attr_put(comm, keyval, attr_value)
+int MPI_Comm_set_attr(comm, keyval, attr_value)
 MPI_Comm comm;
 int keyval;
 void *attr_value;
 {
   rst_event(MPI_ATTR_PUT_IN);
-  int returnVal = PMPI_Attr_put(comm, keyval, attr_value);
+  int returnVal = PMPI_Comm_set_attr(comm, keyval, attr_value);
   rst_event(MPI_ATTR_PUT_OUT);
   return returnVal;
 }
@@ -459,7 +459,7 @@ MPI_Group *group_out;
 int MPI_Group_excl(group, n, ranks, newgroup)
 MPI_Group group;
 int n;
-int *ranks;
+const int *ranks;
 MPI_Group *newgroup;
 {
   rst_event(MPI_GROUP_EXCL_IN);
@@ -480,7 +480,7 @@ MPI_Group *group;
 int MPI_Group_incl(group, n, ranks, group_out)
 MPI_Group group;
 int n;
-int *ranks;
+const int *ranks;
 MPI_Group *group_out;
 {
   rst_event(MPI_GROUP_INCL_IN);
@@ -547,7 +547,7 @@ int *size;
 int MPI_Group_translate_ranks(group_a, n, ranks_a, group_b, ranks_b)
 MPI_Group group_a;
 int n;
-int *ranks_a;
+const int *ranks_a;
 MPI_Group group_b;
 int *ranks_b;
 {
@@ -597,7 +597,7 @@ MPI_Comm *comm_out;
   return returnVal;
 }
 
-int MPI_Keyval_create(copy_fn, delete_fn, keyval, extra_state)
+int MPI_Comm_create_keyval(copy_fn, delete_fn, keyval, extra_state)
 MPI_Copy_function *copy_fn;
 MPI_Delete_function *delete_fn;
 int *keyval;
@@ -605,16 +605,16 @@ void *extra_state;
 {
   rst_event(MPI_KEYVAL_CREATE_IN);
   int returnVal =
-      PMPI_Keyval_create(copy_fn, delete_fn, keyval, extra_state);
+      PMPI_Comm_create_keyval(copy_fn, delete_fn, keyval, extra_state);
   rst_event(MPI_KEYVAL_CREATE_OUT);
   return returnVal;
 }
 
-int MPI_Keyval_free(keyval)
+int MPI_Comm_free_keyval(keyval)
 int *keyval;
 {
   rst_event(MPI_KEYVAL_FREE_IN);
-  int returnVal = PMPI_Keyval_free(keyval);
+  int returnVal = PMPI_Comm_free_keyval(keyval);
   rst_event(MPI_KEYVAL_FREE_OUT);
   return returnVal;
 }
@@ -639,12 +639,12 @@ int *errorclass;
   return returnVal;
 }
 
-int MPI_Errhandler_create(function, errhandler)
+int MPI_Comm_create_errhandler(function, errhandler)
 MPI_Handler_function *function;
 MPI_Errhandler *errhandler;
 {
   rst_event(MPI_ERRHANDLER_CREATE_IN);
-  int returnVal = PMPI_Errhandler_create(function, errhandler);
+  int returnVal = PMPI_Comm_create_errhandler(function, errhandler);
   rst_event(MPI_ERRHANDLER_CREATE_OUT);
   return returnVal;
 }
@@ -658,12 +658,12 @@ MPI_Errhandler *errhandler;
   return returnVal;
 }
 
-int MPI_Errhandler_get(comm, errhandler)
+int MPI_Comm_get_errhandler(comm, errhandler)
 MPI_Comm comm;
 MPI_Errhandler *errhandler;
 {
   rst_event(MPI_ERRHANDLER_GET_IN);
-  int returnVal = PMPI_Errhandler_get(comm, errhandler);
+  int returnVal = PMPI_Comm_get_errhandler(comm, errhandler);
   rst_event(MPI_ERRHANDLER_GET_OUT);
   return returnVal;
 }
@@ -679,12 +679,12 @@ int *resultlen;
   return returnVal;
 }
 
-int MPI_Errhandler_set(comm, errhandler)
+int MPI_Comm_set_errhandler(comm, errhandler)
 MPI_Comm comm;
 MPI_Errhandler errhandler;
 {
   rst_event(MPI_ERRHANDLER_SET_IN);
-  int returnVal = PMPI_Errhandler_set(comm, errhandler);
+  int returnVal = PMPI_Comm_set_errhandler(comm, errhandler);
   rst_event(MPI_ERRHANDLER_SET_OUT);
   return returnVal;
 }
@@ -734,18 +734,18 @@ int *flag;
   return returnVal;
 }
 
-int MPI_Address(location, address)
-void *location;
+int MPI_Get_address(location, address)
+const void *location;
 MPI_Aint *address;
 {
   rst_event(MPI_ADDRESS_IN);
-  int returnVal = PMPI_Address(location, address);
+  int returnVal = PMPI_Get_address(location, address);
   rst_event(MPI_ADDRESS_OUT);
   return returnVal;
 }
 
 int MPI_Bsend(buf, count, datatype, dest, tag, comm)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -761,7 +761,7 @@ MPI_Comm comm;
 }
 
 int MPI_Bsend_init(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -831,7 +831,7 @@ MPI_Request *request;
 }
 
 int MPI_Send_init(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -847,7 +847,7 @@ MPI_Request *request;
 }
 
 int MPI_Get_elements(status, datatype, elements)
-MPI_Status *status;
+const MPI_Status *status;
 MPI_Datatype datatype;
 int *elements;
 {
@@ -858,7 +858,7 @@ int *elements;
 }
 
 int MPI_Get_count(status, datatype, count)
-MPI_Status *status;
+const MPI_Status *status;
 MPI_Datatype datatype;
 int *count;
 {
@@ -869,7 +869,7 @@ int *count;
 }
 
 int MPI_Ibsend(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -917,7 +917,7 @@ MPI_Request *request;
 }
 
 int MPI_Irsend(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -935,7 +935,7 @@ MPI_Request *request;
 }
 
 int MPI_Isend(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -953,7 +953,7 @@ MPI_Request *request;
 }
 
 int MPI_Issend(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -971,7 +971,7 @@ MPI_Request *request;
 }
 
 int MPI_Pack(inbuf, incount, type, outbuf, outcount, position, comm)
-void *inbuf;
+const void *inbuf;
 int incount;
 MPI_Datatype type;
 void *outbuf;
@@ -1032,7 +1032,7 @@ MPI_Status *status;
 }
 
 int MPI_Rsend(buf, count, datatype, dest, tag, comm)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -1048,7 +1048,7 @@ MPI_Comm comm;
 }
 
 int MPI_Rsend_init(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -1064,7 +1064,7 @@ MPI_Request *request;
 }
 
 int MPI_Send(buf, count, datatype, dest, tag, comm)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -1081,7 +1081,7 @@ MPI_Comm comm;
 
 int MPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf,
                  recvcount, recvtype, source, recvtag, comm, status)
-void *sendbuf;
+const void *sendbuf;
 int sendcount;
 MPI_Datatype sendtype;
 int dest;
@@ -1124,7 +1124,7 @@ MPI_Status *status;
 }
 
 int MPI_Ssend(buf, count, datatype, dest, tag, comm)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -1140,7 +1140,7 @@ MPI_Comm comm;
 }
 
 int MPI_Ssend_init(buf, count, datatype, dest, tag, comm, request)
-void *buf;
+const void *buf;
 int count;
 MPI_Datatype datatype;
 int dest;
@@ -1213,7 +1213,7 @@ MPI_Status *status;
 }
 
 int MPI_Test_cancelled(status, flag)
-MPI_Status *status;
+const MPI_Status *status;
 int *flag;
 {
   rst_event(MPI_TEST_CANCELLED_IN);
@@ -1257,12 +1257,13 @@ MPI_Datatype *newtype;
   return returnVal;
 }
 
-int MPI_Type_extent(datatype, extent)
-MPI_Datatype datatype;
+int MPI_Type_get_extent(type, lb, extent)
+MPI_Datatype type;
+MPI_Aint *lb;
 MPI_Aint *extent;
 {
   rst_event(MPI_TYPE_EXTENT_IN);
-  int returnVal = PMPI_Type_extent(datatype, extent);
+  int returnVal = PMPI_Type_get_extent(type, lb, extent);
   rst_event(MPI_TYPE_EXTENT_OUT);
   return returnVal;
 }
@@ -1276,21 +1277,21 @@ MPI_Datatype *datatype;
   return returnVal;
 }
 
-int MPI_Type_hindexed(count, blocklens, indices, old_type, newtype)
+int MPI_Type_create_hindexed(count, blocklens, indices, old_type, newtype)
 int count;
-int *blocklens;
-MPI_Aint *indices;
+const int *blocklens;
+const MPI_Aint *indices;
 MPI_Datatype old_type;
 MPI_Datatype *newtype;
 {
   rst_event(MPI_TYPE_HINDEXED_IN);
-  int returnVal = PMPI_Type_hindexed(count, blocklens, indices, old_type,
+  int returnVal = PMPI_Type_create_hindexed(count, blocklens, indices, old_type,
                                      newtype);
   rst_event(MPI_TYPE_HINDEXED_OUT);
   return returnVal;
 }
 
-int MPI_Type_hvector(count, blocklen, stride, old_type, newtype)
+int MPI_Type_create_hvector(count, blocklen, stride, old_type, newtype)
 int count;
 int blocklen;
 MPI_Aint stride;
@@ -1299,15 +1300,15 @@ MPI_Datatype *newtype;
 {
   rst_event(MPI_TYPE_HVECTOR_IN);
   int returnVal =
-      PMPI_Type_hvector(count, blocklen, stride, old_type, newtype);
+      PMPI_Type_create_hvector(count, blocklen, stride, old_type, newtype);
   rst_event(MPI_TYPE_HVECTOR_OUT);
   return returnVal;
 }
 
 int MPI_Type_indexed(count, blocklens, indices, old_type, newtype)
 int count;
-int *blocklens;
-int *indices;
+const int *blocklens;
+const int *indices;
 MPI_Datatype old_type;
 MPI_Datatype *newtype;
 {
@@ -1315,16 +1316,6 @@ MPI_Datatype *newtype;
   int returnVal = PMPI_Type_indexed(count, blocklens, indices, old_type,
                                     newtype);
   rst_event(MPI_TYPE_INDEXED_OUT);
-  return returnVal;
-}
-
-int MPI_Type_lb(datatype, displacement)
-MPI_Datatype datatype;
-MPI_Aint *displacement;
-{
-  rst_event(MPI_TYPE_LB_IN);
-  int returnVal = PMPI_Type_lb(datatype, displacement);
-  rst_event(MPI_TYPE_LB_OUT);
   return returnVal;
 }
 
@@ -1338,27 +1329,17 @@ int *size;
   return returnVal;
 }
 
-int MPI_Type_struct(count, blocklens, indices, old_types, newtype)
+int MPI_Type_create_struct(count, blocklens, indices, old_types, newtype)
 int count;
-int *blocklens;
-MPI_Aint *indices;
-MPI_Datatype *old_types;
+const int *blocklens;
+const MPI_Aint *indices;
+const MPI_Datatype *old_types;
 MPI_Datatype *newtype;
 {
   rst_event(MPI_TYPE_STRUCT_IN);
-  int returnVal = PMPI_Type_struct(count, blocklens, indices, old_types,
+  int returnVal = PMPI_Type_create_struct(count, blocklens, indices, old_types,
                                    newtype);
   rst_event(MPI_TYPE_STRUCT_OUT);
-  return returnVal;
-}
-
-int MPI_Type_ub(datatype, displacement)
-MPI_Datatype datatype;
-MPI_Aint *displacement;
-{
-  rst_event(MPI_TYPE_UB_IN);
-  int returnVal = PMPI_Type_ub(datatype, displacement);
-  rst_event(MPI_TYPE_UB_OUT);
   return returnVal;
 }
 
@@ -1377,7 +1358,7 @@ MPI_Datatype *newtype;
 }
 
 int MPI_Unpack(inbuf, insize, position, outbuf, outcount, type, comm)
-void *inbuf;
+const void *inbuf;
 int insize;
 int *position;
 void *outbuf;
@@ -1489,8 +1470,8 @@ int *coords;
 int MPI_Cart_create(comm_old, ndims, dims, periods, reorder, comm_cart)
 MPI_Comm comm_old;
 int ndims;
-int *dims;
-int *periods;
+const int *dims;
+const int *periods;
 int reorder;
 MPI_Comm *comm_cart;
 {
@@ -1517,8 +1498,8 @@ int *coords;
 int MPI_Cart_map(comm_old, ndims, dims, periods, newrank)
 MPI_Comm comm_old;
 int ndims;
-int *dims;
-int *periods;
+const int *dims;
+const int *periods;
 int *newrank;
 {
   rst_event(MPI_CART_MAP_IN);
@@ -1529,7 +1510,7 @@ int *newrank;
 
 int MPI_Cart_rank(comm, coords, rank)
 MPI_Comm comm;
-int *coords;
+const int *coords;
 int *rank;
 {
   rst_event(MPI_CART_RANK_IN);
@@ -1553,7 +1534,7 @@ int *dest;
 
 int MPI_Cart_sub(comm, remain_dims, comm_new)
 MPI_Comm comm;
-int *remain_dims;
+const int *remain_dims;
 MPI_Comm *comm_new;
 {
   rst_event(MPI_CART_SUB_IN);
@@ -1586,8 +1567,8 @@ int *dims;
 int MPI_Graph_create(comm_old, nnodes, index, edges, reorder, comm_graph)
 MPI_Comm comm_old;
 int nnodes;
-int *index;
-int *edges;
+const int *index;
+const int *edges;
 int reorder;
 MPI_Comm *comm_graph;
 {
@@ -1615,8 +1596,8 @@ int *edges;
 int MPI_Graph_map(comm_old, nnodes, index, edges, newrank)
 MPI_Comm comm_old;
 int nnodes;
-int *index;
-int *edges;
+const int *index;
+const int *edges;
 int *newrank;
 {
   rst_event(MPI_GRAPH_MAP_IN);
