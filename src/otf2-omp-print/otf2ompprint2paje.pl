@@ -23,17 +23,19 @@ sub main {
 	die "Provide the traces.otf2 file within a scorep directory.";
     }
 
-    # otf2-print is a dependency which comes with scorep
-    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not open otf2-print: $!\n";
-
     my $resolution = 1000000;
     my $first_timestamp;
 
-    header($arg);
+    my @metricsdesc = get_metrics_description ($arg);
+    header($arg, @metricsdesc);
 
     # thread zero is created in the beginning
     create ("zero", "6 0.0 zero T 0 zero\n");
 
+    my @metrics = ();
+
+    # otf2-print is a dependency which comes with scorep
+    open(OTF2PRINT,"otf2-print $arg | ") || die "Could not find the application otf2-print: $!\n";
     while ($line =  <OTF2PRINT> )
     {
         if(($line =~ /^ENTER/) || ($line =~ /^LEAVE/)) {
@@ -56,10 +58,28 @@ sub main {
 	    $time /= $resolution;
 	    if ($thread == "0") {$thread = "zero";}
 
+	    my $aux = "";
 	    if ($event =~ /^ENTER/) {
-		bufferize("12 $time $thread S \"$region\"\n");
+		$aux .= "12 $time $thread S \"$region\"";
 	    }elsif ($event =~ /^LEAVE/) {
-		bufferize("14 $time $thread S\n");
+		$aux .= "14 $time $thread S";
+	    }
+	    if (scalar(@metrics)){
+		$aux .= " " . join(" ", @metrics);
+	    }
+	    $aux .= "\n";
+	    bufferize($aux);
+	    @metrics = ()
+	}elsif(($line =~ /^METRIC/)){
+	    chomp $line;
+	    $line =~ s/.*Values: //;
+	    $line =~ s/ +/ /g;
+	    $line =~ s/, /,/g;
+	    my @counters = split(',', $line);
+	    foreach my $counter (@counters) {
+		$counter =~ s/\(".*UINT64; //;
+		$counter =~ s/\)//;
+		push (@metrics, $counter);
 	    }
 	}elsif(($line =~ /^THREAD_TEAM_BEGIN/)){ # || ($line =~ /^THREAD_TEAM_END/)){ # Destroy container is disabled for now
 	    chomp $line;
@@ -109,9 +129,16 @@ sub flush_buffer()
     $strbuffer = "";
 }
 
-sub header(){
-    my $file = @_[0];
-bufferize("#This trace was generated with: otf2ompprint2paje.pl $file
+sub header {
+    my $filename = shift;
+    my @metricsdesc = @_;
+    my $metricsdescstr = "";
+    if (scalar(@metricsdesc)){
+	$metricsdescstrpush = "\n% Push". join(" string\n% Push", @metricsdesc). " string";
+	$metricsdescstrpop = "\n% Pop". join(" string\n% Pop", @metricsdesc). " string";
+    }
+
+bufferize("#This trace was generated with: otf2ompprint2paje.pl $filename
 #otf2ompprint2paje.pl is available at https://github.com/schnorr/akypuera/
 #The script relies on the availability of otf2-print executable (ScoreP)
 %EventDef PajeDefineContainerType 0
@@ -140,12 +167,12 @@ bufferize("#This trace was generated with: otf2ompprint2paje.pl $file
 %       Time date
 %       Container string
 %       Type string
-%       Value string
+%       Value string $metricsdescstrpush
 %EndEventDef
 %EventDef PajePopState 14
 %       Time date
 %       Container string
-%       Type string
+%       Type string $metricsdescstrpop
 %EndEventDef
 ");
 
@@ -155,3 +182,33 @@ bufferize("0 T 0 T
 2 S T S
 ");
     }
+
+sub get_metrics_description {
+    my $filename = @_[0];
+    open(OTF2FD,"otf2-print $filename | ") || die "Could not find the application otf2-print: $!\n";
+    my $linecount = 0;
+    my @metricsdesc = ();
+    while ($line =  <OTF2FD> ) {
+	if(($line =~ /^METRIC/)){
+	    chomp $line;
+	    $line =~ s/.*Values: //;
+	    $line =~ s/ +/ /g;
+	    $line =~ s/, /,/g;
+	    my @counters = split(',', $line);
+	    foreach my $counter (@counters) {
+		$counter =~ s/\("(.*)\".*$/\1/;
+		push (@metricsdesc, $counter);
+	    }
+	    last;
+	}
+	$linecount++;
+
+	if ($linecount == 1000){
+	    #if I reached the line 1000 without encountering a METRIC line
+	    #consider that there are not metrics in the trace
+	    last;
+	}
+    }
+    close (OTF2FD);
+    return @metricsdesc;
+}
