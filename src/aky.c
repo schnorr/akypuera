@@ -125,9 +125,11 @@ MPI_Comm comm;
   PMPI_Comm_rank(comm, &rank);
   if (rank == root) {
     int size;
+    int tsize;
+    PMPI_Type_size(datatype, &tsize);
     PMPI_Comm_size(comm, &size);
     rst_event_l(MPI_BCAST_IN, size);
-    rst_event_iil(AKY_1TA_SEND, size, count, size);
+    rst_event_iil(AKY_1TA_SEND, size, count * tsize, size);
   } else {
     rst_event(MPI_BCAST_IN);
   }
@@ -245,8 +247,10 @@ MPI_Comm comm;
   if (rank == root) {
     rst_event(MPI_REDUCE_IN);
   } else {
+    int tsize;
+    PMPI_Type_size(datatype, &tsize);
     rst_event_l(MPI_REDUCE_IN, size);
-    rst_event_iil(AKY_AT1_SEND, AKY_translate_rank(comm, root), count, size);
+    rst_event_iil(AKY_AT1_SEND, AKY_translate_rank(comm, root), count * tsize, size);
   }
   int returnVal =
       PMPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm);
@@ -289,10 +293,11 @@ MPI_Comm comm;
      * communicator size instead of the recv rank and of the send mark. This is
      * useful for, respectively, aky_converter and pj_compensate.
      */
-    int size;
+    int size, tsize;
     PMPI_Comm_size(comm, &size);
+    PMPI_Type_size(sendtype, &tsize);
     rst_event_l(MPI_SCATTER_IN, size);
-    rst_event_iil(AKY_1TN_SEND, size, sendcnt, size);
+    rst_event_iil(AKY_1TN_SEND, size, sendcnt * tsize, size);
   } else {
     rst_event(MPI_SCATTER_IN);
   }
@@ -789,8 +794,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_BSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Bsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_BSEND_OUT);
   send_mark++;
@@ -914,8 +921,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_IBSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Ibsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IBSEND_OUT);
@@ -962,8 +971,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_IRSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Irsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IRSEND_OUT);
@@ -980,8 +991,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_ISEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISEND_OUT);
@@ -999,8 +1012,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_ISSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Issend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISSEND_OUT);
@@ -1077,8 +1092,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_RSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Rsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_RSEND_OUT);
   send_mark++;
@@ -1109,8 +1126,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_SEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Send(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SEND_OUT);
   send_mark++;
@@ -1169,8 +1188,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_SSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Ssend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SSEND_OUT);
   send_mark++;
