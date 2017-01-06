@@ -312,5 +312,9 @@
 #define AKY_1TN_RECV 5003
 #define AKY_NT1_SEND 5004
 #define AKY_NT1_RECV 5005
+#define AKY_1TA_SEND 5006
+#define AKY_1TA_RECV 5007
+#define AKY_AT1_SEND 5008
+#define AKY_AT1_RECV 5009
 
 #endif //__AKY_H
