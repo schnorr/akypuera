@@ -69,7 +69,7 @@ ENDIF(OTF2)
 
 # Independent subdirectories
 ADD_SUBDIRECTORY(librastro)
-ADD_SUBDIRECTORY(libpoti)
+ADD_SUBDIRECTORY(poti)
 ADD_SUBDIRECTORY(examples)
 
 # Include directories (shared by everyone)
