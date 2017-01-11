@@ -1,0 +1,3 @@
+[submodule "poti"]
+	path = poti
+	url = git@github.com:schnorr/poti
