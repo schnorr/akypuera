@@ -1,11 +1,11 @@
 $ "./aky_converter ../examples/scatter/traces/*.rst | grep -vPe '^[#|%]' | cut -d' ' -f2-"
-> ROOT 0 "ROOT"
-> PROCESS ROOT "PROCESS"
-> STATE PROCESS "STATE"
-> LINK ROOT PROCESS PROCESS "LINK"
-> 0.000000000 root 0 ROOT "root"
-> 0.000000000 rank0 root PROCESS "rank0"
-> 0.000000000 rank3 root PROCESS "rank3"
+> 0 "ROOT"
+> ROOT "PROCESS"
+> PROCESS "STATE"
+> ROOT PROCESS PROCESS "LINK"
+> 0.000000000 0 ROOT "root"
+> 0.000000000 root PROCESS "rank0"
+> 0.000000000 root PROCESS "rank3"
 > 0.000004530 rank0 STATE MPI_Comm_rank
 > 0.000004530 rank3 STATE MPI_Comm_rank
 > 0.000004768 rank0 STATE
@@ -22,9 +22,9 @@ $ "./aky_converter ../examples/scatter/traces/*.rst | grep -vPe '^[#|%]' | cut -
 > 0.000013113 rank3 STATE MPI_Comm_size
 > 0.000013590 rank3 STATE
 > 0.000014782 rank3 STATE MPI_Type_size
-> 0.000017881 rank2 root PROCESS "rank2"
+> 0.000017881 root PROCESS "rank2"
 > 0.000017881 rank3 STATE
-> 0.000017881 rank1 root PROCESS "rank1"
+> 0.000017881 root PROCESS "rank1"
 > 0.000018120 rank3 STATE MPI_Type_size
 > 0.000018358 rank3 STATE
 > 0.000019789 rank3 STATE MPI_Recv

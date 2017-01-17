@@ -1,13 +1,13 @@
 $ "./aky_converter ../examples/small/traces/*.rst | grep -vPe '^[#|%]' | cut -d' ' -f2-"
-> ROOT 0 "ROOT"
-> PROCESS ROOT "PROCESS"
-> STATE PROCESS "STATE"
-> LINK ROOT PROCESS PROCESS "LINK"
-> 0.000000000 root 0 ROOT "root"
-> 0.000000000 rank0 root PROCESS "rank0"
+> 0 "ROOT"
+> ROOT "PROCESS"
+> PROCESS "STATE"
+> ROOT PROCESS PROCESS "LINK"
+> 0.000000000 0 ROOT "root"
+> 0.000000000 root PROCESS "rank0"
 > 0.000001907 rank0 STATE MPI_Comm_rank
 > 0.000002146 rank0 STATE
-> 0.000007153 rank1 root PROCESS "rank1"
+> 0.000007153 root PROCESS "rank1"
 > 0.000007868 rank1 STATE MPI_Comm_rank
 > 0.000008106 rank1 STATE
 > 0.000008583 rank1 STATE MPI_Recv
