@@ -1,14 +1,14 @@
 $ "./aky_converter ../examples/collective/traces/*.rst | grep -vPe '^[#|%]' | cut -d' ' -f2-"
-> ROOT 0 "ROOT"
-> PROCESS ROOT "PROCESS"
-> STATE PROCESS "STATE"
-> LINK ROOT PROCESS PROCESS "LINK"
-> 0.000000000 root 0 ROOT "root"
-> 0.000000000 rank3 root PROCESS "rank3"
+> 0 "ROOT"
+> ROOT "PROCESS"
+> PROCESS "STATE"
+> ROOT PROCESS PROCESS "LINK"
+> 0.000000000 0 ROOT "root"
+> 0.000000000 root PROCESS "rank3"
 > 0.000002146 rank3 STATE MPI_Comm_rank
 > 0.000002146 rank3 STATE
 > 0.000003576 rank3 STATE MPI_Scatter
-> 0.000010729 rank0 root PROCESS "rank0"
+> 0.000010729 root PROCESS "rank0"
 > 0.000011921 rank0 STATE MPI_Comm_rank
 > 0.000012159 rank0 STATE
 > 0.000024796 rank0 STATE MPI_Scatter 4
@@ -25,7 +25,7 @@ $ "./aky_converter ../examples/collective/traces/*.rst | grep -vPe '^[#|%]' | cu
 > 0.000111103 root LINK rank3 1TN 0_3_2
 > 0.000111580 rank3 STATE
 > 0.000112057 rank3 STATE MPI_Bcast
-> 0.000496387 rank1 root PROCESS "rank1"
+> 0.000496387 root PROCESS "rank1"
 > 0.000498533 rank1 STATE MPI_Comm_rank
 > 0.000499249 rank1 STATE
 > 0.000499964 rank1 STATE MPI_Scatter
@@ -50,7 +50,7 @@ $ "./aky_converter ../examples/collective/traces/*.rst | grep -vPe '^[#|%]' | cu
 > 0.000636578 root LINK rank3 AT1 3_0_9 4 4
 > 0.000640392 rank3 STATE
 > 0.000640869 rank3 STATE MPI_Finalize
-> 0.000702858 rank2 root PROCESS "rank2"
+> 0.000702858 root PROCESS "rank2"
 > 0.000703812 rank2 STATE MPI_Comm_rank
 > 0.000704527 rank2 STATE
 > 0.000704765 rank2 STATE MPI_Scatter

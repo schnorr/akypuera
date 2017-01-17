@@ -1,22 +1,22 @@
 $ "./aky_converter ../examples/smpi_bug/traces/*.rst | grep -vPe '^[#|%]' | cut -d' ' -f2-"
-> ROOT 0 "ROOT"
-> PROCESS ROOT "PROCESS"
-> STATE PROCESS "STATE"
-> LINK ROOT PROCESS PROCESS "LINK"
-> 0.000000000 root 0 ROOT "root"
-> 0.000000000 rank2 root PROCESS "rank2"
+> 0 "ROOT"
+> ROOT "PROCESS"
+> PROCESS "STATE"
+> ROOT PROCESS PROCESS "LINK"
+> 0.000000000 0 ROOT "root"
+> 0.000000000 root PROCESS "rank2"
 > 0.000002384 rank2 STATE MPI_Comm_size
 > 0.000003576 rank2 STATE
 > 0.000004292 rank2 STATE MPI_Comm_rank
 > 0.000004530 rank2 STATE
 > 0.000029087 rank2 STATE MPI_Send 0
 > 0.000037193 root LINK rank2 PTP 2_0_0 40000 0
-> 0.000057936 rank1 root PROCESS "rank1"
+> 0.000057936 root PROCESS "rank1"
 > 0.000061035 rank1 STATE MPI_Comm_size
 > 0.000062704 rank1 STATE
 > 0.000063419 rank1 STATE MPI_Comm_rank
 > 0.000063658 rank1 STATE
-> 0.000067472 rank0 root PROCESS "rank0"
+> 0.000067472 root PROCESS "rank0"
 > 0.000068665 rank0 STATE MPI_Comm_size
 > 0.000069141 rank0 STATE
 > 0.000069380 rank0 STATE MPI_Comm_rank
