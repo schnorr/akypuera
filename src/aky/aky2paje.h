@@ -18,6 +18,7 @@
 #define __AKY2PAJE_H_
 #include <argp.h>
 #include "aky_private.h"
+#include "poti_private.h"
 
 #define PROGRAM "aky_converter"
 

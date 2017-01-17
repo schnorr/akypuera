@@ -26,10 +26,17 @@
 #include "aky_config.h"
 #include "aky_rastro.h"
 
-void aky_insert(MPI_Request * req);
-int aky_check(MPI_Request * req);
-void aky_remove(MPI_Request * req);
+
 int AKY_translate_rank(MPI_Comm comm, int rank);
+void aky_insert(MPI_Request * req, void **root, int mark);
+void aky_remove(MPI_Request * req, void **root);
+int aky_check(MPI_Request * req, void **root);
+void aky_insert_irecv(MPI_Request *req);
+void aky_remove_irecv(MPI_Request *req);
+int aky_check_irecv(MPI_Request *req);
+void aky_insert_isend(MPI_Request *req, int mark);
+void aky_remove_isend(MPI_Request *req);
+int aky_check_isend(MPI_Request *req);
 
 int aky_key_init(void);
 void aky_key_free(void);
@@ -49,5 +56,8 @@ char *name_get (u_int16_t id);
 #define AKY_KEY_TABLE_SIZE 1000
 #define AKY_KEY_PTP "ptp"
 #define AKY_KEY_1TN "1tn"
+#define AKY_KEY_NT1 "1tn"
+#define AKY_KEY_1TA "1ta"
+#define AKY_KEY_AT1 "at1"
 
 #endif //__AKY_PRIVATE_H_
