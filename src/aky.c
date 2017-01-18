@@ -121,8 +121,19 @@ MPI_Datatype datatype;
 int root;
 MPI_Comm comm;
 {
-  rst_event(MPI_BCAST_IN);
+  int rank;
+  PMPI_Comm_rank(comm, &rank);
+  if (rank == root) {
+    int size;
+    PMPI_Comm_size(comm, &size);
+    rst_event_l(MPI_BCAST_IN, size);
+    rst_event_iil(AKY_1TA_SEND, size, count, size);
+  } else {
+    rst_event(MPI_BCAST_IN);
+  }
   int returnVal = PMPI_Bcast(buffer, count, datatype, root, comm);
+  if (rank != root)
+    rst_event_i(AKY_1TA_RECV, AKY_translate_rank(comm, root));
   rst_event(MPI_BCAST_OUT);
   return returnVal;
 }
@@ -227,9 +238,20 @@ MPI_Op op;
 int root;
 MPI_Comm comm;
 {
-  rst_event(MPI_REDUCE_IN);
+  int rank;
+  PMPI_Comm_rank(comm, &rank);
+  int size;
+  PMPI_Comm_size(comm, &size);
+  if (rank == root) {
+    rst_event(MPI_REDUCE_IN);
+  } else {
+    rst_event_l(MPI_REDUCE_IN, size);
+    rst_event_iil(AKY_AT1_SEND, AKY_translate_rank(comm, root), count, size);
+  }
   int returnVal =
       PMPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm);
+  if (rank == root)
+    rst_event_i(AKY_AT1_RECV, size);
   rst_event(MPI_REDUCE_OUT);
   return returnVal;
 }
