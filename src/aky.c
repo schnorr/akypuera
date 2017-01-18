@@ -149,10 +149,27 @@ MPI_Datatype recvtype;
 int root;
 MPI_Comm comm;
 {
-  rst_event(MPI_GATHER_IN);
+  int rank;
+  PMPI_Comm_rank(comm, &rank);
+  int size;
+  PMPI_Comm_size(comm, &size);
+  if (rank == root) {
+    rst_event(MPI_GATHER_IN);
+  } else {
+    /*
+     * As with MPI_Scatter the semantics are a bit different. More specifically
+     * they are the inverse of MPI_Scatter, i.e. we register the destination
+     * in the send and the size in the recv (for aky_converter). The send_mark
+     * is registered as the size like in MPI_Scatter (for pj_compensate).
+     */
+    rst_event_l(MPI_GATHER_IN, size);
+    rst_event_iil(AKY_NT1_SEND, AKY_translate_rank(comm, root), sendcnt, size);
+  }
   int returnVal =
       PMPI_Gather(sendbuf, sendcnt, sendtype, recvbuf, recvcount,
                   recvtype, root, comm);
+  if (rank == root)
+    rst_event_i(AKY_NT1_RECV, size);
   rst_event(MPI_GATHER_OUT);
   return returnVal;
 }
@@ -267,17 +284,15 @@ MPI_Comm comm;
   int rank;
   PMPI_Comm_rank(comm, &rank);
   if (rank == root) {
-    // TODO should the send mark be the same as that of PTP comms?
-    rst_event_l(MPI_SCATTER_IN, send_mark);
     /*
      * The semantics are a tad different from the ptp comms: We register the
-     * communicator size instead of the recv rank. This is useful for
-     * aky_converter.
+     * communicator size instead of the recv rank and of the send mark. This is
+     * useful for, respectively, aky_converter and pj_compensate.
      */
     int size;
     PMPI_Comm_size(comm, &size);
-    rst_event_iil(AKY_1TN_SEND, size, sendcnt, send_mark);
-    send_mark++;
+    rst_event_l(MPI_SCATTER_IN, size);
+    rst_event_iil(AKY_1TN_SEND, size, sendcnt, size);
   } else {
     rst_event(MPI_SCATTER_IN);
   }

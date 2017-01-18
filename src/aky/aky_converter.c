@@ -248,6 +248,31 @@ int main(int argc, char **argv)
       if (!arguments.no_links)
         treat_xt1_recv(timestamp, &event, AKY_KEY_NT1, "NT1", mpi_process, &fail);
       break;
+    case AKY_NT1_RECV:
+      if (!arguments.no_links) {
+        char key[AKY_DEFAULT_STR_SIZE];
+        u_int32_t rank;
+        for (rank = 0; rank < event.v_uint32[0]; rank++) {
+        /*                    ^ comm size */
+          if (rank != event.id1) {
+          /*          ^ rank */
+            char *result = aky_get_key(AKY_KEY_NT1, rank, event.id1, key,
+                AKY_DEFAULT_STR_SIZE);
+            if (!result) {
+              fprintf (stderr,
+                  "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
+                  "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
+                  "[aky_converter] but no send for this receive yet,\n"
+                  "[aky_converter] do you synchronize your input traces?\n",
+                  __FUNCTION__, event.id1, rank);
+              if (!arguments.ignore_errors)
+                fail = 1;
+            }
+            poti_EndLink(timestamp, "root", "LINK", mpi_process, "NT1", key);
+          }
+        }
+      }
+      break;
     case AKY_1TN_RECV:
       if (!arguments.no_links)
         treat_1tx_recv(timestamp, &event, AKY_KEY_1TN, "1TN", mpi_process, &fail);
