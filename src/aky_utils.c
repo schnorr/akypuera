@@ -65,12 +65,12 @@ int aky_dump_comment_file (const char *program, const char *filename)
   }
   while (!feof(file)){
     char c;
-    c = fgetc(file);
+    c = (char)fgetc(file);
     if (feof(file)) break;
     printf ("# ");
     while (c != '\n'){
       printf ("%c", c);
-      c = fgetc(file);
+      c = (char)fgetc(file);
       if (feof(file)) break;
     }
     printf ("\n");

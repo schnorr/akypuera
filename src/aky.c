@@ -125,9 +125,11 @@ MPI_Comm comm;
   PMPI_Comm_rank(comm, &rank);
   if (rank == root) {
     int size;
+    int tsize;
+    PMPI_Type_size(datatype, &tsize);
     PMPI_Comm_size(comm, &size);
     rst_event_l(MPI_BCAST_IN, size);
-    rst_event_iil(AKY_1TA_SEND, size, count, size);
+    rst_event_iil(AKY_1TA_SEND, size, count * tsize, size);
   } else {
     rst_event(MPI_BCAST_IN);
   }
@@ -245,8 +247,10 @@ MPI_Comm comm;
   if (rank == root) {
     rst_event(MPI_REDUCE_IN);
   } else {
+    int tsize;
+    PMPI_Type_size(datatype, &tsize);
     rst_event_l(MPI_REDUCE_IN, size);
-    rst_event_iil(AKY_AT1_SEND, AKY_translate_rank(comm, root), count, size);
+    rst_event_iil(AKY_AT1_SEND, AKY_translate_rank(comm, root), count * tsize, size);
   }
   int returnVal =
       PMPI_Reduce(sendbuf, recvbuf, count, datatype, op, root, comm);
@@ -289,10 +293,11 @@ MPI_Comm comm;
      * communicator size instead of the recv rank and of the send mark. This is
      * useful for, respectively, aky_converter and pj_compensate.
      */
-    int size;
+    int size, tsize;
     PMPI_Comm_size(comm, &size);
+    PMPI_Type_size(sendtype, &tsize);
     rst_event_l(MPI_SCATTER_IN, size);
-    rst_event_iil(AKY_1TN_SEND, size, sendcnt, size);
+    rst_event_iil(AKY_1TN_SEND, size, sendcnt * tsize, size);
   } else {
     rst_event(MPI_SCATTER_IN);
   }
@@ -789,8 +794,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_BSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Bsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_BSEND_OUT);
   send_mark++;
@@ -914,8 +921,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_IBSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Ibsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IBSEND_OUT);
@@ -949,7 +958,7 @@ MPI_Request *request;
   int returnVal =
       PMPI_Irecv(buf, count, datatype, source, tag, comm, request);
   rst_event(MPI_IRECV_OUT);
-  aky_insert(request);
+  aky_insert_irecv(request);
   return returnVal;
 }
 
@@ -962,8 +971,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_IRSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Irsend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_IRSEND_OUT);
@@ -980,11 +991,14 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_ISEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Isend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISEND_OUT);
+  aky_insert_isend(request, send_mark);
   send_mark++;
   return returnVal;
 }
@@ -998,8 +1012,10 @@ int tag;
 MPI_Comm comm;
 MPI_Request *request;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_ISSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal =
       PMPI_Issend(buf, count, datatype, dest, tag, comm, request);
   rst_event(MPI_ISSEND_OUT);
@@ -1076,8 +1092,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_RSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Rsend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_RSEND_OUT);
   send_mark++;
@@ -1108,8 +1126,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_SEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Send(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SEND_OUT);
   send_mark++;
@@ -1168,8 +1188,10 @@ int dest;
 int tag;
 MPI_Comm comm;
 {
+  int tsize;
+  PMPI_Type_size(datatype, &tsize);
   rst_event_l(MPI_SSEND_IN, send_mark);
-  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count, send_mark);
+  rst_event_iil(AKY_PTP_SEND, AKY_translate_rank(comm, dest), count * tsize, send_mark);
   int returnVal = PMPI_Ssend(buf, count, datatype, dest, tag, comm);
   rst_event(MPI_SSEND_OUT);
   send_mark++;
@@ -1416,17 +1438,21 @@ MPI_Request *request;
 MPI_Status *status;
 {
   MPI_Status stat2;
-
-  rst_event(MPI_WAIT_IN);
+  int isend = aky_check_isend(request);
+  if (isend) {
+    aky_remove_isend(request);
+    rst_event_l(MPI_WAIT_IN, isend == -1 ? 0 : isend);
+  } else {
+    rst_event(MPI_WAIT_IN);
+  }
   int returnVal = PMPI_Wait(request, &stat2);
 
   if (status != MPI_STATUS_IGNORE) {
     *status = stat2;
   }
-
-  if (aky_check(request)) {
+  if (aky_check_irecv(request)) {
     rst_event_i(AKY_PTP_RECV, stat2.MPI_SOURCE);
-    aky_remove(request);
+    aky_remove_irecv(request);
   }
   rst_event(MPI_WAIT_OUT);
   return returnVal;
@@ -1446,9 +1472,9 @@ MPI_Status *array_of_statuses;
       array_of_statuses[i] = stat2[i];
     }
     MPI_Request *req = &array_of_requests[i];
-    if (aky_check(req)) {
+    if (aky_check_irecv(req)) {
       rst_event_i(AKY_PTP_RECV, stat2[i].MPI_SOURCE);
-      aky_remove(req);
+      aky_remove_irecv(req);
     }
   }
   free(stat2);
@@ -1469,9 +1495,9 @@ MPI_Status *status;
     *status = stat2;
   }
   MPI_Request *req = &array_of_requests[*index];
-  if (aky_check(req)) {
+  if (aky_check_irecv(req)) {
     rst_event_i(AKY_PTP_RECV, stat2.MPI_SOURCE);
-    aky_remove(req);
+    aky_remove_irecv(req);
   }
   rst_event(MPI_WAITANY_OUT);
   return returnVal;
