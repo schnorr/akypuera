@@ -69,13 +69,14 @@ ENDIF(OTF2)
 
 # Independent subdirectories
 ADD_SUBDIRECTORY(librastro)
-ADD_SUBDIRECTORY(libpoti)
+ADD_SUBDIRECTORY(poti)
 ADD_SUBDIRECTORY(examples)
 
 # Include directories (shared by everyone)
 INCLUDE_DIRECTORIES(${aky_SOURCE_DIR}/include/)
 INCLUDE_DIRECTORIES(${aky_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES(${poti_SOURCE_DIR}/include/)
+INCLUDE_DIRECTORIES(${poti_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/include/)
 INCLUDE_DIRECTORIES(${rastro_SOURCE_DIR}/src/)
 INCLUDE_DIRECTORIES(${aky_BINARY_DIR}/include/)

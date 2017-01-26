@@ -14,7 +14,115 @@
     You should have received a copy of the GNU Public License
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <inttypes.h>
 #include "aky2paje.h"
+
+/* DRY */
+static inline void
+linksizemark(double timestamp, char const *mpi_process, char const *keys, char
+    const *key, int size, int mark)
+{
+  /* int16 upper range is a 5 digits str in base 10 */
+  char size_[6], mark_[6];
+  snprintf(size_, 6, "%d", size);
+  snprintf(mark_, 6, "%d", mark);
+  poti_StartLinkSizeMark(timestamp, "root", "LINK", mpi_process, keys, key,
+      size_, mark_);
+}
+
+static void
+treat_1tx_send(double timestamp, rst_event_t const *event, char const *keyc,
+    char const *keys, char const *mpi_process)
+{
+  char key[AKY_DEFAULT_STR_SIZE];
+  int messageSize = -1;
+  int mark = -1;
+  if (event->ct.n_uint32 == 2){
+    messageSize = event->v_uint32[1];
+    if (event->ct.n_uint64 == 1)
+      mark = event->v_uint64[0];
+  }
+  u_int32_t rank;
+  for (rank = 0; rank < event->v_uint32[0]; rank++) {
+    /*                        ^ number of processes in the communicator */
+    // TODO register a link to self also?
+    if (rank != event->id1) {
+      aky_put_key(keyc, event->id1, rank, key, AKY_DEFAULT_STR_SIZE);
+      /*                   ^ our rank ^ dst */
+      if (messageSize != -1 && mark != -1)
+        linksizemark(timestamp, mpi_process, keys, key, messageSize, mark);
+      else
+        poti_StartLink(timestamp, "root", "LINK", mpi_process, keys, key);
+    }
+  }
+}
+
+static void
+treat_1tx_recv(double timestamp, rst_event_t const *event, char const *keyc,
+    char const *keys, char const *mpi_process, int *fail)
+{
+  char key[AKY_DEFAULT_STR_SIZE];
+  char *result = aky_get_key(keyc, event->v_uint32[0], event->id1, key,
+      AKY_DEFAULT_STR_SIZE);
+  /*                                  ^ src              ^ rank */
+  if (!result) {
+    fprintf (stderr,
+        "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
+        "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
+        "[aky_converter] but no send for this receive yet,\n"
+        "[aky_converter] do you synchronize your input traces?\n",
+        __FUNCTION__, event->id1, event->v_uint32[0]);
+    if (!arguments.ignore_errors)
+      *fail = 1;
+  }
+  poti_EndLink(timestamp, "root", "LINK", mpi_process, keys, key);
+}
+
+static void
+treat_xt1_recv(double timestamp, rst_event_t const *event, char const *keyc,
+    char const *keys, char const *mpi_process, int *fail)
+{
+  char key[AKY_DEFAULT_STR_SIZE];
+  u_int32_t rank;
+  for (rank = 0; rank < event->v_uint32[0]; rank++) {
+    /*                    ^ comm size */
+    if (rank != event->id1) {
+      /*          ^ rank */
+      char *result = aky_get_key(keyc, rank, event->id1, key,
+          AKY_DEFAULT_STR_SIZE);
+      if (!result) {
+        fprintf (stderr,
+            "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
+            "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
+            "[aky_converter] but no send for this receive yet,\n"
+            "[aky_converter] do you synchronize your input traces?\n",
+            __FUNCTION__, event->id1, rank);
+        if (!arguments.ignore_errors)
+          *fail = 1;
+      }
+      poti_EndLink(timestamp, "root", "LINK", mpi_process, keys, key);
+    }
+  }
+}
+
+static void
+treat_xt1_send(double timestamp, rst_event_t const *event, char const *keyc,
+    char const *keys, char const *mpi_process)
+{
+  char key[AKY_DEFAULT_STR_SIZE];
+  int messageSize = -1;
+  int mark = -1;
+  if (event->ct.n_uint32 == 2) {
+    messageSize = event->v_uint32[1];
+    if (event->ct.n_uint64 == 1)
+      mark = event->v_uint64[0];
+  }
+  aky_put_key(keyc, event->id1, event->v_uint32[0], key, AKY_DEFAULT_STR_SIZE);
+  if (messageSize != -1 && mark != -1)
+    linksizemark(timestamp, mpi_process, keys, key, messageSize, mark);
+  else
+    poti_StartLink(timestamp, "root", "LINK", mpi_process, keys, key);
+}
 
 int main(int argc, char **argv)
 {
@@ -93,20 +201,17 @@ int main(int argc, char **argv)
         char key[AKY_DEFAULT_STR_SIZE];
         int messageSize = -1;
         int mark = -1;
-        if (event.ct.n_uint32 == 2){
+        if (event.ct.n_uint32 == 2) {
           /* has message size */
           messageSize = event.v_uint32[1];
-          if (event.ct.n_uint64 == 1){
+          if (event.ct.n_uint64 == 1)
             /* has message mark */
             mark = event.v_uint64[0];
-          }
         }
         aky_put_key(AKY_KEY_PTP, event.id1, event.v_uint32[0], key,
                     AKY_DEFAULT_STR_SIZE);
         if (messageSize != -1 && mark != -1){
-          poti_StartLinkSizeMark(timestamp, "root", "LINK",
-                                 mpi_process, "PTP", key,
-                                 messageSize, mark);
+          linksizemark(timestamp, mpi_process, "PTP", key, messageSize, mark);
         }else{
           poti_StartLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
         }
@@ -131,51 +236,37 @@ int main(int argc, char **argv)
         poti_EndLink(timestamp, "root", "LINK", mpi_process, "PTP", key);
       }
       break;
+    case AKY_NT1_SEND:
+      if (!arguments.no_links)
+        treat_xt1_send(timestamp, &event, AKY_KEY_NT1, "NT1", mpi_process);
+      break;
     case AKY_1TN_SEND:
-      if (!arguments.no_links) {
-        char key[AKY_DEFAULT_STR_SIZE];
-        int messageSize = -1;
-        int mark = -1;
-        if (event.ct.n_uint32 == 2){
-          messageSize = event.v_uint32[1];
-          if (event.ct.n_uint64 == 1)
-            mark = event.v_uint64[0];
-        }
-        u_int32_t rank;
-        for (rank = 0; rank < event.v_uint32[0]; rank++) {
-        /*                        ^ number of processes in the communicator */
-          // TODO register a link to self also?
-          if (rank != event.id1) {
-            aky_put_key(AKY_KEY_1TN, event.id1, rank, key, AKY_DEFAULT_STR_SIZE);
-                /*                   ^ our rank ^ dst */
-            if (messageSize != -1 && mark != -1)
-              poti_StartLinkSizeMark(timestamp, "root", "LINK", mpi_process,
-                  "1TN", key, messageSize, mark);
-            else
-              poti_StartLink(timestamp, "root", "LINK", mpi_process, "1TN",
-                  key);
-          }
-        }
-      }
+      if (!arguments.no_links)
+        treat_1tx_send(timestamp, &event, AKY_KEY_1TN, "1TN", mpi_process);
+      break;
+    case AKY_AT1_SEND:
+      if (!arguments.no_links)
+        treat_xt1_send(timestamp, &event, AKY_KEY_AT1, "AT1", mpi_process);
+      break;
+    case AKY_1TA_SEND:
+      if (!arguments.no_links)
+        treat_1tx_send(timestamp, &event, AKY_KEY_1TA, "1TA", mpi_process);
+      break;
+    case AKY_NT1_RECV:
+      if (!arguments.no_links)
+        treat_xt1_recv(timestamp, &event, AKY_KEY_NT1, "NT1", mpi_process, &fail);
       break;
     case AKY_1TN_RECV:
-      if (!arguments.no_links) {
-        char key[AKY_DEFAULT_STR_SIZE];
-        char *result = aky_get_key(AKY_KEY_1TN, event.v_uint32[0], event.id1,
-            key, AKY_DEFAULT_STR_SIZE);
-            /*                                  ^ src              ^ rank */
-        if (!result) {
-          fprintf (stderr,
-                   "[aky_converter] at %s, no key to generate a pajeEndLink,\n"
-                   "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
-                   "[aky_converter] but no send for this receive yet,\n"
-                   "[aky_converter] do you synchronize your input traces?\n",
-                   __FUNCTION__, event.id1, event.v_uint32[0]);
-          if (!arguments.ignore_errors)
-            fail = 1;
-        }
-        poti_EndLink(timestamp, "root", "LINK", mpi_process, "1TN", key);
-      }
+      if (!arguments.no_links)
+        treat_1tx_recv(timestamp, &event, AKY_KEY_1TN, "1TN", mpi_process, &fail);
+      break;
+    case AKY_AT1_RECV:
+      if (!arguments.no_links)
+        treat_xt1_recv(timestamp, &event, AKY_KEY_AT1, "AT1", mpi_process, &fail);
+      break;
+    case AKY_1TA_RECV:
+      if (!arguments.no_links)
+        treat_1tx_recv(timestamp, &event, AKY_KEY_1TA, "1TA", mpi_process, &fail);
       break;
     case MPI_INIT:
       if (root_created == 0){
@@ -319,8 +410,9 @@ int main(int argc, char **argv)
         char value[AKY_DEFAULT_STR_SIZE];
         snprintf(value, AKY_DEFAULT_STR_SIZE, "%s", name_get(event.type));
         if (event.ct.n_uint64 == 1){
-          /* has message mark */
-          int mark = event.v_uint64[0];
+          /* uint64 upper range is a 20 digits integer in base 10 */
+          char mark[21];
+          snprintf(mark, 21, "%"PRIu64, event.v_uint64[0]);
           poti_PushStateMark(timestamp, mpi_process, "STATE", value, mark);
         }else{
           poti_PushState(timestamp, mpi_process, "STATE", value);
