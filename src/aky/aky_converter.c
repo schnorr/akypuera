@@ -126,7 +126,7 @@ treat_xt1_send(double timestamp, rst_event_t const *event, char const *keyc,
 
 int main(int argc, char **argv)
 {
-  bzero (&arguments, sizeof(struct arguments));
+  memset (&arguments, 0, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
             "[%s] at %s, "
@@ -143,8 +143,9 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  poti_init();
   rst_rastro_t rastro;
-  bzero (&rastro, sizeof(rst_rastro_t));
+  memset (&rastro, 0, sizeof(rst_rastro_t));
   rst_event_t event;
   int i;
   int fail = 0;
@@ -184,7 +185,7 @@ int main(int argc, char **argv)
 
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
-    poti_header (arguments.basic, 0);
+    poti_header();
     aky_paje_hierarchy();
   }
 

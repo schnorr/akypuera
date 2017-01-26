@@ -16,6 +16,8 @@
 */
 #ifndef __AKY_PRIVATE_H_
 #define __AKY_PRIVATE_H_
+/* strdup, glibc >= 2.12 (13-12-2010) */
+#define _POSIX_C_SOURCE 200809L
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>

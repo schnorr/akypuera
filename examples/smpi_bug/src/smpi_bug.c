@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
     }
     MPI_Waitall(2 * N, req, sta);
     for (i = 0; i < 2 * N; i++){
-      fprintf (stderr, "RANK-0: request = %p status = %p status.source = %d\n", 
-          &req[i], &sta[i], sta[i].MPI_SOURCE);
+      fprintf (stderr, "RANK-0: request = %p status = %p status.source = %d\n",
+          (void *)(&req[i]), (void *)(&sta[i]), sta[i].MPI_SOURCE);
     }
 
   } else if (rank == 1) {

@@ -34,7 +34,7 @@ static double ticks_to_seconds (unsigned long long ticks)
 static void data_def (struct hsearch_data *hash, uint32_t id, const char *name)
 {
   char key[AKY_DEFAULT_STR_SIZE];
-  bzero(key, AKY_DEFAULT_STR_SIZE);
+  memset(key, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (key, AKY_DEFAULT_STR_SIZE, "%d", id);
 
   ENTRY e, *ep = NULL;
@@ -54,7 +54,7 @@ static char *data_get (struct hsearch_data *hash, uint32_t id)
   char *name = NULL;
   {
     char key[AKY_DEFAULT_STR_SIZE];
-    bzero(key, AKY_DEFAULT_STR_SIZE);
+    memset(key, 0, AKY_DEFAULT_STR_SIZE);
     snprintf (key, AKY_DEFAULT_STR_SIZE, "%d", id);
 
     ENTRY e, *ep = NULL;
@@ -133,7 +133,7 @@ int handleDefFunction(void *userData, uint32_t stream, uint32_t func,
 		      uint32_t source, OTF_KeyValueList * kvlist)
 {
   char alias[AKY_DEFAULT_STR_SIZE];
-  bzero(alias, AKY_DEFAULT_STR_SIZE);
+  memset(alias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (alias, AKY_DEFAULT_STR_SIZE, "f%d", func);
   if (!arguments.dummy && !arguments.no_states){
     poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
@@ -154,7 +154,7 @@ int handleDefCollectiveOperation(void *userData, uint32_t stream,
 				 uint32_t type, OTF_KeyValueList * kvlist)
 {
   char alias[AKY_DEFAULT_STR_SIZE];
-  bzero(alias, AKY_DEFAULT_STR_SIZE);
+  memset(alias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (alias, AKY_DEFAULT_STR_SIZE, "c%d", collOp);
   if (!arguments.dummy && !arguments.no_states){
     poti_DefineEntityValue (alias, "STATE", name, "0 0 0");
@@ -299,10 +299,10 @@ int handleEnter(void *userData, uint64_t time, uint32_t function,
 		OTF_KeyValueList * kvlist)
 {
   char palias[AKY_DEFAULT_STR_SIZE];
-  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  memset(palias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
   char falias[AKY_DEFAULT_STR_SIZE];
-  bzero(falias, AKY_DEFAULT_STR_SIZE);
+  memset(falias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (falias, AKY_DEFAULT_STR_SIZE, "f%d", function);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState (ticks_to_seconds(time), palias, "STATE", falias);
@@ -316,7 +316,7 @@ int handleLeave(void *userData, uint64_t time, uint32_t function,
 		OTF_KeyValueList * kvlist)
 {
   char palias[AKY_DEFAULT_STR_SIZE];
-  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  memset(palias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState (ticks_to_seconds(time), palias, "STATE");
@@ -370,10 +370,10 @@ int handleBeginCollectiveOperation(void *userData, uint64_t time,
 				   OTF_KeyValueList * kvlist)
 {
   char palias[AKY_DEFAULT_STR_SIZE];
-  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  memset(palias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
   char calias[AKY_DEFAULT_STR_SIZE];
-  bzero(calias, AKY_DEFAULT_STR_SIZE);
+  memset(calias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (calias, AKY_DEFAULT_STR_SIZE, "c%d", collOp);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState (ticks_to_seconds(time), palias, "STATE", calias);
@@ -387,7 +387,7 @@ int handleEndCollectiveOperation(void *userData, uint64_t time,
 				 OTF_KeyValueList * kvlist)
 {
   char palias[AKY_DEFAULT_STR_SIZE];
-  bzero(palias, AKY_DEFAULT_STR_SIZE);
+  memset(palias, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState (ticks_to_seconds(time), palias, "STATE");
@@ -409,10 +409,10 @@ int handleBeginProcess(void *userData, uint64_t time, uint32_t process,
   char *name = data_get(&process_name_hash, process);
   if (name){
     char alias[AKY_DEFAULT_STR_SIZE];
-    bzero(alias, AKY_DEFAULT_STR_SIZE);
+    memset(alias, 0, AKY_DEFAULT_STR_SIZE);
     snprintf (alias, AKY_DEFAULT_STR_SIZE, "p%d", process);
     if (!arguments.dummy){
-      poti_CreateContainer (ticks_to_seconds(time), alias, "PROCESS", "root", name); 
+      poti_CreateContainer (ticks_to_seconds(time), alias, "PROCESS", "root", name);
     }
   }
   return OTF_RETURN_OK;
@@ -425,7 +425,7 @@ int handleEndProcess(void *userData, uint64_t time, uint32_t process,
   char *name = data_get(&process_name_hash, process);
   if (name){
     char alias[AKY_DEFAULT_STR_SIZE];
-    bzero(alias, AKY_DEFAULT_STR_SIZE);
+    memset(alias, 0, AKY_DEFAULT_STR_SIZE);
     snprintf (alias, AKY_DEFAULT_STR_SIZE, "p%d", process);
     if (!arguments.dummy){
       poti_DestroyContainer (ticks_to_seconds(time), "PROCESS", alias);

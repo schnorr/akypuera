@@ -1,6 +1,6 @@
 /*
     Copyright (c) 1998--2006 Benhur Stein
-    
+
     This file is part of librastro.
 
     librastro is free software; you can redistribute it and/or modify it under
@@ -17,6 +17,9 @@
     along with librastro; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
+/* strdup, glibc >= 2.12 (13-12-2010) */
+#define _POSIX_C_SOURCE 200809L
+#include <string.h>
 #include <rastro.h>
 #include <argp.h>
 
@@ -24,9 +27,9 @@ static char doc[] = "Implements rastro functions to be compiled with instrumente
 static char args_doc[] = "{iii sfd ssii}";
 
 static struct argp_option options[] = {
-  {"header", 'h', "HEADER_FILE", 0, "Name of the new header file"},
-  {"implementation", 'c', "CODE_FILE", 0, "Name of the new implementation file"},
-  {"from-file", 'i', "INPUT_FILE", 0, "Implement functions from INPUT_FILE, one per line"},
+  {"header", 'h', "HEADER_FILE", 0, "Name of the new header file", 0},
+  {"implementation", 'c', "CODE_FILE", 0, "Name of the new implementation file", 0},
+  {"from-file", 'i', "INPUT_FILE", 0, "Implement functions from INPUT_FILE, one per line", 0},
   {0},
 };
 
@@ -67,13 +70,13 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_options, args_doc, doc };
+static struct argp argp = { options, parse_options, args_doc, doc, 0, 0, 0 };
 
 /* main */
 int main(int argc, char *argv[])
 {
   struct arguments arguments;
-  bzero (&arguments, sizeof(struct arguments));
+  memset (&arguments, 0, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
             "[rastro_generate] at %s,"

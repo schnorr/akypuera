@@ -37,7 +37,7 @@ void aky_insert(MPI_Request * req, void **root, int mark)
 {
   aky_t *new;
   new = (aky_t *) calloc(1, sizeof(aky_t));
-  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
+  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", (void *)req);
   new->mark = mark;
   tsearch(new, root, aky_compare);
 }
@@ -46,7 +46,7 @@ void aky_remove(MPI_Request * req, void **root)
 {
   aky_t *new;
   new = (aky_t *) calloc(1, sizeof(aky_t));
-  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
+  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", (void *)req);
   tdelete(new, root, aky_compare);
 }
 
@@ -54,7 +54,7 @@ int aky_check(MPI_Request * req, void **root)
 {
   aky_t *new;
   new = (aky_t *) calloc(1, sizeof(aky_t));
-  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", req);
+  snprintf(new->key, AKY_DEFAULT_STR_SIZE, "%p", (void *)req);
   const void *ret = tfind(new, root, aky_compare);
   if (ret) {
     aky_t *ans = (*(aky_t **)ret);

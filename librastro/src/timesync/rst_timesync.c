@@ -14,6 +14,8 @@
     You should have received a copy of the GNU Public License
     along with librastro. If not, see <http://www.gnu.org/licenses/>.
 */
+/* strdup, glibc >= 2.12 (13-12-2010) */
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -178,16 +180,16 @@ static int open_connection(int *pport)
   struct sockaddr_in connection;
   int sock, result;
   int port = 1024;
-	
+
   sock = socket(AF_INET, SOCK_STREAM, 0);
   do {
     port++;
     connection.sin_family = AF_INET;
     connection.sin_port = htons(port);
     connection.sin_addr.s_addr = htons(INADDR_ANY);
-    bzero(connection.sin_zero, 8);
+    memset(connection.sin_zero, 0, 8);
     result = bind(sock, (struct sockaddr *) &connection,
-                  sizeof(connection)); 
+                  sizeof(connection));
   } while (result != 0);
   listen(sock, 2);
   *pport = port;
@@ -213,10 +215,10 @@ static int establish_connection(char *host, char *port)
   new_socket = socket(AF_INET, SOCK_STREAM, 0);
   connection.sin_family = AF_INET;
   connection.sin_port = htons(atoi(port));
-  memcpy(&connection.sin_addr.s_addr, h->h_addr, 4);
-  bzero(connection.sin_zero, 8);
-  while ( (connect(new_socket, (struct sockaddr *) 
-                   &connection,sizeof(connection)) ) != 0); 
+  memcpy(&connection.sin_addr.s_addr, h->h_addr_list[0], 4);
+  memset(connection.sin_zero, 0, 8);
+  while ( (connect(new_socket, (struct sockaddr *)
+                   &connection,sizeof(connection)) ) != 0);
   return new_socket;
 }
 
@@ -318,11 +320,11 @@ static char doc[] = "Calculate the clock difference with other hosts.\n\n"
 static char args_doc[] = "{hostname_1 hostname_2 ...}";
 
 static struct argp_option options[] = {
-  {"slave", 's', 0, OPTION_HIDDEN, NULL},
-  {"master_host", 'm', "MASTER", OPTION_HIDDEN, NULL},
-  {"master_port", 'p', "PORT", OPTION_HIDDEN, NULL}, 
-  {"sample", 'z', "SIZE", 0, "Sampling size (Default is 1000)"},
-  {"remote", 'r', "RSH", 0, "Remote login program"},
+  {"slave", 's', 0, OPTION_HIDDEN, NULL, 0},
+  {"master_host", 'm', "MASTER", OPTION_HIDDEN, NULL, 0},
+  {"master_port", 'p', "PORT", OPTION_HIDDEN, NULL, 0},
+  {"sample", 'z', "SIZE", 0, "Sampling size (Default is 1000)", 0},
+  {"remote", 'r', "RSH", 0, "Remote login program", 0},
   { 0 }
 };
 
@@ -354,13 +356,13 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_options, args_doc, doc };
+static struct argp argp = { options, parse_options, args_doc, doc, 0, 0, 0 };
 
 /* main */
 int main(int argc, char *argv[])
 {
   struct arguments arguments;
-  bzero (&arguments, sizeof(struct arguments));
+  memset (&arguments, 0, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
             "[rastro_timesync] at %s,"
