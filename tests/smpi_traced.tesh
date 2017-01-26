@@ -1,16 +1,16 @@
 $ "./aky_converter ../examples/smpi_traced/traces/*.rst | grep -vPe '^[#|%]' | cut -d' ' -f2-"
-> 0 "ROOT"
-> ROOT "PROCESS"
-> PROCESS "STATE"
-> ROOT PROCESS PROCESS "LINK"
-> 0.000000000 0 ROOT "root"
-> 0.000000000 root PROCESS "rank2"
+> ROOT 0 "ROOT"
+> PROCESS ROOT "PROCESS"
+> STATE PROCESS "STATE"
+> LINK ROOT PROCESS PROCESS "LINK"
+> 0.000000000 root 0 ROOT "root"
+> 0.000000000 rank2 root PROCESS "rank2"
 > 0.000002146 rank2 STATE MPI_Comm_size
 > 0.000003099 rank2 STATE
 > 0.000004053 rank2 STATE MPI_Comm_rank
 > 0.000004053 rank2 STATE
 > 0.000015736 rank2 STATE MPI_Barrier
-> 0.000099421 root PROCESS "rank0"
+> 0.000099421 rank0 root PROCESS "rank0"
 > 0.000101805 rank0 STATE MPI_Comm_size
 > 0.000103235 rank0 STATE
 > 0.000103951 rank0 STATE MPI_Comm_rank
@@ -19,7 +19,7 @@ $ "./aky_converter ../examples/smpi_traced/traces/*.rst | grep -vPe '^[#|%]' | c
 > 0.000130415 root LINK rank0 PTP 0_1_0 40000 0
 > 0.000169516 rank0 STATE
 > 0.000182152 rank0 STATE MPI_Wait 0
-> 0.000225306 root PROCESS "rank1"
+> 0.000225306 rank1 root PROCESS "rank1"
 > 0.000226259 rank1 STATE MPI_Comm_size
 > 0.000226498 rank1 STATE
 > 0.000227213 rank1 STATE MPI_Comm_rank
