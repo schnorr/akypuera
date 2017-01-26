@@ -1,22 +1,22 @@
 $ "./aky_converter ../examples/ring/traces/*.rst | grep -vPe '^[#|%]' | cut -d' ' -f2-"
-> 0 "ROOT"
-> ROOT "PROCESS"
-> PROCESS "STATE"
-> ROOT PROCESS PROCESS "LINK"
-> 0.000000000 0 ROOT "root"
-> 0.000000000 root PROCESS "rank2"
+> ROOT 0 "ROOT"
+> PROCESS ROOT "PROCESS"
+> STATE PROCESS "STATE"
+> LINK ROOT PROCESS PROCESS "LINK"
+> 0.000000000 root 0 ROOT "root"
+> 0.000000000 rank2 root PROCESS "rank2"
 > 0.000001907 rank2 STATE MPI_Comm_size
 > 0.000003576 rank2 STATE
 > 0.000004292 rank2 STATE MPI_Comm_rank
 > 0.000004530 rank2 STATE
 > 0.000005245 rank2 STATE MPI_Barrier
-> 0.000062943 root PROCESS "rank0"
+> 0.000062943 rank0 root PROCESS "rank0"
 > 0.000064611 rank0 STATE MPI_Comm_size
 > 0.000065804 rank0 STATE
 > 0.000066996 rank0 STATE MPI_Comm_rank
 > 0.000067234 rank0 STATE
 > 0.000067949 rank0 STATE MPI_Barrier
-> 0.000071049 root PROCESS "rank1"
+> 0.000071049 rank1 root PROCESS "rank1"
 > 0.000072002 rank1 STATE MPI_Comm_size
 > 0.000072718 rank1 STATE
 > 0.000072956 rank1 STATE MPI_Comm_rank
