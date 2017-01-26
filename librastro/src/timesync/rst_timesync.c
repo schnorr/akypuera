@@ -320,11 +320,11 @@ static char doc[] = "Calculate the clock difference with other hosts.\n\n"
 static char args_doc[] = "{hostname_1 hostname_2 ...}";
 
 static struct argp_option options[] = {
-  {"slave", 's', 0, OPTION_HIDDEN, NULL},
-  {"master_host", 'm', "MASTER", OPTION_HIDDEN, NULL},
-  {"master_port", 'p', "PORT", OPTION_HIDDEN, NULL},
-  {"sample", 'z', "SIZE", 0, "Sampling size (Default is 1000)"},
-  {"remote", 'r', "RSH", 0, "Remote login program"},
+  {"slave", 's', 0, OPTION_HIDDEN, NULL, 0},
+  {"master_host", 'm', "MASTER", OPTION_HIDDEN, NULL, 0},
+  {"master_port", 'p', "PORT", OPTION_HIDDEN, NULL, 0},
+  {"sample", 'z', "SIZE", 0, "Sampling size (Default is 1000)", 0},
+  {"remote", 'r', "RSH", 0, "Remote login program", 0},
   { 0 }
 };
 
@@ -356,7 +356,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_options, args_doc, doc };
+static struct argp argp = { options, parse_options, args_doc, doc, 0, 0, 0 };
 
 /* main */
 int main(int argc, char *argv[])

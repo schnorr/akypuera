@@ -17,6 +17,7 @@
     along with librastro; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
+// FIXME check rcs for erros across all functions
 #include "rst_private.h"
 
 #define RST_UINT8_ID  0
@@ -433,13 +434,13 @@ int rst_generate (char *types[], int types_len, FILE *header, FILE *implem, char
   char *str = (char*) malloc (len*sizeof(char));
   int n = rst_generate_header (types, types_len, str, len);
   size_t written = fwrite (str, sizeof(char), n, header);
-  if (written != n){
+  if (written != (size_t)n){
     return 1;
   }
 
   n = rst_generate_functions (types, types_len, str, len, header_name);
   written = fwrite (str, sizeof(char), n, implem);
-  if (written != n){
+  if (written != (size_t)n){
     return 1;
   }
 

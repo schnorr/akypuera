@@ -20,15 +20,15 @@ static char doc[] = "Converts aky trace files to the Paje file format";
 static char args_doc[] = "{rastro-0-0.rst rastro-1-0.rst ...}";
 
 static struct argp_option options[] = {
-  {"dummy", 'd', 0, OPTION_ARG_OPTIONAL, "Read input traces but won't translate (no output)"},
-  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors"},
-  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links"},
-  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states"},
-  {"no-relative-timestamps", 'r', 0, OPTION_ARG_OPTIONAL, "Don't use timestamps relative to the first one"},
-  {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)"},
-  {"sync", 'z', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)"},
-  {"comment", 'm', "COMMENT", 0, "Comment is echoed to output"},
-  {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output"},
+  {"dummy", 'd', 0, OPTION_ARG_OPTIONAL, "Read input traces but won't translate (no output)", 0},
+  {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors", 0},
+  {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links", 0},
+  {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states", 0},
+  {"no-relative-timestamps", 'r', 0, OPTION_ARG_OPTIONAL, "Don't use timestamps relative to the first one", 0},
+  {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)", 0},
+  {"sync", 'z', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)", 0},
+  {"comment", 'm', "COMMENT", 0, "Comment is echoed to output", 0},
+  {"commentfile", 'n', "FILE", 0, "Comments (from file) echoed to output", 0},
   { 0 }
 };
 
@@ -63,5 +63,5 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-struct argp argp = { options, parse_options, args_doc, doc };
+struct argp argp = { options, parse_options, args_doc, doc , 0, 0, 0 };
 struct arguments arguments;

@@ -222,7 +222,7 @@ void rst_startevent(rst_buffer_t *ptr, u_int32_t header)
 void rst_endevent(rst_buffer_t * ptr)
 {
     ptr->rst_buffer_ptr = ALIGN_PTR(ptr->rst_buffer_ptr);
-    if (RST_BUF_COUNT(ptr) > (RST_BUF_SIZE(ptr) - RST_MAX_EVENT_SIZE)) {
+    if ((size_t)RST_BUF_COUNT(ptr) > (RST_BUF_SIZE(ptr) - (size_t)RST_MAX_EVENT_SIZE)) {
       fprintf(stderr, "librastro: Buffer size exceeded, flushing to disk. "
           "Consider using a larger buffer size, defined by the environment "
           "variable RST_BUFFER_SIZE\n");

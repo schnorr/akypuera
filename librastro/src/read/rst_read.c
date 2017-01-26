@@ -6,7 +6,7 @@ static char doc[] = "Converts aky trace files to the Paje file format";
 static char args_doc[] = "{rastro-0-0.rst rastro-1-0.rst ...}";
 
 static struct argp_option options[] = {
-  {"sync", 's', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)"},
+  {"sync", 's', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)", 0 },
   { 0 }
 };
 
@@ -39,7 +39,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_options, args_doc, doc };
+static struct argp argp = { options, parse_options, args_doc, doc, 0, 0, 0 };
 
 int main (int argc, char *argv[])
 {

@@ -27,9 +27,9 @@ static char doc[] = "Implements rastro functions to be compiled with instrumente
 static char args_doc[] = "{iii sfd ssii}";
 
 static struct argp_option options[] = {
-  {"header", 'h', "HEADER_FILE", 0, "Name of the new header file"},
-  {"implementation", 'c', "CODE_FILE", 0, "Name of the new implementation file"},
-  {"from-file", 'i', "INPUT_FILE", 0, "Implement functions from INPUT_FILE, one per line"},
+  {"header", 'h', "HEADER_FILE", 0, "Name of the new header file", 0},
+  {"implementation", 'c', "CODE_FILE", 0, "Name of the new implementation file", 0},
+  {"from-file", 'i', "INPUT_FILE", 0, "Implement functions from INPUT_FILE, one per line", 0},
   {0},
 };
 
@@ -70,7 +70,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   return 0;
 }
 
-static struct argp argp = { options, parse_options, args_doc, doc };
+static struct argp argp = { options, parse_options, args_doc, doc, 0, 0, 0 };
 
 /* main */
 int main(int argc, char *argv[])

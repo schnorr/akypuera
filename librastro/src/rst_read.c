@@ -143,7 +143,7 @@ static void find_timesync_data(char *filename, rst_file_t *file)
 
   //read all synchronization file, one line per time, parse it
   while (!feof(ct_file)) {
-    if (fscanf(ct_file, "%s %lld %s %lld", refhost, &reftime, host, &time) != 4){
+    if (fscanf(ct_file, "%s %llu %s %llu", refhost, &reftime, host, &time) != 4){
       break;
     }
     if (strcmp(refhost, file->hostname) == 0) {

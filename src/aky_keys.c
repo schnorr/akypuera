@@ -40,8 +40,8 @@ static void print_queue (desc_t *desc)
   while (it != NULL){
     fprintf (stderr,
              "  desc=%p (first=%p, last=%p) it=%p (head=%p, tail=%p)\n",
-             desc, desc->first, desc->last,
-             it, it->head, it->tail);
+             (void *)desc, (void *)(desc->first), (void *)(desc->last),
+             (void *)it, (void *)(it->head), (void *)(it->tail));
     it = it->tail;
   }
 }
