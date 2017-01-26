@@ -61,7 +61,7 @@ int main (int argc, char **argv)
 
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
-    poti_header(arguments.basic, 0);
+    poti_header();
   }
 
   /* read global definitions */
@@ -114,7 +114,7 @@ int main (int argc, char **argv)
             "[%s] at %s, "
             "Number of global definitions read and "
             "defined in anchor file do not match.\n",
-            PROGRAM, __FUNCTION__);   
+            PROGRAM, __FUNCTION__);
     return 1;
   }
 

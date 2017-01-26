@@ -143,6 +143,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
+  poti_init();
   rst_rastro_t rastro;
   memset (&rastro, 0, sizeof(rst_rastro_t));
   rst_event_t event;
@@ -184,7 +185,7 @@ int main(int argc, char **argv)
 
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
-    poti_header (arguments.basic, 0);
+    poti_header();
     aky_paje_hierarchy();
   }
 

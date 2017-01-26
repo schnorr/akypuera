@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
-    poti_header (arguments.basic, 0);
+    poti_header();
     aky_paje_hierarchy();
     poti_CreateContainer (0, "root", "ROOT", "0", "root");
   }

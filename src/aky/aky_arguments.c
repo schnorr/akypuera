@@ -40,7 +40,7 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
   case 's': arguments->no_states = 1; break;
-  case 'r': relative_timestamps = false; break;
+  case 'r': poti_relative_timestamps = false; break;
   case 'b': arguments->basic = 1; break;
   case 'z': arguments->synchronization_file = arg; break;
   case 'm': arguments->comment = arg; break;
