@@ -18,7 +18,7 @@
 
 int main(int argc, char **argv)
 {
-  bzero (&arguments, sizeof(struct arguments));
+  memset (&arguments, 0, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
             "[%s] at %s,"

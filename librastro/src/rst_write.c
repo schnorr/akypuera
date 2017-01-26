@@ -17,7 +17,11 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
+/* gethostname, glibc >= 2.12 (13-12-2010) */
+#define _POSIX_C_SOURCE 200112L
 #include "rst_private.h"
+#include <time.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <stdio.h>
@@ -119,7 +123,7 @@ static void __rst_init(rst_buffer_t *ptr,
     ptr->rst_buffer_size = RST_DEFAULT_BUFFER_SIZE;
   }
   ptr->rst_buffer = malloc(ptr->rst_buffer_size);
-  bzero(ptr->rst_buffer, ptr->rst_buffer_size);
+  memset(ptr->rst_buffer, 0, ptr->rst_buffer_size);
   RST_RESET(ptr);
 
   sprintf(fname, "rastro-%" PRIu64 "-%" PRIu64 ".rst", id1, id2);

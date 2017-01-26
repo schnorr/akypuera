@@ -99,7 +99,7 @@ static elem_t *dequeue(desc_t * desc)
 static elem_t *new_element(int src, int dst, char *key, int n)
 {
   //zeroe the key
-  bzero (key, n);
+  memset (key, 0, n);
 
   //generate the key
   static unsigned long long counter = 0;
@@ -138,10 +138,10 @@ void aky_key_free (void)
 char *aky_put_key(const char *type, int src, int dst, char *key, int n)
 {
   //zeroe key
-  bzero (key, n);
+  memset (key, 0, n);
 
   char aux[AKY_DEFAULT_STR_SIZE];
-  bzero (aux, AKY_DEFAULT_STR_SIZE);
+  memset (aux, 0, AKY_DEFAULT_STR_SIZE);
   snprintf(aux, AKY_DEFAULT_STR_SIZE, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep = NULL;
   e.key = aux;
@@ -167,11 +167,11 @@ char *aky_put_key(const char *type, int src, int dst, char *key, int n)
 char *aky_get_key(const char *type, int src, int dst, char *key, int n)
 {
   //zeroe key
-  bzero (key, n);
+  memset (key, 0, n);
 
 
   char aux[AKY_DEFAULT_STR_SIZE];
-  bzero (aux, AKY_DEFAULT_STR_SIZE);
+  memset (aux, 0, AKY_DEFAULT_STR_SIZE);
   snprintf(aux, AKY_DEFAULT_STR_SIZE, "%s#%d#%d", type, src, dst);
   ENTRY e, *ep;
   e.key = aux;

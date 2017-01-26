@@ -1,6 +1,6 @@
 /*
     Copyright (c) 1998--2006 Benhur Stein
-    
+
     This file is part of librastro.
 
     librastro is free software; you can redistribute it and/or modify it under
@@ -131,7 +131,7 @@ static void rst_add_id (char c, rst_counters_t *ct)
 static void rst_counters (char *types, rst_counters_t *ct)
 {
   char *index = NULL;
-  bzero (ct, sizeof(rst_counters_t));
+  memset (ct, 0, sizeof(rst_counters_t));
   for (index = types; *index != '\0'; index++){
     rst_add_id (*index, ct);
   }
@@ -151,7 +151,7 @@ static int rst_generate_arg_fortran_types (char *types, char *str, int len)
   int n = 0;
   rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(rst_counters_t));
+  memset (&ct, 0, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "int16_t *type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-n);
@@ -166,7 +166,7 @@ static int rst_generate_arg_fortran_casts (char *types, char *str, int len)
   int n = 0;
   rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(rst_counters_t));
+  memset (&ct, 0, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "(u_int16_t)* type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
@@ -181,7 +181,7 @@ static int rst_generate_arg_c (char *types, char *str, int len)
   int n = 0;
   rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(rst_counters_t));
+  memset (&ct, 0, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "u_int16_t type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
@@ -196,7 +196,7 @@ static int rst_generate_arg_prep (char *types, char *str, int len)
   int n = 0;
   rst_counters_t ct;
   char *index = NULL;
-  bzero (&ct, sizeof(rst_counters_t));
+  memset (&ct, 0, sizeof(rst_counters_t));
   n += snprintf (str+n, len-n, "type");
   for (index = types; *index != '\0'; index++){
     n += rst_add_comma (str+n, len-strlen(str));
@@ -214,14 +214,14 @@ int rst_generate_function_header (char *types, char *header, int header_len)
   }
 
   rst_counters_t ct;
-  bzero (&ct, sizeof(rst_counters_t));
+  memset (&ct, 0, sizeof(rst_counters_t));
 
   int len = 1000, res = 0;
   char *af, *ap;
   af = (char*)malloc(len*sizeof(char));
   ap = (char*)malloc(len*sizeof(char));
-  bzero (af, 1000);
-  bzero (ap, 1000);
+  memset (af, 0, 1000);
+  memset (ap, 0, 1000);
   rst_generate_arg_c (types, af, len);
   rst_generate_arg_prep (types, ap, len);
 
@@ -248,7 +248,7 @@ int rst_generate_function_header (char *types, char *header, int header_len)
 static int rst_generate_function_start (rst_counters_t *ct, char *implem, int implem_len)
 {
   rst_counters_t ct_done;
-  bzero (&ct_done, sizeof(rst_counters_t));
+  memset (&ct_done, 0, sizeof(rst_counters_t));
 
   int bits = 16;
   int done = 0;

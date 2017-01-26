@@ -41,7 +41,7 @@ int EnterState(void *userData, double time,
   char *state_name = NULL;
   {
     char state_key[AKY_DEFAULT_STR_SIZE];
-    bzero(state_key, AKY_DEFAULT_STR_SIZE);
+    memset(state_key, 0, AKY_DEFAULT_STR_SIZE);
     snprintf (state_key, AKY_DEFAULT_STR_SIZE, "%d", stateid);
 
     ENTRY e, *ep = NULL;
@@ -90,7 +90,7 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
   char *state_name = NULL;
   {
     char state_key[AKY_DEFAULT_STR_SIZE];
-    bzero(state_key, AKY_DEFAULT_STR_SIZE);
+    memset(state_key, 0, AKY_DEFAULT_STR_SIZE);
     snprintf (state_key, AKY_DEFAULT_STR_SIZE, "%d", stateid);
 
     ENTRY e, *ep = NULL;
@@ -104,7 +104,7 @@ int LeaveState(void *userData, double time, unsigned int nodeid,
   }
 
   /* if state name is not defined, don't convert it */
-  if (state_name == NULL){  
+  if (state_name == NULL){
     return 0;
   }
   rank_last_time[nodeid] = time_to_seconds(time);
@@ -166,7 +166,7 @@ int DefState(void *userData, unsigned int stateid, const char *statename,
   }
 
   char state_key[AKY_DEFAULT_STR_SIZE];
-  bzero(state_key, AKY_DEFAULT_STR_SIZE);
+  memset(state_key, 0, AKY_DEFAULT_STR_SIZE);
   snprintf (state_key, AKY_DEFAULT_STR_SIZE, "%d", stateid);
 
   ENTRY e, *ep = NULL;
@@ -211,7 +211,7 @@ int SendMessage(void *userData,
   }
 
   char key[AKY_DEFAULT_STR_SIZE];
-  bzero(key, AKY_DEFAULT_STR_SIZE);
+  memset(key, 0, AKY_DEFAULT_STR_SIZE);
   aky_put_key("n", sourceNodeToken, destinationNodeToken, key,
               AKY_DEFAULT_STR_SIZE);
   rank_last_time[sourceNodeToken] = time_to_seconds(time);
@@ -240,7 +240,7 @@ int RecvMessage(void *userData, double time,
   }
 
   char key[AKY_DEFAULT_STR_SIZE];
-  bzero(key, AKY_DEFAULT_STR_SIZE);
+  memset(key, 0, AKY_DEFAULT_STR_SIZE);
   char *result = aky_get_key("n", sourceNodeToken, destinationNodeToken, key,
                              AKY_DEFAULT_STR_SIZE);
   if (result == NULL){

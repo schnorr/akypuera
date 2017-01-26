@@ -44,7 +44,7 @@ static struct argp argp = { options, parse_options, args_doc, doc };
 int main (int argc, char *argv[])
 {
   struct arguments arguments;
-  bzero (&arguments, sizeof(struct arguments));
+  memset (&arguments, 0, sizeof(struct arguments));
   if (argp_parse (&argp, argc, argv, 0, 0, &arguments) == ARGP_KEY_ERROR){
     fprintf(stderr,
             "[rastro_read] at %s, "
@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
   }
 
   rst_rastro_t rastro;
-  bzero(&rastro, sizeof(rst_rastro_t));
+  memset(&rastro, 0, sizeof(rst_rastro_t));
   rst_event_t event;
   int i;
 

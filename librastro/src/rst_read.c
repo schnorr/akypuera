@@ -1,6 +1,6 @@
 /*
     Copyright (c) 1998--2006 Benhur Stein
-    
+
     This file is part of Pajé.
 
     Pajé is free software; you can redistribute it and/or modify it under
@@ -17,6 +17,9 @@
     along with Pajé; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
+/* strdup, glibc >= 2.12 (13-12-2010) */
+#define _POSIX_C_SOURCE 200809L
+#include <string.h>
 #include "rst_private.h"
 
 /*
@@ -27,7 +30,7 @@
 static char *trd_event(rst_file_t *file, rst_event_t *event)
 {
   //zero the event, prepare it for reading
-  bzero (event, sizeof(rst_event_t));
+  memset (event, 0, sizeof(rst_event_t));
 
   //the pointer to the data
   char *ptr = file->rst_buffer_ptr;
@@ -101,7 +104,7 @@ static char *trd_event(rst_file_t *file, rst_event_t *event)
   return ptr;
 }
 
-// correct a timestamp according to synchronization data 
+// correct a timestamp according to synchronization data
 static double rst_correct_time(rst_file_t *file, double remote)
 {
   if (file->resolution == 0){
@@ -232,7 +235,7 @@ static int rst_open_one_file(char *filename,
   static int ids = 0;
 
   //zero the file data structure
-  bzero (file, sizeof(rst_file_t));
+  memset (file, 0, sizeof(rst_file_t));
   file->id = ids++;
 
   //open file
@@ -310,7 +313,7 @@ static void rst_close_one_file(rst_file_t *file)
 }
 
 
-/* 
+/*
    Functions related to the reading of multiple trace files
  */
 static void smallest_first(rst_rastro_t * f_data, int dead, int son)
@@ -389,7 +392,7 @@ int rst_open_file(rst_rastro_t *rastro, int buffer_size, char *filename, char *s
 
   rastro->files[rastro->n] =
       (rst_file_t *) malloc(sizeof(rst_file_t));
-  bzero(rastro->files[rastro->n], sizeof(rst_file_t));
+  memset(rastro->files[rastro->n], 0, sizeof(rst_file_t));
   if (rastro->files[rastro->n] == NULL) {
     fprintf(stderr, "[rastro] cannot allocate memory");
     return RST_NOK;
