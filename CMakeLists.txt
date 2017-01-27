@@ -31,9 +31,6 @@ OPTION(TAU  "Enable to build tau2paje converter" OFF)
 OPTION(OTF2 "Enable to build otf22paje converter" OFF)
 OPTION(OTF  "Enable to build otf2paje converter" OFF)
 
-# Sane parameters
-SET(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wmissing-declarations -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -Wno-strict-aliasing -Wno-format-nonliteral -Werror ")
-
 # aky_config.h.in file
 EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log --oneline -1" OUTPUT_VARIABLE "GITVERSION")
 EXEC_PROGRAM("git --git-dir=${CMAKE_HOME_DIRECTORY}/.git log -n 1 --format=%ai" OUTPUT_VARIABLE "GITDATE")
