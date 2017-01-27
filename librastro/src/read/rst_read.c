@@ -49,7 +49,7 @@ int main (int argc, char *argv[])
     fprintf(stderr,
             "[rastro_read] at %s, "
             "error during the parsing of parameters\n",
-            __FUNCTION__);
+            __func__);
     return 1;
   }
 
@@ -67,7 +67,7 @@ int main (int argc, char *argv[])
       fprintf(stderr,
               "[rastro_read] at %s, "
               "trace file %s could not be opened\n",
-              __FUNCTION__, arguments.input[i]);
+              __func__, arguments.input[i]);
       return 1;
     }else{
       printf ("file %s, id %d, clock resolution %lld\n",

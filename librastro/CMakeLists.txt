@@ -23,6 +23,9 @@ ENDIF(NOT HAVE_CLOCKGETTIME AND NOT HAVE_GETTIMEOFDAY)
 CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/include/rastro_config.h.in"
                "${CMAKE_BINARY_DIR}/include/rastro_config.h" @ONLY IMMEDIATE)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+
+
 SET(RASTRO_SRC
   src/rst_read.c 
   src/rst_write.c

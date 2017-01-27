@@ -85,7 +85,7 @@ static void receive_data(int socket, char *buffer, int size)
       fprintf(stderr,
               "[rastro_timesync] at %s,"
               "received less (%d bytes) than expected (%d bytes), continue\n",
-              __FUNCTION__, received, size);
+              __func__, received, size);
       buffer += received;
       size -= received;
       received = 0;
@@ -106,7 +106,7 @@ static void ping_wait_pong(const int socket,
     fprintf(stderr,
             "[rastro_timesync] at %s,"
             "send failed at socket %d\n",
-            __FUNCTION__, socket);
+            __func__, socket);
     exit(1);
   }
   receive_data(socket, (char *) &tremote, sizeof(tremote));
@@ -169,7 +169,7 @@ static void pongs(int socket)
       fprintf(stderr,
               "[rastro_timesync] at %s,"
               "send failed at socket %d\n",
-              __FUNCTION__, socket);
+              __func__, socket);
       exit(1);
     }
   } while (tremote != 0);
@@ -244,7 +244,7 @@ static void exec_slave(struct arguments *arg, char *remote_host, int master_port
     fprintf (stderr,
              "[rastro_timesync] at %s, "
              "slave not created, error on exec.\n",
-             __FUNCTION__);
+             __func__);
     fprintf (stderr,
              "[rastro_timesync] tried to launch slave on\n"
              "[rastro_timesync] (%s)\n"
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
     fprintf(stderr,
             "[rastro_timesync] at %s,"
             "error during the parsing of parameters\n",
-            __FUNCTION__);
+            __func__);
     return 1;
   }else{
     arguments.program_name = argv[0];

@@ -111,7 +111,7 @@ static double rst_correct_time(rst_file_t *file, double remote)
     fprintf(stderr,
             "[rastro_read] at %s, "
             "resolution written in the trace file is zero\n",
-            __FUNCTION__);
+            __func__);
     return 0;
   }
   double loc0 = file->sync_time.loc0/file->resolution;
