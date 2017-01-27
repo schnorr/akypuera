@@ -1,3 +1,6 @@
 [submodule "poti"]
 	path = poti
 	url = https://github.com/schnorr/poti.git
+[submodule "librastro"]
+	path = librastro
+	url = https://github.com/schnorr/librastro.git
