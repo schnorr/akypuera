@@ -74,7 +74,7 @@ static elem_t *dequeue(desc_t * desc)
     /* queue is empty, but someone needs a key */
     fprintf (stderr,
              "[aky_keys] at %s, the queue is empty.\n",
-             __FUNCTION__);
+             __func__);
     return NULL;
   } else {
     /* queue is NOT empty, that's good, get the first element */
@@ -124,7 +124,7 @@ int aky_key_init (void)
     fprintf (stderr,
              "[aky_keys] at %s,"
              "hash table allocation failed.",
-             __FUNCTION__);
+             __func__);
     return 1;
   }else{
     return 0;
@@ -182,7 +182,7 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
     fprintf (stderr,
              "[aky_keys] at %s (no queue), there is no key available\n"
              "[aky_keys] when type = %s, src = %d, dst = %d.\n",
-             __FUNCTION__, type, src, dst);
+             __func__, type, src, dst);
     return NULL;
   }
   elem_t *elem = dequeue(ep->data);
@@ -190,7 +190,7 @@ char *aky_get_key(const char *type, int src, int dst, char *key, int n)
     fprintf (stderr,
              "[aky_keys] at %s (no key), there is no key available\n"
              "[aky_keys] when type = %s, src = %d, dst = %d.\n",
-             __FUNCTION__, type, src, dst);
+             __func__, type, src, dst);
     return NULL;
   }
 

@@ -60,7 +60,7 @@ int aky_dump_comment_file (const char *program, const char *filename)
     fprintf(stderr,
             "[%s] at %s, "
             "comment file %s could not be opened for reading\n",
-            program, __FUNCTION__, filename);
+            program, __func__, filename);
     return 1;
   }
   while (!feof(file)){

@@ -71,7 +71,7 @@ treat_1tx_recv(double timestamp, rst_event_t const *event, char const *keyc,
         "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
         "[aky_converter] but no send for this receive yet,\n"
         "[aky_converter] do you synchronize your input traces?\n",
-        __FUNCTION__, event->id1, event->v_uint32[0]);
+        __func__, event->id1, event->v_uint32[0]);
     if (!arguments.ignore_errors)
       *fail = 1;
   }
@@ -96,7 +96,7 @@ treat_xt1_recv(double timestamp, rst_event_t const *event, char const *keyc,
             "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
             "[aky_converter] but no send for this receive yet,\n"
             "[aky_converter] do you synchronize your input traces?\n",
-            __FUNCTION__, event->id1, rank);
+            __func__, event->id1, rank);
         if (!arguments.ignore_errors)
           *fail = 1;
       }
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
     fprintf(stderr,
             "[%s] at %s, "
             "error during the parsing of parameters\n",
-            PROGRAM, __FUNCTION__);
+            PROGRAM, __func__);
     return 1;
   }
 
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
    fprintf(stderr,
            "[%s] at %s,"
            "error during hash table allocation\n",
-           PROGRAM, __FUNCTION__);
+           PROGRAM, __func__);
     return 1;
   }
 
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
       fprintf(stderr,
               "[%s] at %s, "
               "trace file %s could not be opened\n",
-              PROGRAM, __FUNCTION__, arguments.input[i]);
+              PROGRAM, __func__, arguments.input[i]);
       return 1;
     }
   }
@@ -229,7 +229,7 @@ int main(int argc, char **argv)
                    "[aky_converter] got a receive at dst = %"PRIu64" from src = %d\n"
                    "[aky_converter] but no send for this receive yet,\n"
                    "[aky_converter] do you synchronize your input traces?\n",
-                   __FUNCTION__, event.id1, event.v_uint32[0]);
+                   __func__, event.id1, event.v_uint32[0]);
           if (!arguments.ignore_errors){
             fail = 1;
           }
