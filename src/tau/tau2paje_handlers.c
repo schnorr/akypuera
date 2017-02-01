@@ -22,6 +22,7 @@ static int total_number_of_ranks = 0;
 int EndOfTrace = 0;
 long long total_number_of_links_not_translated = 0;
 double last_time = 0;
+int pajeStartLinkSizeMark;
 
 static double time_to_seconds(double time)
 {
@@ -222,8 +223,8 @@ int SendMessage(void *userData,
     char messageSizeStr[AKY_DEFAULT_STR_SIZE], messageTagStr[AKY_DEFAULT_STR_SIZE];
     snprintf(messageSizeStr, AKY_DEFAULT_STR_SIZE, "%u", messageSize);
     snprintf(messageTagStr, AKY_DEFAULT_STR_SIZE, "%u", messageTag);
-    poti_StartLinkSizeMark(rank_last_time[sourceNodeToken], "root", "LINK",
-                           mpi_process, "PTP", key, messageSizeStr, messageTagStr);
+    poti_UStartLink(pajeStartLinkSizeMark, rank_last_time[sourceNodeToken], "root", "LINK",
+		    mpi_process, "PTP", key, 2, messageSizeStr, messageTagStr);
   }
   last_time = rank_last_time[sourceNodeToken];
   return 0;

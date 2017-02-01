@@ -91,6 +91,7 @@ int main(int argc, char **argv)
     poti_init();
     aky_dump_version (PROGRAM, argv, argc);
     poti_header();
+    pajeStartLinkSizeMark = poti_header_event (PAJE_StartLink, 2, "Size string", "Mark string");
     aky_paje_hierarchy();
     poti_CreateContainer (0, "root", "ROOT", "0", "root");
   }

@@ -79,5 +79,6 @@ extern int EndOfTrace;
 extern long long total_number_of_links_not_translated;
 extern double last_time;
 extern struct hsearch_data state_name_hash;
+extern int pajeStartLinkSizeMark;
 
 #endif
