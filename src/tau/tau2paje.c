@@ -88,6 +88,7 @@ int main(int argc, char **argv)
     }
 
     /* output build version, date and conversion for aky in the trace */
+    poti_init();
     aky_dump_version (PROGRAM, argv, argc);
     poti_header();
     aky_paje_hierarchy();
