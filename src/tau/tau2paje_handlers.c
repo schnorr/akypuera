@@ -219,8 +219,11 @@ int SendMessage(void *userData,
   char mpi_process[AKY_DEFAULT_STR_SIZE];
   snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", sourceNodeToken);
   if (!arguments.dummy){
+    char messageSizeStr[AKY_DEFAULT_STR_SIZE], messageTagStr[AKY_DEFAULT_STR_SIZE];
+    snprintf(messageSizeStr, AKY_DEFAULT_STR_SIZE, "%u", messageSize);
+    snprintf(messageTagStr, AKY_DEFAULT_STR_SIZE, "%u", messageTag);
     poti_StartLinkSizeMark(rank_last_time[sourceNodeToken], "root", "LINK",
-                           mpi_process, "PTP", key, messageSize, messageTag);
+                           mpi_process, "PTP", key, messageSizeStr, messageTagStr);
   }
   last_time = rank_last_time[sourceNodeToken];
   return 0;
