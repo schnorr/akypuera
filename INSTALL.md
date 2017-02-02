@@ -3,7 +3,9 @@ Akypuera INSTALL
 
 Akypuera is a tracing library for MPI applications released under
 GPLv3. The only dependencies are __git__, a compiler (__gcc__ or
-clang) and __cmake__. We recommend an out-of-source compilation:
+clang) and __cmake__. Other dependencies are included in this
+repository as git submodules so cloning as below should be sufficient
+to take them automatically. We recommend an out-of-source compilation:
 
            $ git clone --recursive git://github.com/schnorr/akypuera.git
            $ mkdir build
