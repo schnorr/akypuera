@@ -89,4 +89,5 @@ is very appreciated.  As of now, we rely on custom scripts (written in
 bash, perl, and julia) that exploit the more stable output of the
 `otf2-print` tool. So far, we have been using such scripts to convert
 OpenMP traces created with ScoreP; they are available at [this
-directory](./src/otf2-omp-print/).
+directory](./src/otf2-omp-print/). The perl and julia versions are
+recommended.
