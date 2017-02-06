@@ -24,7 +24,6 @@ static struct argp_option options[] = {
   {"ignore-errors", 'i', 0, OPTION_ARG_OPTIONAL, "Ignore aky errors", 0},
   {"no-links", 'l', 0, OPTION_ARG_OPTIONAL, "Don't convert links", 0},
   {"no-states", 's', 0, OPTION_ARG_OPTIONAL, "Don't convert states", 0},
-  {"no-relative-timestamps", 'r', 0, OPTION_ARG_OPTIONAL, "Don't use timestamps relative to the first one", 0},
   {"basic", 'b', 0, OPTION_ARG_OPTIONAL, "Avoid extended events (impoverished trace file)", 0},
   {"sync", 'z', "SYNC_FILE", 0, "Synchronization file (from rastro_timesync)", 0},
   {"comment", 'm', "COMMENT", 0, "Comment is echoed to output", 0},
@@ -40,7 +39,6 @@ static int parse_options (int key, char *arg, struct argp_state *state)
   case 'i': arguments->ignore_errors = 1; break;
   case 'l': arguments->no_links = 1; break;
   case 's': arguments->no_states = 1; break;
-  case 'r': poti_relative_timestamps = false; break;
   case 'b': arguments->basic = 1; break;
   case 'z': arguments->synchronization_file = arg; break;
   case 'm': arguments->comment = arg; break;
