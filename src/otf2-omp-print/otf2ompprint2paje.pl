@@ -134,8 +134,7 @@ sub header {
     my @metricsdesc = @_;
     my $metricsdescstr = "";
     if (scalar(@metricsdesc)){
-	$metricsdescstrpush = "\n% Push". join(" string\n% Push", @metricsdesc). " string";
-	$metricsdescstrpop = "\n% Pop". join(" string\n% Pop", @metricsdesc). " string";
+	$metricsdescstr = "\n% ". join(" string\n% ", @metricsdesc). " string";
     }
 
 bufferize("#This trace was generated with: otf2ompprint2paje.pl $filename
@@ -167,12 +166,12 @@ bufferize("#This trace was generated with: otf2ompprint2paje.pl $filename
 %       Time date
 %       Container string
 %       Type string
-%       Value string $metricsdescstrpush
+%       Value string $metricsdescstr
 %EndEventDef
 %EventDef PajePopState 14
 %       Time date
 %       Container string
-%       Type string $metricsdescstrpop
+%       Type string $metricsdescstr
 %EndEventDef
 ");
 
