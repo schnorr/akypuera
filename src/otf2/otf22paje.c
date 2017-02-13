@@ -62,6 +62,7 @@ int main (int argc, char **argv)
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
     poti_init();
+    poti_header();
   }
 
   /* read global definitions */
