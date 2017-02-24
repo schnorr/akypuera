@@ -481,7 +481,7 @@ MPI_Group group1;
 MPI_Group group2;
 int *result;
 {
-  rst_event(MPI_GROUP_COMPARE_OUT);
+  rst_event(MPI_GROUP_COMPARE_IN);
   int returnVal = PMPI_Group_compare(group1, group2, result);
   rst_event(MPI_GROUP_COMPARE_OUT);
   return returnVal;
