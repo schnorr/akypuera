@@ -23,6 +23,7 @@ SET(AKY_LIBRARY_SOURCES src/aky.c src/aky_aux.c src/aky_rastro.c)
 SET(AKY_CONVERTER_SOURCES src/aky/aky_converter.c src/aky/aky_arguments.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
 SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_utils.c)
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/otf2/otf22paje_arguments.c src/otf2/otf22paje_handlers.c src/otf2/otf22paje_hostfile.c  src/aky_utils.c)
+SET(OTF2CSV_SOURCES src/otf2/otf22csv.c src/otf2/otf22csv_arguments.c src/otf2/otf22csv_handlers.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/tau/tau2paje_arguments.c src/tau/tau2paje_handlers.c src/aky_utils.c src/aky_keys.c)
 
 # Options
@@ -120,10 +121,16 @@ IF(OTF2_FOUND)
   INCLUDE_DIRECTORIES(${OTF2_INCLUDE_PATH})
   LINK_DIRECTORIES(${OTF2_LIBRARY_PATH})
   ADD_EXECUTABLE(otf22paje ${OTF2_SOURCES})
+  set_property(TARGET otf22paje PROPERTY POSITION_INDEPENDENT_CODE ON)
   TARGET_LINK_LIBRARIES(otf22paje otf2)
   TARGET_LINK_LIBRARIES(otf22paje poti)
   TARGET_LINK_LIBRARIES(otf22paje m)
   TARGET_LINK_LIBRARIES(otf22paje rt)
+
+  # otf22csv
+  ADD_EXECUTABLE(otf22csv ${OTF2CSV_SOURCES})
+  TARGET_LINK_LIBRARIES(otf22csv otf2)
+  TARGET_LINK_LIBRARIES(otf22csv m)
 ENDIF(OTF2_FOUND)
 
 # Installation part
