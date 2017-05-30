@@ -223,7 +223,7 @@ int SendMessage(void *userData,
     char messageSizeStr[AKY_DEFAULT_STR_SIZE], messageTagStr[AKY_DEFAULT_STR_SIZE];
     snprintf(messageSizeStr, AKY_DEFAULT_STR_SIZE, "%u", messageSize);
     snprintf(messageTagStr, AKY_DEFAULT_STR_SIZE, "%u", messageTag);
-    poti_UStartLink(pajeStartLinkSizeMark, rank_last_time[sourceNodeToken], "root", "LINK",
+    poti_user_StartLink(pajeStartLinkSizeMark, rank_last_time[sourceNodeToken], "root", "LINK",
 		    mpi_process, "PTP", key, 2, messageSizeStr, messageTagStr);
   }
   last_time = rank_last_time[sourceNodeToken];
