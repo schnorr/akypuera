@@ -29,7 +29,7 @@ linksizemark(double timestamp, char const *mpi_process, char const *keys, char
   char size_[6], mark_[6];
   snprintf(size_, 6, "%d", size);
   snprintf(mark_, 6, "%d", mark);
-  poti_UStartLink (specialStartLinkSizeMark, timestamp, "root", "LINK", mpi_process, keys, key, 2, size_, mark_);
+  poti_user_StartLink (specialStartLinkSizeMark, timestamp, "root", "LINK", mpi_process, keys, key, 2, size_, mark_);
 }
 
 static void
@@ -188,8 +188,9 @@ int main(int argc, char **argv)
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
     poti_header();
-    specialPushState = poti_header_event (PAJE_PushState, 1, "SendMark string");
-    specialStartLinkSizeMark = poti_header_event (PAJE_StartLink, 2, "Size string", "Mark string");
+    specialPushState = poti_header_DeclareEvent (PAJE_PushState, 1, "SendMark string");
+
+    specialStartLinkSizeMark = poti_header_DeclareEvent (PAJE_StartLink, 2, "Size string", "Mark string");
     aky_paje_hierarchy();
   }
 
@@ -418,7 +419,7 @@ int main(int argc, char **argv)
           /* uint64 upper range is a 20 digits integer in base 10 */
           char mark[21];
           snprintf(mark, 21, "%"PRIu64, event.v_uint64[0]);
-	  poti_UPushState (specialPushState, timestamp, mpi_process, "STATE", value, 1, mark);
+	  poti_user_PushState (specialPushState, timestamp, mpi_process, "STATE", value, 1, mark);
         }else{
           poti_PushState(timestamp, mpi_process, "STATE", value);
         }
