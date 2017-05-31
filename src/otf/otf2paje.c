@@ -42,131 +42,68 @@ int main (int argc, char **argv)
   /* configure all callbacks */
   OTF_HandlerArray* handlers = OTF_HandlerArray_open();
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefinitionComment,
+                               (OTF_FunctionPointer*) OTF_Handler_DefinitionComment,
                                OTF_DEFINITIONCOMMENT_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefTimerResolution,
+                               (OTF_FunctionPointer*) OTF_Handler_DefTimerResolution,
                                OTF_DEFTIMERRESOLUTION_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefProcess,
+                               (OTF_FunctionPointer*) OTF_Handler_DefProcess,
                                OTF_DEFPROCESS_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefProcessGroup,
+  OTF_HandlerArray_setHandler( handlers,
+                               (OTF_FunctionPointer*) OTF_Handler_DefProcessGroup,
                                OTF_DEFPROCESSGROUP_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefAttributeList,
-                               OTF_DEFATTRLIST_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefProcessOrGroupAttributes,
-                               OTF_DEFPROCESSORGROUPATTR_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefFunction,
+                               (OTF_FunctionPointer*) OTF_Handler_DefFunction,
                                OTF_DEFFUNCTION_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefFunctionGroup,
+                               (OTF_FunctionPointer*) OTF_Handler_DefFunctionGroup,
                                OTF_DEFFUNCTIONGROUP_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefCounter,
+                               (OTF_FunctionPointer*) OTF_Handler_DefCounter,
                                OTF_DEFCOUNTER_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefCounterGroup,
+                               (OTF_FunctionPointer*) OTF_Handler_DefCounterGroup,
                                OTF_DEFCOUNTERGROUP_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefScl,
+                               (OTF_FunctionPointer*) OTF_Handler_DefScl,
                                OTF_DEFSCL_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefSclFile,
+                               (OTF_FunctionPointer*) OTF_Handler_DefSclFile,
                                OTF_DEFSCLFILE_RECORD );
   OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefCreator,
+                               (OTF_FunctionPointer*) OTF_Handler_DefCreator,
                                OTF_DEFCREATOR_RECORD );
   OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefUniqueId,
-                               OTF_DEFUNIQUEID_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefVersion,
-                               OTF_DEFVERSION_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefFile,
-                               OTF_DEFFILE_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefFileGroup,
-                               OTF_DEFFILEGROUP_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefCollectiveOperation,
+                               (OTF_FunctionPointer*) OTF_Handler_DefCollectiveOperation,
                                OTF_DEFCOLLOP_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefTimeRange,
-                               OTF_DEFTIMERANGE_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefCounterAssignments,
-                               OTF_DEFCOUNTERASSIGNMENTS_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefProcessSubstitutes,
-                               OTF_DEFPROCESSSUBSTITUTES_RECORD );
-  OTF_HandlerArray_setHandler( handlers,
-                               (OTF_FunctionPointer*) handleDefAuxSamplePoint,
-                               OTF_DEFAUXSAMPLEPOINT_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleNoOp,
-                               OTF_NOOP_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleEventComment,
+                               (OTF_FunctionPointer*) OTF_Handler_EventComment,
                                OTF_EVENTCOMMENT_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleCounter,
+                               (OTF_FunctionPointer*) OTF_Handler_Counter,
                                OTF_COUNTER_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleEnter,
+                               (OTF_FunctionPointer*) OTF_Handler_Enter,
                                OTF_ENTER_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleCollectiveOperation,
+                               (OTF_FunctionPointer*) OTF_Handler_CollectiveOperation,
                                OTF_COLLOP_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleBeginCollectiveOperation,
-                               OTF_BEGINCOLLOP_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleEndCollectiveOperation,
-                               OTF_ENDCOLLOP_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleRecvMsg,
+                               (OTF_FunctionPointer*) OTF_Handler_RecvMsg,
                                OTF_RECEIVE_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleSendMsg,
+                               (OTF_FunctionPointer*) OTF_Handler_SendMsg,
                                OTF_SEND_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleLeave,
+                               (OTF_FunctionPointer*) OTF_Handler_Leave,
                                OTF_LEAVE_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleBeginProcess,
+                               (OTF_FunctionPointer*) OTF_Handler_BeginProcess,
                                OTF_BEGINPROCESS_RECORD );
   OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleEndProcess,
+                               (OTF_FunctionPointer*) OTF_Handler_EndProcess,
                                OTF_ENDPROCESS_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleFileOperation,
-                               OTF_FILEOPERATION_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleBeginFileOperation,
-                               OTF_BEGINFILEOP_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleEndFileOperation,
-                               OTF_ENDFILEOP_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleRMAPut,
-                               OTF_RMAPUT_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleRMAPutRemoteEnd,
-                               OTF_RMAPUTRE_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleRMAGet,
-                               OTF_RMAGET_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleRMAEnd,
-                               OTF_RMAEND_RECORD );
-  OTF_HandlerArray_setHandler( handlers, 
-                               (OTF_FunctionPointer*) handleDefKeyValue,
-                               OTF_DEFKEYVALUE_RECORD );
 
   if (!arguments.dummy){
     /* start output with comments */
@@ -192,7 +129,7 @@ int main (int argc, char **argv)
   OTF_Reader_readEvents (reader, handlers);
   OTF_Reader_readStatistics (reader, handlers);
   OTF_Reader_readSnapshots (reader, handlers);
-  OTF_Reader_readMarkers (reader, handlers);
+  /* OTF_Reader_readMarkers (reader, handlers); */
 
   OTF_Reader_close (reader);
   OTF_HandlerArray_close (handlers);

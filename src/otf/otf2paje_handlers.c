@@ -74,17 +74,16 @@ static char *data_get (struct hsearch_data *hash, uint32_t id)
   }
 }
 
-
-int handleDefinitionComment(void *userData, uint32_t stream,
-			    const char *comment, OTF_KeyValueList * kvlist)
+int OTF_Handler_DefinitionComment( void* userData,
+                                   uint32_t stream,
+                                   const char* comment )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleDefTimerResolution(void *userData, uint32_t stream,
-			     uint64_t ticksPerSecond,
-			     OTF_KeyValueList * kvlist)
+int OTF_Handler_DefTimerResolution( void* userData,
+                                    uint32_t stream,
+                                    uint64_t ticksPerSecond )
 {
   if (!arguments.dummy){
     printf ("# OTF TimerResolution: TicksPerSecond %llu\n", (long long unsigned) ticksPerSecond);
@@ -93,44 +92,32 @@ int handleDefTimerResolution(void *userData, uint32_t stream,
   return OTF_RETURN_OK;
 }
 
-
-int handleDefProcess(void *userData, uint32_t stream, uint32_t process,
-		     const char *name, uint32_t parent,
-		     OTF_KeyValueList * kvlist)
+int OTF_Handler_DefProcess( void* userData,
+                            uint32_t stream,
+                            uint32_t process,
+                            const char* name,
+                            uint32_t parent )
 {
   data_def (&process_name_hash, process, name);
   return OTF_RETURN_OK;
 }
 
-
-int handleDefProcessGroup(void *userData, uint32_t stream,
-			  uint32_t group, const char *name,
-			  uint32_t numberOfProcs, const uint32_t * procs,
-			  OTF_KeyValueList * kvlist)
+int OTF_Handler_DefProcessGroup( void* userData,
+                                 uint32_t stream,
+                                 uint32_t procGroup,
+                                 const char* name,
+                                 uint32_t numberOfProcs,
+                                 const uint32_t* procs )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleDefAttributeList(void *userData, uint32_t stream,
-			   uint32_t attr_token, uint32_t num,
-			   OTF_ATTR_TYPE * array,
-			   OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-int handleDefProcessOrGroupAttributes(void *userData, uint32_t stream,
-				      uint32_t proc_token,
-				      uint32_t attr_token,
-				      OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-int handleDefFunction(void *userData, uint32_t stream, uint32_t func,
-		      const char *name, uint32_t funcGroup,
-		      uint32_t source, OTF_KeyValueList * kvlist)
+int OTF_Handler_DefFunction( void* userData,
+                             uint32_t stream,
+                             uint32_t func,
+                             const char* name,
+                             uint32_t funcGroup,
+                             uint32_t source )
 {
   char alias[AKY_DEFAULT_STR_SIZE];
   memset(alias, 0, AKY_DEFAULT_STR_SIZE);
@@ -141,17 +128,19 @@ int handleDefFunction(void *userData, uint32_t stream, uint32_t func,
   return OTF_RETURN_OK;
 }
 
-
-int handleDefFunctionGroup(void *userData, uint32_t stream,
-			   uint32_t funcGroup, const char *name,
-			   OTF_KeyValueList * kvlist)
+int OTF_Handler_DefFunctionGroup( void* userData,
+                                  uint32_t stream,
+                                  uint32_t funcGroup,
+                                  const char* name )
 {
   return OTF_RETURN_OK;
 }
 
-int handleDefCollectiveOperation(void *userData, uint32_t stream,
-				 uint32_t collOp, const char *name,
-				 uint32_t type, OTF_KeyValueList * kvlist)
+int OTF_Handler_DefCollectiveOperation( void* userData,
+                                        uint32_t stream,
+                                        uint32_t collOp,
+                                        const char* name,
+                                        uint32_t type )
 {
   char alias[AKY_DEFAULT_STR_SIZE];
   memset(alias, 0, AKY_DEFAULT_STR_SIZE);
@@ -162,42 +151,45 @@ int handleDefCollectiveOperation(void *userData, uint32_t stream,
   return OTF_RETURN_OK;
 }
 
-
-int handleDefCounter(void *userData, uint32_t stream, uint32_t counter,
-		     const char *name, uint32_t properties,
-		     uint32_t counterGroup, const char *unit,
-		     OTF_KeyValueList * kvlist)
+int OTF_Handler_DefCounter( void* userData,
+                            uint32_t stream,
+                            uint32_t counter,
+                            const char* name,
+                            uint32_t properties,
+                            uint32_t counterGroup,
+                            const char* unit )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleDefCounterGroup(void *userData, uint32_t stream,
-			  uint32_t counterGroup, const char *name,
-			  OTF_KeyValueList * kvlist)
+int OTF_Handler_DefCounterGroup( void* userData,
+                                 uint32_t stream,
+                                 uint32_t counterGroup,
+                                 const char* name )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleDefScl(void *userData, uint32_t stream, uint32_t source,
-		 uint32_t sourceFile, uint32_t line,
-		 OTF_KeyValueList * kvlist)
+int OTF_Handler_DefScl( void* userData,
+                        uint32_t stream,
+                        uint32_t source,
+                        uint32_t sourceFile,
+                        uint32_t line )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleDefSclFile(void *userData, uint32_t stream,
-		     uint32_t sourceFile, const char *name,
-		     OTF_KeyValueList * kvlist)
+int OTF_Handler_DefSclFile( void* userData,
+                            uint32_t stream,
+                            uint32_t sourceFile,
+                            const char* name )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleDefCreator(void *userData, uint32_t stream,
-		     const char *creator, OTF_KeyValueList * kvlist)
+int OTF_Handler_DefCreator( void* userData,
+                            uint32_t stream,
+                            const char* creator )
 {
   if (!arguments.dummy){
     printf ("# OTF Creator %s\n", creator);
@@ -205,98 +197,11 @@ int handleDefCreator(void *userData, uint32_t stream,
   return OTF_RETURN_OK;
 }
 
-
-int handleDefUniqueId(void *userData, uint32_t stream, uint64_t uid)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefVersion(void *userData, uint32_t stream, uint8_t major,
-		     uint8_t minor, uint8_t sub, const char *string)
-{
-  if (!arguments.dummy){
-    printf ("# OTF Version: %u.%u.%u %s\n", major, minor, sub, string);
-  }
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefFile(void *userData, uint32_t stream,
-		  uint32_t token, const char *name,
-		  uint32_t group, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefFileGroup(void *userData, uint32_t stream,
-		       uint32_t token, const char *name,
-		       OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefKeyValue(void *userData, uint32_t streamid, uint32_t token,
-		      OTF_Type type, const char *name, const char *desc,
-		      OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefTimeRange(void *userData, uint32_t streamid, uint64_t minTime,
-		       uint64_t maxTime, OTF_KeyValueList * kvlist)
-{
-  if (!arguments.dummy){
-    printf ("# OTF TimeRange: [%llu, %llu]\n", (long long unsigned) minTime, (long long unsigned) maxTime);
-  }
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefCounterAssignments(void *userData, uint32_t streamid,
-				uint32_t counter_token,
-				uint32_t number_of_members,
-				const uint32_t * procs_or_groups,
-				OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefProcessSubstitutes(void *userData, uint32_t streamid,
-				uint32_t representative,
-				uint32_t numberOfProcs,
-				const uint32_t * procs,
-				OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-
-int handleDefAuxSamplePoint(void *userData,
-			    uint32_t streamid,
-			    uint64_t time,
-			    OTF_AuxSamplePointType type,
-			    OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleNoOp(void *userData, uint64_t time, uint32_t process,
-	       OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleEnter(void *userData, uint64_t time, uint32_t function,
-		uint32_t process, uint32_t source,
-		OTF_KeyValueList * kvlist)
+int OTF_Handler_Enter( void* userData,
+                       uint64_t time,
+                       uint32_t function,
+                       uint32_t process,
+                       uint32_t source )
 {
   char palias[AKY_DEFAULT_STR_SIZE];
   memset(palias, 0, AKY_DEFAULT_STR_SIZE);
@@ -310,10 +215,11 @@ int handleEnter(void *userData, uint64_t time, uint32_t function,
   return OTF_RETURN_OK;
 }
 
-
-int handleLeave(void *userData, uint64_t time, uint32_t function,
-		uint32_t process, uint32_t source,
-		OTF_KeyValueList * kvlist)
+int OTF_Handler_Leave( void* userData,
+                       uint64_t time,
+                       uint32_t function,
+                       uint32_t process,
+                       uint32_t source )
 {
   char palias[AKY_DEFAULT_STR_SIZE];
   memset(palias, 0, AKY_DEFAULT_STR_SIZE);
@@ -324,87 +230,84 @@ int handleLeave(void *userData, uint64_t time, uint32_t function,
   return OTF_RETURN_OK;
 }
 
-
-int handleSendMsg(void *userData, uint64_t time, uint32_t sender,
-		  uint32_t receiver, uint32_t group, uint32_t type,
-		  uint32_t length, uint32_t source,
-		  OTF_KeyValueList * kvlist)
+int OTF_Handler_SendMsg( void* userData,
+                         uint64_t time,
+                         uint32_t sender,
+                         uint32_t receiver,
+                         uint32_t group,
+                         uint32_t type,
+                         uint32_t length,
+                         uint32_t source )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleRecvMsg(void *userData, uint64_t time, uint32_t recvProc,
-		  uint32_t sendProc, uint32_t group, uint32_t type,
-		  uint32_t length, uint32_t source,
-		  OTF_KeyValueList * kvlist)
+int OTF_Handler_RecvMsg( void* userData,
+                         uint64_t time,
+                         uint32_t recvProc,
+                         uint32_t sendProc,
+                         uint32_t group,
+                         uint32_t type,
+                         uint32_t length,
+                         uint32_t source )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleCounter(void *userData, uint64_t time, uint32_t process,
-		  uint32_t counter, uint64_t value,
-		  OTF_KeyValueList * kvlist)
+int OTF_Handler_Counter( void* userData,
+                         uint64_t time,
+                         uint32_t process,
+                         uint32_t counter,
+                         uint64_t value )
 {
   return OTF_RETURN_OK;
 }
 
+int OTF_Handler_CollectiveOperation( void* userData,
+                                     uint64_t time,
+                                     uint32_t process,
+                                     uint32_t collective,
+                                     uint32_t procGroup,
+                                     uint32_t rootProc,
+                                     uint32_t sent,
+                                     uint32_t received,
+                                     uint64_t duration,
+                                     uint32_t source )
+{
+  //TODO
+  //In OTF 1.12.* we had BeginCollective and EndCollective
+  
+  /* char palias[AKY_DEFAULT_STR_SIZE]; */
+  /* memset(palias, 0, AKY_DEFAULT_STR_SIZE); */
+  /* snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process); */
+  /* char calias[AKY_DEFAULT_STR_SIZE]; */
+  /* memset(calias, 0, AKY_DEFAULT_STR_SIZE); */
+  /* snprintf (calias, AKY_DEFAULT_STR_SIZE, "c%d", collOp); */
+  /* if (!arguments.dummy && !arguments.no_states){ */
+  /*   poti_PushState (ticks_to_seconds(time), palias, "STATE", calias); */
+  /* } */
 
-int handleCollectiveOperation(void *userData, uint64_t time,
-			      uint32_t process, uint32_t collective,
-			      uint32_t procGroup, uint32_t rootProc,
-			      uint32_t sent, uint32_t received,
-			      uint64_t duration, uint32_t source,
-			      OTF_KeyValueList * kvlist)
+  /* char palias[AKY_DEFAULT_STR_SIZE]; */
+  /* memset(palias, 0, AKY_DEFAULT_STR_SIZE); */
+  /* snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process); */
+  /* if (!arguments.dummy && !arguments.no_states){ */
+  /*   poti_PopState (ticks_to_seconds(time), palias, "STATE"); */
+  /* } */
+  
+  return OTF_RETURN_OK;
+}
+
+int OTF_Handler_EventComment( void* userData,
+                              uint64_t time,
+                              uint32_t process,
+                              const char* comment )
 {
   return OTF_RETURN_OK;
 }
 
-
-int handleBeginCollectiveOperation(void *userData, uint64_t time,
-				   uint32_t process, uint32_t collOp,
-				   uint64_t matchingId, uint32_t procGroup,
-				   uint32_t rootProc, uint64_t sent,
-				   uint64_t received, uint32_t scltoken,
-				   OTF_KeyValueList * kvlist)
-{
-  char palias[AKY_DEFAULT_STR_SIZE];
-  memset(palias, 0, AKY_DEFAULT_STR_SIZE);
-  snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
-  char calias[AKY_DEFAULT_STR_SIZE];
-  memset(calias, 0, AKY_DEFAULT_STR_SIZE);
-  snprintf (calias, AKY_DEFAULT_STR_SIZE, "c%d", collOp);
-  if (!arguments.dummy && !arguments.no_states){
-    poti_PushState (ticks_to_seconds(time), palias, "STATE", calias);
-  }
-  return OTF_RETURN_OK;
-}
-
-
-int handleEndCollectiveOperation(void *userData, uint64_t time,
-				 uint32_t process, uint64_t matchingId,
-				 OTF_KeyValueList * kvlist)
-{
-  char palias[AKY_DEFAULT_STR_SIZE];
-  memset(palias, 0, AKY_DEFAULT_STR_SIZE);
-  snprintf (palias, AKY_DEFAULT_STR_SIZE, "p%d", process);
-  if (!arguments.dummy && !arguments.no_states){
-    poti_PopState (ticks_to_seconds(time), palias, "STATE");
-  }
-  return OTF_RETURN_OK;
-}
-
-
-int handleEventComment(void *userData, uint64_t time, uint32_t process,
-		       const char *comment, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleBeginProcess(void *userData, uint64_t time, uint32_t process,
-		       OTF_KeyValueList * kvlist)
+int OTF_Handler_BeginProcess( void* userData,
+                              uint64_t time,
+                              uint32_t process )
 {
   char *name = data_get(&process_name_hash, process);
   if (name){
@@ -418,9 +321,9 @@ int handleBeginProcess(void *userData, uint64_t time, uint32_t process,
   return OTF_RETURN_OK;
 }
 
-
-int handleEndProcess(void *userData, uint64_t time, uint32_t process,
-		     OTF_KeyValueList * kvlist)
+int OTF_Handler_EndProcess( void* userData,
+                            uint64_t time,
+                            uint32_t process )
 {
   char *name = data_get(&process_name_hash, process);
   if (name){
@@ -434,212 +337,86 @@ int handleEndProcess(void *userData, uint64_t time, uint32_t process,
   return OTF_RETURN_OK;
 }
 
+int OTF_Handler_SnapshotComment( void* userData,
+                                     uint64_t time,
+                                     uint32_t process,
+                                     const char* comment )
+{
+  return OTF_RETURN_OK;
+}
 
-int handleSnapshotComment(void *userData, uint64_t time,
-			  uint32_t process, const char *comment,
-			  OTF_KeyValueList * kvlist)
+int OTF_Handler_EnterSnapshot( void *userData,
+                           uint64_t time,
+                           uint64_t originaltime,
+                           uint32_t function,
+                           uint32_t process,
+                           uint32_t source )
+{
+  return OTF_RETURN_OK;
+}
+
+int OTF_Handler_SendSnapshot( void *userData,
+                           uint64_t time,
+                           uint64_t originaltime,
+                           uint32_t sender,
+                           uint32_t receiver,
+                           uint32_t procGroup,
+                           uint32_t tag,
+                           uint32_t source )
+{
+  return OTF_RETURN_OK;
+}
+
+int OTF_Handler_SummaryComment( void * userData,
+                                uint64_t time,
+                                uint32_t process,
+                                const char* comment )
+{
+  return OTF_RETURN_OK;
+}
+
+int OTF_Handler_FunctionSummary( void* userData,
+                                 uint64_t time,
+                                 uint32_t function,
+                                 uint32_t process,
+                                 uint64_t invocations,
+                                 uint64_t exclTime,
+                                 uint64_t inclTime )
+{
+  return OTF_RETURN_OK;
+}
+
+int OTF_Handler_FunctionGroupSummary( void* userData,
+                                      uint64_t time,
+                                      uint32_t funcGroup,
+                                      uint32_t process,
+                                      uint64_t invocations,
+                                      uint64_t exclTime,
+                                      uint64_t inclTime )
 {
   return OTF_RETURN_OK;
 }
 
 
-int handleEnterSnapshot(void *userData, uint64_t time,
-			uint64_t originaltime, uint32_t function,
-			uint32_t process, uint32_t source,
-			OTF_KeyValueList * kvlist)
+int OTF_Handler_MessageSummary( void* userData,
+                                uint64_t time,
+                                uint32_t process,
+                                uint32_t peer,
+                                uint32_t comm,
+                                uint32_t type,
+                                uint64_t sentNumber,
+                                uint64_t receivedNumber,
+                                uint64_t sentBytes,
+                                uint64_t receivedBytes )
 {
   return OTF_RETURN_OK;
 }
 
 
-int handleSendSnapshot(void *userData, uint64_t time,
-		       uint64_t originaltime, uint32_t sender,
-		       uint32_t receiver, uint32_t procGroup, uint32_t tag,
-		       uint32_t length, uint32_t source,
-		       OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleOpenFileSnapshot(void *userData, uint64_t time,
-			   uint64_t originaltime, uint32_t fileid,
-			   uint32_t process, uint64_t handleid,
-			   uint32_t source, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleBeginCollopSnapshot(void *userData, uint64_t time,
-			      uint64_t originaltime, uint32_t process,
-			      uint32_t collOp, uint64_t matchingId,
-			      uint32_t procGroup, uint32_t rootProc,
-			      uint64_t sent, uint64_t received,
-			      uint32_t scltoken, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleBeginFileOpSnapshot(void *userData, uint64_t time,
-			      uint64_t originaltime, uint32_t process,
-			      uint64_t matchingId, uint32_t scltoken,
-			      OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleCollopCountSnapshot(void *userData, uint64_t time,
-			      uint32_t process, uint32_t communicator,
-			      uint64_t count, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleCounterSnapshot(void *userData,
-			  uint64_t time,
-			  uint32_t process,
-			  uint64_t originaltime,
-			  uint32_t counter,
-			  uint64_t value, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleSummaryComment(void *userData, uint64_t time,
-			 uint32_t process, const char *comment,
-			 OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleFunctionSummary(void *userData, uint64_t time,
-			  uint32_t function, uint32_t process,
-			  uint64_t invocations, uint64_t exclTime,
-			  uint64_t inclTime, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleFunctionGroupSummary(void *userData, uint64_t time,
-			       uint32_t funcGroup, uint32_t process,
-			       uint64_t invocations, uint64_t exclTime,
-			       uint64_t inclTime,
-			       OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleMessageSummary(void *userData, uint64_t time, uint32_t process,
-			 uint32_t peer, uint32_t comm, uint32_t type,
-			 uint64_t sentNumber, uint64_t receivedNumber,
-			 uint64_t sentBytes, uint64_t receivedBytes,
-			 OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleCollopSummary(void *userData, uint64_t time, uint32_t process,
-			uint32_t comm, uint32_t collective,
-			uint64_t sentNumber, uint64_t receivedNumber,
-			uint64_t sentBytes, uint64_t receivedBytes,
-			OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-
-int handleFileOperation(void *userData, uint64_t time,
-			uint32_t fileid, uint32_t process,
-			uint64_t handleid, uint32_t operation,
-			uint64_t bytes, uint64_t duration,
-			uint32_t source, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleBeginFileOperation(void *userData, uint64_t time,
-			     uint32_t process, uint64_t matchingId,
-			     uint32_t scltoken, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleEndFileOperation(void *userData, uint64_t time,
-			   uint32_t process, uint32_t fileid,
-			   uint64_t matchingId, uint64_t handleId,
-			   uint32_t operation, uint64_t bytes,
-			   uint32_t scltoken, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleRMAPut(void *userData, uint64_t time, uint32_t process,
-		 uint32_t origin, uint32_t target, uint32_t communicator,
-		 uint32_t tag, uint64_t bytes, uint32_t source,
-		 OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleRMAPutRemoteEnd(void *userData, uint64_t time,
-			  uint32_t process, uint32_t origin,
-			  uint32_t target, uint32_t communicator,
-			  uint32_t tag, uint64_t bytes, uint32_t source,
-			  OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleRMAGet(void *userData, uint64_t time, uint32_t process,
-		 uint32_t origin, uint32_t target, uint32_t communicator,
-		 uint32_t tag, uint64_t bytes, uint32_t source,
-		 OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleRMAEnd(void *userData, uint64_t time, uint32_t process,
-		 uint32_t remote, uint32_t communicator, uint32_t tag,
-		 uint32_t source, OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleUnknown(void *userData, uint64_t time, uint32_t process,
-		  const char *record)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleDefMarker(void *userData, uint32_t stream, uint32_t token,
-		    const char *name, uint32_t type,
-		    OTF_KeyValueList * kvlist)
-{
-  return OTF_RETURN_OK;
-}
-
-
-int handleMarker(void *userData, uint64_t time, uint32_t process,
-		 uint32_t token, const char *text,
-		 OTF_KeyValueList * kvlist)
+int OTF_Handler_UnknownRecord( void *userData,
+                              uint64_t time,
+                              uint32_t process,
+			       const char *record )
 {
   return OTF_RETURN_OK;
 }
