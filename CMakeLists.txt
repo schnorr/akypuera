@@ -25,6 +25,7 @@ SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/otf2/otf22paje_arguments.c src/otf2/otf22paje_handlers.c src/otf2/otf22paje_hostfile.c  src/aky_utils.c)
 SET(OTF2CSV_SOURCES src/otf2/otf22csv.c src/otf2/otf22csv_arguments.c src/otf2/otf22csv_handlers.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/tau/tau2paje_arguments.c src/tau/tau2paje_handlers.c src/aky_utils.c src/aky_keys.c)
+set(OTF2_SCRIPTS src/otf2-omp-print/otf2ompprint2paje.pl)
 
 # Options
 OPTION(SMPI "Enable to trace MPI applications linked against SMPI (THREADED required)" OFF)
@@ -145,6 +146,7 @@ IF(OTF2_FOUND)
   INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf22paje DESTINATION bin)
   INSTALL(PROGRAMS src/otf2-omp-print/otf2ompprint2paje.sh DESTINATION bin)
 ENDIF(OTF2_FOUND)
+install(PROGRAMS ${OTF2_SCRIPTS} DESTINATION bin)
 
 # Tests
 FILE(COPY ${CMAKE_HOME_DIRECTORY}/tests/scripts/ DESTINATION ${CMAKE_BINARY_DIR}/bin)
