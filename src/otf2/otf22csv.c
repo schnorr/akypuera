@@ -63,6 +63,14 @@ int main (int argc, char **argv)
   // Keep the last timestamp of each location
   user_data->last_timestamp = malloc (sizeof(double) * num_locations);
 
+  // Keep values of performance metrics
+  user_data->number_of_metrics = 0; //It is defined as soon as possible, in the callback
+  size_t sp = sizeof(uint64_t) * num_locations;
+  user_data->last_metric = malloc (sp);
+  bzero(user_data->last_metric, sp);
+  user_data->last_enter_metric = malloc (sp);
+  bzero(user_data->last_enter_metric, sp);
+
   /* Define definition callbacks. */
   OTF2_GlobalDefReaderCallbacks *def_callbacks = OTF2_GlobalDefReaderCallbacks_New();
   OTF2_GlobalDefReaderCallbacks_SetLocationCallback (def_callbacks, otf22csv_global_def_location);
@@ -126,6 +134,8 @@ int main (int argc, char **argv)
   OTF2_GlobalEvtReaderCallbacks* evt_callbacks = OTF2_GlobalEvtReaderCallbacks_New();
   OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, otf22csv_enter );
   OTF2_GlobalEvtReaderCallbacks_SetLeaveCallback( evt_callbacks, otf22csv_leave );
+  OTF2_GlobalEvtReaderCallbacks_SetMetricCallback( evt_callbacks, otf22csv_print_metric );
+
 
   /* Get global event reader. */
   OTF2_GlobalEvtReader *glob_evt_reader = OTF2_Reader_GetGlobalEvtReader (reader);

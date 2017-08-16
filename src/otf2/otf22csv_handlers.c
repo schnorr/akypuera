@@ -123,6 +123,19 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   for (i = 0; i < data->locations->size; i++){
     if (data->locations->members[i] == locationID) break;
   }
+
+  //Get last metrics
+  uint64_t *my_last_metrics = data->last_metric[i];
+
+  //Allocate memory if that is not yet the case
+  if (data->last_enter_metric[i] == NULL){
+    data->last_enter_metric[i] = malloc(data->number_of_metrics * sizeof(uint64_t));
+  }
+  
+  //Define last "enter" event metrics
+  for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
+    data->last_enter_metric[i][j] = data->last_metric[i][j];
+  }
   
   data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
   return OTF2_CALLBACK_SUCCESS;
@@ -141,9 +154,54 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   double before = data->last_timestamp[i];
   double now = time_to_seconds(time, data->time_resolution);
 
+  //Get the last_metric values
+  uint64_t *my_last_metrics = data->last_metric[i];
+  //Get the last "enter" metric values
+  uint64_t *my_last_enter_metrics = data->last_enter_metric[i];
+  //Calculate the difference of these metrics
+  uint64_t *diff = malloc(sizeof(uint64_t) * data->number_of_metrics);
+  for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
+    diff[j] = my_last_metrics[j] - my_last_enter_metrics[j];
+  }
+  
   if (!arguments.dummy){
-    printf("%lld %f %f %s\n", locationID, before, now, state_name);
+    printf("%lld %f %f %s", locationID, before, now, state_name);
+    if (data->number_of_metrics == 0){
+      printf("\n");
+    }else{
+      printf(" ");
+      //Print the different of the metrics
+      for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
+	printf("%"PRIu64, diff[j]);
+	if (j+1 < data->number_of_metrics){
+	  printf(" ");
+	}
+      }
+      printf("\n");
+    }
   }
   data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
+  return OTF2_CALLBACK_SUCCESS;
+}
+
+OTF2_CallbackCode otf22csv_print_metric( OTF2_LocationRef locationID, OTF2_TimeStamp time, void* userData, OTF2_AttributeList* attributes, OTF2_MetricRef metric, uint8_t numberOfMetrics, const OTF2_Type* typeIDs, const OTF2_MetricValue* metricValues )
+{
+  otf2paje_t* data = (otf2paje_t*) userData;
+  
+  //search the correct index of the locationID
+  int i;
+  for (i = 0; i < data->locations->size; i++){
+    if (data->locations->members[i] == locationID) break;
+  }
+
+  data->number_of_metrics = numberOfMetrics;
+  if (data->last_metric[i] == NULL){
+    data->last_metric[i] = malloc(data->number_of_metrics * sizeof(uint64_t));
+  }
+  uint64_t *my_metrics = data->last_metric[i];
+   
+  for ( uint8_t j = 0; j < numberOfMetrics; j++ ){
+    my_metrics[j] = metricValues[j].unsigned_int;
+  }
   return OTF2_CALLBACK_SUCCESS;
 }

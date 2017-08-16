@@ -58,6 +58,10 @@ struct otf2paje_s
   } *locations;
 
   double *last_timestamp;
+
+  uint64_t **last_metric; //length is the number of locationIDs
+  uint64_t **last_enter_metric;
+  int number_of_metrics;
 };
 
 typedef struct otf2paje_s otf2paje_t;
@@ -96,5 +100,8 @@ OTF2_CallbackCode otf22csv_global_def_system_tree_node_property(void *userData, 
 
 
 OTF2_CallbackCode otf22csv_global_def_system_tree_node_domain( void* userData, OTF2_SystemTreeNodeRef systemTreeNode, OTF2_SystemTreeDomain  systemTreeDomain );
+
+OTF2_CallbackCode otf22csv_print_metric( OTF2_LocationRef location, OTF2_TimeStamp time, void* userData, OTF2_AttributeList* attributes, OTF2_MetricRef metric, uint8_t numberOfMetrics, const OTF2_Type* typeIDs, const OTF2_MetricValue* metricValues );
+
 
 #endif
