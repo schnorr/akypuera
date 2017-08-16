@@ -42,12 +42,22 @@ extern struct arguments arguments;
 extern struct argp argp;
 
 
+
+
 /* Data utilities for convertion */
 struct otf2paje_s
 {
   OTF2_Reader*    reader;
-  double last_timestamp[100000]; //per-rank
   double time_resolution;
+
+  struct vector
+  {
+    size_t   capacity;
+    size_t   size;
+    uint64_t members[];
+  } *locations;
+
+  double *last_timestamp;
 };
 
 typedef struct otf2paje_s otf2paje_t;

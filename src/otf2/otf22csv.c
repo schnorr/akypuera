@@ -46,11 +46,22 @@ int main (int argc, char **argv)
     return 1;
   }
 
+  /* Get number of locations from the anchor file. */
+  uint64_t num_locations;
+  OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
+
 
   /* read global definitions */
   /* User data for callbacks. */
   otf2paje_t *user_data = (otf2paje_t*) malloc (sizeof (otf2paje_t));
   user_data->reader = reader;
+  user_data->locations = malloc( sizeof( *(user_data->locations) )
+                                     + num_locations
+				 * sizeof( *(user_data->locations)->members ) );
+  user_data->locations->capacity = num_locations;
+  user_data->locations->size     = 0;
+  // Keep the last timestamp of each location
+  user_data->last_timestamp = malloc (sizeof(double) * num_locations);
 
   /* Define definition callbacks. */
   OTF2_GlobalDefReaderCallbacks *def_callbacks = OTF2_GlobalDefReaderCallbacks_New();
@@ -71,12 +82,14 @@ int main (int argc, char **argv)
     OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodePropertyCallback (def_callbacks, otf22csv_global_def_system_tree_node_property);
     OTF2_GlobalDefReaderCallbacks_SetSystemTreeNodeDomainCallback (def_callbacks, otf22csv_global_def_system_tree_node_domain);
   }
-
-  /* Read global definitions. */
+ 
+  /* Read global definitions (locations). */
   OTF2_GlobalDefReader* glob_def_reader  = OTF2_Reader_GetGlobalDefReader (reader);
   OTF2_Reader_RegisterGlobalDefCallbacks (reader, glob_def_reader,
                                         def_callbacks,
                                         user_data);
+  OTF2_GlobalDefReaderCallbacks_Delete(def_callbacks);
+  
   uint64_t definitions_read = 0;
   OTF2_Reader_ReadGlobalDefinitions (reader, glob_def_reader,
                                      OTF2_UNDEFINED_UINT64,
@@ -94,23 +107,19 @@ int main (int argc, char **argv)
     return 1;
   }
 
-
-  /* Get number of locations from the anchor file. */
-  uint64_t          num_locations = 0;
-  OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
-
-  /* Read definitions */
+    /* Read definitions */
   size_t i;
-  for ( i = 0; i < num_locations; i++ ){
-    OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, i);
+  for ( i = 0; i < user_data->locations->size; i++ ){
+    OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, user_data->locations->members[i]);
     uint64_t definitions_read = 0;
     OTF2_Reader_ReadAllLocalDefinitions (reader, def_reader, &definitions_read);
     OTF2_Reader_CloseDefReader (reader, def_reader);
   }
 
   /* Create event readers */
-  for (i = 0; i < num_locations; i++){
-    OTF2_Reader_GetEvtReader (reader, i);
+  for (i = 0; i < user_data->locations->size; i++){
+    OTF2_Reader_SelectLocation( reader, user_data->locations->members[i]);
+    OTF2_Reader_GetEvtReader (reader, user_data->locations->members[i]);
   }
 
   /* Define event callbacks. */

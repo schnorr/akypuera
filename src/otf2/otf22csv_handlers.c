@@ -81,6 +81,15 @@ OTF2_CallbackCode otf22csv_global_def_location_group (void *userData, OTF2_Locat
 
 OTF2_CallbackCode otf22csv_global_def_location (void* userData, OTF2_LocationRef self, OTF2_StringRef name, OTF2_LocationType locationType, uint64_t numberOfEvents, OTF2_LocationGroupRef locationGroup)
 {
+  otf2paje_t* data = (otf2paje_t*) userData;
+
+  if ( data->locations->size == data->locations->capacity )
+  {
+      return OTF2_CALLBACK_INTERRUPT;
+  }
+  
+  data->locations->members[ data->locations->size++ ] = self;
+  
   return OTF2_CALLBACK_SUCCESS;
 }
 
@@ -108,7 +117,14 @@ OTF2_CallbackCode otf22csv_global_def_system_tree_node_domain( void* userData, O
 OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID)
 {
   otf2paje_t* data = (otf2paje_t*) userData;
-  data->last_timestamp[locationID] = time_to_seconds(time, data->time_resolution);
+
+  //search the correct index of the locationID
+  int i;
+  for (i = 0; i < data->locations->size; i++){
+    if (data->locations->members[i] == locationID) break;
+  }
+  
+  data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
   return OTF2_CALLBACK_SUCCESS;
 }
 
@@ -117,12 +133,17 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   otf2paje_t* data = (otf2paje_t*) userData;
   const char *state_name = string_hash[region_name_map[regionID]];
 
-  double before = data->last_timestamp[locationID];
+  //search the correct index of the locationID
+  int i;
+  for (i = 0; i < data->locations->size; i++){
+    if (data->locations->members[i] == locationID) break;
+  }  
+  double before = data->last_timestamp[i];
   double now = time_to_seconds(time, data->time_resolution);
 
   if (!arguments.dummy){
-    printf("%d %f %f %s\n", locationID, before, now, state_name);
+    printf("%lld %f %f %s\n", locationID, before, now, state_name);
   }
-  data->last_timestamp[locationID] = time_to_seconds(time, data->time_resolution);
+  data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
   return OTF2_CALLBACK_SUCCESS;
 }
