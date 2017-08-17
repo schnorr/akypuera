@@ -165,16 +165,16 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   }
   
   if (!arguments.dummy){
-    printf("%lld %f %f %s", locationID, before, now, state_name);
+    printf("%lld,%f,%f,%s", locationID, before, now, state_name);
     if (data->number_of_metrics == 0){
       printf("\n");
     }else{
-      printf(" ");
+      printf(",");
       //Print the different of the metrics
       for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
 	printf("%"PRIu64, diff[j]);
 	if (j+1 < data->number_of_metrics){
-	  printf(" ");
+	  printf(",");
 	}
       }
       printf("\n");
