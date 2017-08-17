@@ -165,7 +165,7 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   }
   
   if (!arguments.dummy){
-    printf("%lld,%f,%f,%s", locationID, before, now, state_name);
+    printf("%d,%f,%f,%s", i, before, now, state_name);
     if (data->number_of_metrics == 0){
       printf("\n");
     }else{
