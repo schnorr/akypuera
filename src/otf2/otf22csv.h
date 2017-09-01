@@ -28,6 +28,7 @@
 #include "aky_private.h"
 
 #define PROGRAM "otf22csv"
+#define MAX_IMBRICATION 10
 
 struct arguments {
   char *input[AKY_INPUT_SIZE];
@@ -53,9 +54,8 @@ struct otf2paje_s
     uint64_t members[];
   } *locations;
 
-  double *last_timestamp;
+  double **last_timestamp;
   unsigned int *last_imbric;
-
   uint64_t **last_metric; //length is the number of locationIDs
   uint64_t ***last_enter_metric;
   int number_of_metrics;

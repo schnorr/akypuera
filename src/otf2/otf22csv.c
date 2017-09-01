@@ -60,10 +60,14 @@ int main (int argc, char **argv)
 				 * sizeof( *(user_data->locations)->members ) );
   user_data->locations->capacity = num_locations;
   user_data->locations->size     = 0;
-  // Keep the last timestamp of each location
-  int s = sizeof(double) * num_locations;
+  // Keep the last timestamp of each location on each level (one stack per location)
+  int s = sizeof(double*) * num_locations;
   user_data->last_timestamp = malloc (s);
-  bzero(user_data->last_timestamp, s);
+  for (uint8_t j = 0; j < num_locations; j++){
+    int s = sizeof(double) * MAX_IMBRICATION;
+    user_data->last_timestamp[j] = malloc(s);
+    bzero(user_data->last_timestamp[j], s);
+  }
   // Keep the imbrication level of each location
   s = sizeof(unsigned int) * num_locations;
   user_data->last_imbric = malloc (s);

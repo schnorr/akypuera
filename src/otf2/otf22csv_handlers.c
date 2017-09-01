@@ -126,7 +126,6 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
 
   //Allocate memory if that is not yet the case
   if (data->last_enter_metric[i] == NULL){
-    #define MAX_IMBRICATION 10
     data->last_enter_metric[i] = malloc(MAX_IMBRICATION * sizeof(uint64_t**));
     for (uint8_t j = 0; j < MAX_IMBRICATION; j++){
       data->last_enter_metric[i][j] = malloc(data->number_of_metrics * sizeof(uint64_t));
@@ -138,7 +137,7 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
     data->last_enter_metric[i][data->last_imbric[i]][j] = data->last_metric[i][j];
   }
   
-  data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
+  data->last_timestamp[i][data->last_imbric[i]] = time_to_seconds(time, data->time_resolution);
   data->last_imbric[i]++;
   return OTF2_CALLBACK_SUCCESS;
 }
@@ -152,12 +151,12 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   int i;
   for (i = 0; i < data->locations->size; i++){
     if (data->locations->members[i] == locationID) break;
-  }  
-  double before = data->last_timestamp[i];
-  double now = time_to_seconds(time, data->time_resolution);
+  }
   //Reduce imbrication since we are back one level
   //This has to be done prior to everything
   data->last_imbric[i]--;
+  double before = data->last_timestamp[i][data->last_imbric[i]];
+  double now = time_to_seconds(time, data->time_resolution);
 
   //Get the last_metric values
   uint64_t *my_last_metrics = data->last_metric[i];
@@ -186,7 +185,7 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
     }
   }
   free(diff);
-  data->last_timestamp[i] = now;
+  data->last_timestamp[i][data->last_imbric[i]] = now;
   return OTF2_CALLBACK_SUCCESS;
 }
 
