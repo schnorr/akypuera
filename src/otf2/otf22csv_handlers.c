@@ -151,6 +151,9 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   }  
   double before = data->last_timestamp[i];
   double now = time_to_seconds(time, data->time_resolution);
+  //Reduce imbrication since we are back one level
+  //This has to be done prior to everything
+  data->last_imbric[i]--;
 
   //Get the last_metric values
   uint64_t *my_last_metrics = data->last_metric[i];
@@ -179,7 +182,6 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
     }
   }
   data->last_timestamp[i] = now;
-  data->last_imbric[i]--;
   return OTF2_CALLBACK_SUCCESS;
 }
 
