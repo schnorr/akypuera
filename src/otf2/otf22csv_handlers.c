@@ -178,7 +178,7 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
       printf("\n");
     }
   }
-  data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
+  data->last_timestamp[i] = now;
   data->last_imbric[i]--;
   return OTF2_CALLBACK_SUCCESS;
 }
