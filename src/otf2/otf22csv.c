@@ -62,6 +62,8 @@ int main (int argc, char **argv)
   user_data->locations->size     = 0;
   // Keep the last timestamp of each location
   user_data->last_timestamp = malloc (sizeof(double) * num_locations);
+  // Keep the imbrication level of each location
+  user_data->last_imbric = malloc (sizeof(unsigned int) * num_locations);
 
   // Keep values of performance metrics
   user_data->number_of_metrics = 0; //It is defined as soon as possible, in the callback

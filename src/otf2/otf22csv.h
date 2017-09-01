@@ -58,6 +58,7 @@ struct otf2paje_s
   } *locations;
 
   double *last_timestamp;
+  unsigned int *last_imbric;
 
   uint64_t **last_metric; //length is the number of locationIDs
   uint64_t **last_enter_metric;

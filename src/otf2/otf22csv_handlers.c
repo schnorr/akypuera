@@ -138,6 +138,7 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   }
   
   data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
+  data->last_imbric[i]++;
   return OTF2_CALLBACK_SUCCESS;
 }
 
@@ -165,7 +166,7 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   }
   
   if (!arguments.dummy){
-    printf("%d,%f,%f,%s", i, before, now, state_name);
+    printf("%d,%f,%f,%s,%d", i, before, now, state_name, data->last_imbric[i]);
     if (data->number_of_metrics == 0){
       printf("\n");
     }else{
@@ -181,6 +182,7 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
     }
   }
   data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
+  data->last_imbric[i]--;
   return OTF2_CALLBACK_SUCCESS;
 }
 
