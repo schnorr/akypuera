@@ -124,9 +124,6 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
     if (data->locations->members[i] == locationID) break;
   }
 
-  //Get last metrics
-  uint64_t *my_last_metrics = data->last_metric[i];
-
   //Allocate memory if that is not yet the case
   if (data->last_enter_metric[i] == NULL){
     data->last_enter_metric[i] = malloc(data->number_of_metrics * sizeof(uint64_t));

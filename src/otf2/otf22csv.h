@@ -28,7 +28,6 @@
 #include "aky_private.h"
 
 #define PROGRAM "otf22csv"
-#define MAX_NUMBER_OF_RANKS 100000
 
 struct arguments {
   char *input[AKY_INPUT_SIZE];
