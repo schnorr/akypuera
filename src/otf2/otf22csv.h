@@ -41,9 +41,6 @@ struct arguments {
 extern struct arguments arguments;
 extern struct argp argp;
 
-
-
-
 /* Data utilities for convertion */
 struct otf2paje_s
 {
