@@ -57,7 +57,7 @@ struct otf2paje_s
   unsigned int *last_imbric;
 
   uint64_t **last_metric; //length is the number of locationIDs
-  uint64_t **last_enter_metric;
+  uint64_t ***last_enter_metric;
   int number_of_metrics;
 };
 

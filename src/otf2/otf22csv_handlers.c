@@ -126,12 +126,16 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
 
   //Allocate memory if that is not yet the case
   if (data->last_enter_metric[i] == NULL){
-    data->last_enter_metric[i] = malloc(data->number_of_metrics * sizeof(uint64_t));
+    #define MAX_IMBRICATION 10
+    data->last_enter_metric[i] = malloc(MAX_IMBRICATION * sizeof(uint64_t**));
+    for (uint8_t j = 0; j < MAX_IMBRICATION; j++){
+      data->last_enter_metric[i][j] = malloc(data->number_of_metrics * sizeof(uint64_t));
+    }
   }
   
-  //Define last "enter" event metrics
+  //Define last "enter" event metrics in the current imbrication level
   for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
-    data->last_enter_metric[i][j] = data->last_metric[i][j];
+    data->last_enter_metric[i][data->last_imbric[i]][j] = data->last_metric[i][j];
   }
   
   data->last_timestamp[i] = time_to_seconds(time, data->time_resolution);
@@ -158,7 +162,7 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   //Get the last_metric values
   uint64_t *my_last_metrics = data->last_metric[i];
   //Get the last "enter" metric values
-  uint64_t *my_last_enter_metrics = data->last_enter_metric[i];
+  uint64_t *my_last_enter_metrics = data->last_enter_metric[i][data->last_imbric[i]];
   //Calculate the difference of these metrics
   uint64_t *diff = malloc(sizeof(uint64_t) * data->number_of_metrics);
   for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
