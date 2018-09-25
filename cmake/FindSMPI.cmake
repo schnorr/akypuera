@@ -13,7 +13,7 @@
 # Just set SMPI_PATH it to your specific installation directory
 #
 FIND_LIBRARY(SMPI_LIBRARY
-  NAMES smpi
+  NAMES simgrid
   PATHS /usr/lib /usr/local/lib ${SMPI_PATH}/lib)
 
 IF(SMPI_LIBRARY)
