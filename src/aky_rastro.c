@@ -60,6 +60,14 @@ void rst_event_l_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0)
   rst_endevent(ptr);
 }
 
+void rst_event_il_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int64_t l0)
+{
+  rst_startevent(ptr, type<<18|0x24770);
+  RST_PUT(ptr, u_int64_t, l0);
+  RST_PUT(ptr, u_int32_t, i0);
+  rst_endevent(ptr);
+}
+
 void rst_event_iil_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int64_t l0)
 {
   rst_startevent(ptr, type<<18|0x24770);

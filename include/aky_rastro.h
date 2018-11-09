@@ -17,6 +17,8 @@ void rst_event_iiiii_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int3
 #define rst_event_iiiii(type, i0, i1, i2, i3, i4) rst_event_iiiii_ptr(RST_PTR, type, i0, i1, i2, i3, i4)
 void rst_event_l_ptr(rst_buffer_t *ptr, u_int16_t type, u_int64_t l0);
 #define rst_event_l(type, l0) rst_event_l_ptr(RST_PTR, type, l0)
+void rst_event_il_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int64_t l0);
+#define rst_event_il(type, i0, l0) rst_event_il_ptr(RST_PTR, type, i0, l0)
 void rst_event_iil_ptr(rst_buffer_t *ptr, u_int16_t type, u_int32_t i0, u_int32_t i1, u_int64_t l0);
 #define rst_event_iil(type, i0, i1, l0) rst_event_iil_ptr(RST_PTR, type, i0, i1, l0)
 
