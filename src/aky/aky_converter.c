@@ -415,28 +415,13 @@ int main(int argc, char **argv)
       if (!arguments.no_states){
         char value[AKY_DEFAULT_STR_SIZE];
         snprintf(value, AKY_DEFAULT_STR_SIZE, "%s", name_get(event.type));
-        int nb_extra = event.ct.n_uint16 + event.ct.n_uint32 + event.ct.n_uint64;
-        char *extra[nb_extra];
-        for(int i = 0 ; i < nb_extra ; i++) {
-          extra[i] = malloc(21); /* uint64 upper range is a 20 digits integer in base 10 */
-        }
-        int i_extra, i_array;
-        for(i_extra = 0, i_array=0 ; i_array < event.ct.n_uint16; i_extra++, i_array++) {
-          snprintf(extra[i_extra], 21, "%"PRIu64, event.v_uint16[i_array]);
-        }
-        for(i_array=0 ; i_array < event.ct.n_uint32; i_extra++, i_array++) {
-          snprintf(extra[i_extra], 21, "%"PRIu64, event.v_uint32[i_array]);
-        }
-        for(i_array=0 ; i_array < event.ct.n_uint64; i_extra++, i_array++) {
-          snprintf(extra[i_extra], 21, "%"PRIu64, event.v_uint64[i_array]);
-        }
-        if(nb_extra) {
-          poti_user_PushState_buffer (specialPushState, timestamp, mpi_process, "STATE", value, nb_extra, extra);
+        if (event.ct.n_uint64 == 1){
+          /* uint64 upper range is a 20 digits integer in base 10 */
+          char mark[21];
+          snprintf(mark, 21, "%"PRIu64, event.v_uint64[0]);
+	  poti_user_PushState (specialPushState, timestamp, mpi_process, "STATE", value, 1, mark);
         }else{
           poti_PushState(timestamp, mpi_process, "STATE", value);
-        }
-        for(int i = 0 ; i < nb_extra ; i++) {
-          free(extra[i]);
         }
       }
       break;
