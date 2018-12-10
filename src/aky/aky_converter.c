@@ -18,6 +18,7 @@
 #include <assert.h>
 #include "aky2paje.h"
 
+int specialPushState;
 int specialPushStateSend; //Identifier for PushState for MPI_Send and MPI_Isend
 int specialPushStateRecv; //Identifier for PushState for MPI_Recv
 int specialStartLinkSizeMark; //Identifier for StartLink with size and mark
@@ -190,6 +191,7 @@ int main(int argc, char **argv)
     /* output build version, date and conversion for aky in the trace */
     aky_dump_version (PROGRAM, argv, argc);
     poti_header();
+    specialPushState = poti_header_DeclareEvent (PAJE_PushState, 1, "SendMark string");
     specialPushStateSend = poti_header_DeclareEvent (PAJE_PushState, 2, "MsgSize string", "SendMark string");
     specialPushStateRecv = poti_header_DeclareEvent (PAJE_PushState, 1, "MsgSize string");
 
@@ -418,7 +420,7 @@ int main(int argc, char **argv)
           /* uint64 upper range is a 20 digits integer in base 10 */
           char mark[21];
           snprintf(mark, 21, "%"PRIu64, event.v_uint64[0]);
-	  poti_user_PushState (specialPushStateSend, timestamp, mpi_process, "STATE", value, 1, mark);
+	  poti_user_PushState (specialPushState, timestamp, mpi_process, "STATE", value, 1, mark);
         }else{
           poti_PushState(timestamp, mpi_process, "STATE", value);
         }
