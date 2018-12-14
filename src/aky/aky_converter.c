@@ -15,9 +15,12 @@
     along with Akypuera. If not, see <http://www.gnu.org/licenses/>.
 */
 #include <inttypes.h>
+#include <assert.h>
 #include "aky2paje.h"
 
-int specialPushState; //Identifier for PushState with mark
+int specialPushState;
+int specialPushStateSend; //Identifier for PushState for MPI_Send and MPI_Isend
+int specialPushStateRecv; //Identifier for PushState for MPI_Recv
 int specialStartLinkSizeMark; //Identifier for StartLink with size and mark
 
 /* DRY */
@@ -189,6 +192,8 @@ int main(int argc, char **argv)
     aky_dump_version (PROGRAM, argv, argc);
     poti_header();
     specialPushState = poti_header_DeclareEvent (PAJE_PushState, 1, "SendMark string");
+    specialPushStateSend = poti_header_DeclareEvent (PAJE_PushState, 2, "MsgSize string", "SendMark string");
+    specialPushStateRecv = poti_header_DeclareEvent (PAJE_PushState, 1, "MsgSize string");
 
     specialStartLinkSizeMark = poti_header_DeclareEvent (PAJE_StartLink, 2, "Size string", "Mark string");
     aky_paje_hierarchy();
@@ -293,10 +298,6 @@ int main(int argc, char **argv)
     case MPI_SCATTER_IN:
     case MPI_SCATTERV_IN:
     case MPI_WAIT_IN:
-    case MPI_IRECV_IN:
-    case MPI_ISEND_IN:
-    case MPI_RECV_IN:
-    case MPI_SEND_IN:
     case MPI_BCAST_IN:
     case MPI_BARRIER_IN:
     case MPI_GATHER_IN:
@@ -423,6 +424,32 @@ int main(int argc, char **argv)
         }else{
           poti_PushState(timestamp, mpi_process, "STATE", value);
         }
+      }
+      break;
+    case MPI_ISEND_IN:
+    case MPI_SEND_IN:
+      if (!arguments.no_states){
+        char value[AKY_DEFAULT_STR_SIZE];
+        snprintf(value, AKY_DEFAULT_STR_SIZE, "%s", name_get(event.type));
+        assert(event.ct.n_uint32 >= 1); // for obscure reasons, there is a second uint32...
+        assert(event.ct.n_uint64 == 1);
+          /* uint64 upper range is a 20 digits integer in base 10 */
+          char size[21], mark[21];
+          snprintf(mark, 21, "%"PRIu64, event.v_uint64[0]);
+          snprintf(size, 21, "%"PRIu64, event.v_uint32[0]);
+          poti_user_PushState (specialPushStateSend, timestamp, mpi_process, "STATE", value, 2, size, mark);
+      }
+      break;
+    case MPI_IRECV_IN:
+    case MPI_RECV_IN:
+      if (!arguments.no_states){
+        char value[AKY_DEFAULT_STR_SIZE];
+        snprintf(value, AKY_DEFAULT_STR_SIZE, "%s", name_get(event.type));
+        assert(event.ct.n_uint32 == 1);
+          /* uint64 upper range is a 20 digits integer in base 10 */
+          char size[21];
+          snprintf(size, 21, "%"PRIu64, event.v_uint32[0]);
+          poti_user_PushState (specialPushStateRecv, timestamp, mpi_process, "STATE", value, 1, size);
       }
       break;
     case MPI_COMM_SPAWN_OUT:
