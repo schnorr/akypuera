@@ -39,6 +39,17 @@ sub main {
     open(OTF2PRINT,"otf2-print $arg | ") || die "Could not find the application otf2-print: $!\n";
     while ($line =  <OTF2PRINT> )
     {
+	my($line2) = $line;
+
+	$line2 =~ s/:([1234567890])/_\1/g;
+	$line2 =~ tr/://;
+	$line2 =~ tr/"/#/;
+	$line2 =~ s/#.*#//;
+	$line2 =~ s/ +/:/g;
+	my($event,$thread,$time,$kind) = split(/:/, $line2);
+
+#	print STDERR $line;
+	
         if(($line =~ /^ENTER/) || ($line =~ /^LEAVE/)) {
 	    chomp $line;
 	    my($region) = $line;
@@ -61,10 +72,12 @@ sub main {
 
 	    my $aux = "";
 	    if ($event =~ /^ENTER/) {
+#		print STDERR "ENTER -> GET ".$jobid{$thread}." of ".$thread."\n";
 		if ($jobid{$thread} =~ /^$/) {
 		    $aux .= "12 $time $thread S \"$region\" -1";
 		}else{
 		    $aux .= "12 $time $thread S \"$region\" $jobid{$thread}";
+		    $jobid{$thread} = -1;
 		}
 	    }elsif ($event =~ /^LEAVE/) {
 		$aux .= "14 $time $thread S";
@@ -99,7 +112,8 @@ sub main {
 	    if (!($thread == "0")) {
 		create($thread, "6 $time $thread T 0 $thread\n");
 	    }
-	}elsif(($line =~ /^THREAD_TASK_SWITCH/)) { # This line contains the task_create event
+	}elsif(($line =~ /^THREAD_TASK_SWITCH/)) { # || ($line =~ /^THREAD_TASK_CREATE/)) {
+	    # This line contains the task_create / task_switch event
 	    chomp $line;
 	    my($jid) = $line;
 
@@ -109,8 +123,10 @@ sub main {
 	    $line =~ s/#.*#//;
 	    $line =~ s/ +/:/g;
 	    my($event,$thread,$time,$kind) = split(/:/, $line);
-
+	    if ($thread == "0") {$thread = "zero";}
+	    
 	    $jid =~ s/^.*Generation Number: //;
+#	    print STDERR "THREAD_TASK -> SET ".$jid." of ".$thread."\n";
 	    $jobid{$thread} = $jid;
 	}
     }
