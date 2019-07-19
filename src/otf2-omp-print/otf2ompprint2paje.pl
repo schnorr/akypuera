@@ -33,6 +33,7 @@ sub main {
     create ("zero", "6 0.0 zero T 0 zero\n");
 
     my @metrics = ();
+    my %jobid = (); # Empty hash table to keep jobids from task_switch
 
     # otf2-print is a dependency which comes with scorep
     open(OTF2PRINT,"otf2-print $arg | ") || die "Could not find the application otf2-print: $!\n";
@@ -60,7 +61,11 @@ sub main {
 
 	    my $aux = "";
 	    if ($event =~ /^ENTER/) {
-		$aux .= "12 $time $thread S \"$region\"";
+		if ($jobid{$thread} =~ /^$/) {
+		    $aux .= "12 $time $thread S \"$region\" -1";
+		}else{
+		    $aux .= "12 $time $thread S \"$region\" $jobid{$thread}";
+		}
 	    }elsif ($event =~ /^LEAVE/) {
 		$aux .= "14 $time $thread S";
 	    }
@@ -94,6 +99,19 @@ sub main {
 	    if (!($thread == "0")) {
 		create($thread, "6 $time $thread T 0 $thread\n");
 	    }
+	}elsif(($line =~ /^THREAD_TASK_SWITCH/)) { # This line contains the task_create event
+	    chomp $line;
+	    my($jid) = $line;
+
+	    $line =~ s/:([1234567890])/_\1/g;
+	    $line =~ tr/://;
+	    $line =~ tr/"/#/;
+	    $line =~ s/#.*#//;
+	    $line =~ s/ +/:/g;
+	    my($event,$thread,$time,$kind) = split(/:/, $line);
+
+	    $jid =~ s/^.*Generation Number: //;
+	    $jobid{$thread} = $jid;
 	}
     }
     flush_buffer();
@@ -166,7 +184,8 @@ bufferize("#This trace was generated with: otf2ompprint2paje.pl $filename
 %       Time date
 %       Container string
 %       Type string
-%       Value string $metricsdescstr
+%       Value string
+%       JobId string $metricsdescstr
 %EndEventDef
 %EventDef PajePopState 14
 %       Time date
