@@ -192,12 +192,20 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
 OTF2_CallbackCode otf22csv_print_metric( OTF2_LocationRef locationID, OTF2_TimeStamp time, void* userData, OTF2_AttributeList* attributes, OTF2_MetricRef metric, uint8_t numberOfMetrics, const OTF2_Type* typeIDs, const OTF2_MetricValue* metricValues )
 {
   otf2paje_t* data = (otf2paje_t*) userData;
-  
+
   //search the correct index of the locationID
   int i;
   for (i = 0; i < data->locations->size; i++){
     if (data->locations->members[i] == locationID) break;
   }
+
+  //register metric for later utilization
+  int n = data->metrics_n[locationID];
+  data->metrics[locationID][n].id = metric;
+  data->metrics[locationID][n].value = metricValues[0].unsigned_int;
+  data->metrics_n[locationID]++;
+
+  //printf("%d %s %d %d %d (%d)\n", locationID, __FUNCTION__, metric, n, data->metrics[locationID][n].id, data->metrics[locationID][n].value);
 
   data->number_of_metrics = numberOfMetrics;
   if (data->last_metric[i] == NULL){
