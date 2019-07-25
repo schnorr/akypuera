@@ -118,6 +118,19 @@ OTF2_CallbackCode otf22csv_enter (OTF2_LocationRef locationID, OTF2_TimeStamp ti
 {
   otf2paje_t* data = (otf2paje_t*) userData;
 
+  /* copy from metrics to enter_metrics */
+  //printf("%d %s ", locationID, __FUNCTION__);
+  for (int i = 0; i < data->metrics_n[locationID]; i++){
+    data->enter_metrics[locationID][i] = data->metrics[locationID][i];
+    //printf("%d (%d) ",
+//	   data->enter_metrics[locationID][i].id,
+//	   data->enter_metrics[locationID][i].value);
+  }
+  // printf("\n");
+  data->enter_metrics_n[locationID] = data->metrics_n[locationID];
+  /* reset metrics */
+  data->metrics_n[locationID] = 0;
+
   //search the correct index of the locationID
   int i;
   for (i = 0; i < data->locations->size; i++){
