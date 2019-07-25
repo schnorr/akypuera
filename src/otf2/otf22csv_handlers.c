@@ -173,11 +173,32 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   /* reset metrics */
   data->metrics_n[locationID] = 0;
 
+  /* compute the difference of the enter/leave metrics */
+  if (data->enter_metrics_n[locationID] != data->leave_metrics_n[locationID]){
+    printf("Error, number of metrics in enter and leave are different.\n");
+    exit(1);
+  }
+  metric_t diff_metric[MAX_METRICS];
+  int n = data->enter_metrics_n[locationID];
+  //printf("%d %s DIFF ", locationID, __FUNCTION__);
+  for (int i = 0; i < n; i++){
+    if (data->leave_metrics[locationID][i].id != data->enter_metrics[locationID][i].id){
+      printf("Error, metrics are unaligned in enter and leave.\n");
+      exit(1);
+    }
+    diff_metric[i].id = data->leave_metrics[locationID][i].id;
+    diff_metric[i].value = data->leave_metrics[locationID][i].value -
+      data->enter_metrics[locationID][i].value;
+    //printf("%d (%d) ", diff_metric[i].id, diff_metric[i].value);
+  }
+  //printf("\n");
+
   //search the correct index of the locationID
   int i;
   for (i = 0; i < data->locations->size; i++){
     if (data->locations->members[i] == locationID) break;
   }
+
   //Reduce imbrication since we are back one level
   //This has to be done prior to everything
   data->last_imbric[i]--;
