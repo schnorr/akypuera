@@ -217,14 +217,14 @@ OTF2_CallbackCode otf22csv_leave (OTF2_LocationRef locationID, OTF2_TimeStamp ti
   
   if (!arguments.dummy){
     printf("%d,%f,%f,%d,%s", i, before, now, data->last_imbric[i], state_name);
-    if (data->number_of_metrics == 0){
+    if (n == 0){
       printf("\n");
     }else{
       printf(",");
-      //Print the different of the metrics
-      for ( uint8_t j = 0; j < data->number_of_metrics; j++ ){
-	printf("%"PRIu64, diff[j]);
-	if (j+1 < data->number_of_metrics){
+      //Print the difference of the metrics
+      for ( uint8_t j = 0; j < n; j++ ){
+	printf("%"PRIu64, diff_metric[j].value);
+	if (j+1 < n){
 	  printf(",");
 	}
       }
