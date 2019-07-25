@@ -29,6 +29,8 @@
 
 #define PROGRAM "otf22csv"
 #define MAX_IMBRICATION 10
+#define MAX_RANKS 2048
+#define MAX_METRICS 10
 
 struct arguments {
   char *input[AKY_INPUT_SIZE];
@@ -41,11 +43,25 @@ struct arguments {
 extern struct arguments arguments;
 extern struct argp argp;
 
+/* Data structure to keep metrics in-between enter/leave */
+typedef struct {
+  int id;
+  uint64_t value;
+}metric_t;
+
 /* Data utilities for convertion */
 struct otf2paje_s
 {
   OTF2_Reader*    reader;
   double time_resolution;
+
+  // there four fields are indexed by rank number
+  int metrics_n[MAX_RANKS];
+  metric_t metrics[MAX_RANKS][MAX_METRICS];
+  int enter_metrics_n[MAX_RANKS];
+  metric_t enter_metrics[MAX_RANKS][MAX_METRICS];
+  int leave_metrics_n[MAX_RANKS];
+  metric_t leave_metrics[MAX_RANKS][MAX_METRICS];
 
   struct vector
   {

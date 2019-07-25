@@ -50,11 +50,21 @@ int main (int argc, char **argv)
   uint64_t num_locations;
   OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
 
-
   /* read global definitions */
   /* User data for callbacks. */
   otf2paje_t *user_data = (otf2paje_t*) malloc (sizeof (otf2paje_t));
   user_data->reader = reader;
+
+  /* zeroe everything regarding metric vectors */
+  bzero(user_data->metrics_n, MAX_RANKS*sizeof(int));
+  bzero(user_data->metrics, MAX_RANKS*sizeof(metric_t));
+
+  bzero(user_data->enter_metrics_n, MAX_RANKS*sizeof(int));
+  bzero(user_data->leave_metrics_n, MAX_RANKS*sizeof(int));
+  bzero(user_data->enter_metrics, MAX_RANKS*sizeof(metric_t));
+  bzero(user_data->leave_metrics, MAX_RANKS*sizeof(metric_t));
+
+  /* prepare the rest of user data */
   user_data->locations = malloc( sizeof( *(user_data->locations) )
                                      + num_locations
 				 * sizeof( *(user_data->locations)->members ) );
