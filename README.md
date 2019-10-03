@@ -34,10 +34,8 @@ compilation (run `ccmake` on the build directory to customize the
 compilation/installation):
 
     git clone --recursive git://github.com/schnorr/akypuera.git
-    mkdir build
-    cd build
-    cmake ..
-    make
+    cd akypuera; mkdir build; cd build
+    cmake .. ; make
 
 ## Utilization
 
