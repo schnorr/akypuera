@@ -23,7 +23,6 @@ SET(AKY_LIBRARY_SOURCES src/aky.c src/aky_aux.c src/aky_rastro.c)
 SET(AKY_CONVERTER_SOURCES src/aky/aky_converter.c src/aky/aky_arguments.c src/aky_utils.c src/aky_names.c src/aky_keys.c)
 SET(OTF_SOURCES src/otf/otf2paje.c src/otf/otf2paje_arguments.c src/otf/otf2paje_handlers.c src/aky_utils.c)
 SET(OTF2_SOURCES src/otf2/otf22paje.c src/otf2/otf22paje_arguments.c src/otf2/otf22paje_handlers.c src/otf2/otf22paje_hostfile.c  src/aky_utils.c)
-SET(OTF2CSV_SOURCES src/otf2/otf22csv.c src/otf2/otf22csv_arguments.c src/otf2/otf22csv_handlers.c)
 SET(TAU_SOURCES src/tau/tau2paje.c src/tau/tau2paje_arguments.c src/tau/tau2paje_handlers.c src/aky_utils.c src/aky_keys.c)
 set(OTF2_SCRIPTS src/otf2-omp-print/otf2ompprint2paje.pl)
 
@@ -135,11 +134,6 @@ IF(OTF2_FOUND)
   TARGET_LINK_LIBRARIES(otf22paje poti)
   TARGET_LINK_LIBRARIES(otf22paje m)
   TARGET_LINK_LIBRARIES(otf22paje rt)
-
-  # otf22csv
-  ADD_EXECUTABLE(otf22csv ${OTF2CSV_SOURCES})
-  TARGET_LINK_LIBRARIES(otf22csv otf2)
-  TARGET_LINK_LIBRARIES(otf22csv m)
 ENDIF(OTF2_FOUND)
 
 # Installation part
@@ -153,7 +147,6 @@ IF(OTF_FOUND)
 ENDIF(OTF_FOUND)
 IF(OTF2_FOUND)
   INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf22paje DESTINATION bin)
-  INSTALL(PROGRAMS ${aky_BINARY_DIR}/otf22csv DESTINATION bin)
   INSTALL(PROGRAMS src/otf2-omp-print/otf2ompprint2paje.sh DESTINATION bin)
 ENDIF(OTF2_FOUND)
 install(PROGRAMS ${OTF2_SCRIPTS} DESTINATION bin)
