@@ -682,7 +682,7 @@ int *errorclass;
 }
 
 int MPI_Comm_create_errhandler(function, errhandler)
-MPI_Handler_function *function;
+MPI_Comm_errhandler_function *function;
 MPI_Errhandler *errhandler;
 {
   rst_event(MPI_ERRHANDLER_CREATE_IN);
