@@ -1,0 +1,186 @@
+#+STARTUP: overview indent
+#+TITLE: otf22paje devlog
+#+LANGUAGE: en
+#+TAGS: noexport(n) deprecated(d)
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+SEQ_TODO: TODO(t!) STARTED(s!) WAITING(w!) | DONE(d!) CANCELLED(c!) DEFERRED(f!)
+#+STARTUP: inlineimages
+
+* Translate MPI messages as StartLink/EndLink pairs
+** ScoreP/OTF2
+ScoreP traces possibly all MPI calls with send/recv/collective
+operations. These are registered in the OTF2 bundle. The events can be
+read using the correct list of callbacks for the the OTF2 library.
+** Current situation
+As of today, only these event callbacks are captured by the ~otf22paje~:
+#+begin_src shell :results output
+cat otf22paje.c | grep OTF2_GlobalEvtReaderCallbacks_ | grep -v New
+#+end_src
+
+#+RESULTS:
+:   OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, otf22paje_enter );
+:   OTF2_GlobalEvtReaderCallbacks_SetLeaveCallback( evt_callbacks, otf22paje_leave );
+
+** Objective
+Set additional callbacks to capture all send/recv/collective
+operations and translate them to corresponding StartLink/EndLink
+timestamped counterparts, defining/using their correct position in the
+Paje's type hierarchy.
+** Implementation Strategy
+*** What should be implemented?
+
+These are the callbacks that should be implemented:
+
+#+begin_src shell :results output
+cat $(spack location -i otf2)/include/otf2/OTF2_GlobalEvtReaderCallbacks.h | \
+    grep OTF2_GlobalEvtReaderCallbacks_ | grep Mpi
+#+end_src
+
+#+RESULTS:
+#+begin_example
+OTF2_GlobalEvtReaderCallbacks_SetMpiSendCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiIsendCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiIsendCompleteCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiIrecvRequestCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiRecvCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiIrecvCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiRequestTestCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiRequestCancelledCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiCollectiveBeginCallback(
+OTF2_GlobalEvtReaderCallbacks_SetMpiCollectiveEndCallback(
+#+end_example
+
+For simplification, we can start by translating only synchronous
+point-to-point calls:
+
+#+begin_src shell :results output
+cat $(spack location -i otf2)/include/otf2/OTF2_GlobalEvtReaderCallbacks.h | \
+    grep OTF2_GlobalEvtReaderCallbacks_ | grep -e MpiSend -e MpiRecv
+#+end_src
+
+#+RESULTS:
+: OTF2_GlobalEvtReaderCallbacks_SetMpiSendCallback(
+: OTF2_GlobalEvtReaderCallbacks_SetMpiRecvCallback(
+
+And synchronous collective calls
+
+#+begin_src shell :results output
+cat $(spack location -i otf2)/include/otf2/OTF2_GlobalEvtReaderCallbacks.h | \
+    grep OTF2_GlobalEvtReaderCallbacks_ | grep -e MpiCollective
+#+end_src
+
+#+RESULTS:
+: OTF2_GlobalEvtReaderCallbacks_SetMpiCollectiveBeginCallback(
+: OTF2_GlobalEvtReaderCallbacks_SetMpiCollectiveEndCallback(
+
+Please note that collective calls must be translated to several
+StartLink/EndLink depending on the communication pattern (Bcast,
+Reduce, Scatter, Gather, etc).
+
+*** Where to implement?
+
+Callbacks should be implemented in the file ~otf22paje_handlers.c~ and
+declared at ~otf22paje.h~. See, for instance, the example of the
+~otf22paje_enter~ callback.
+
+#+begin_src shell :results output
+cat otf22paje.h | grep otf22paje_enter
+cat otf22paje_handlers.c | grep otf22paje_enter
+#+end_src
+
+#+RESULTS:
+: OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID);
+: OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID)
+
+The prototype of each new handler should be taken from the
+~OTF2_GlobalEvtReaderCallbacks.h~ file. For instance, the prototype
+to be implemented (and also declared in ~otf22paje.h~) for the ~MpiSend~
+callback is this:
+
+#+begin_src shell :results output
+cat $(spack location -i otf2)/include/otf2/OTF2_GlobalEvtReaderCallbacks.h  | \
+    grep -A7 \*\ OTF2_GlobalEvtReaderCallback_MpiSend
+#+end_src
+
+#+RESULTS:
+: ( * OTF2_GlobalEvtReaderCallback_MpiSend )( OTF2_LocationRef    locationID,
+:                                             OTF2_TimeStamp      time,
+:                                             void*               userData,
+:                                             OTF2_AttributeList* attributeList,
+:                                             uint32_t            receiver,
+:                                             OTF2_CommRef        communicator,
+:                                             uint32_t            msgTag,
+:                                             uint64_t            msgLength );
+
+Please note that after they are implemented, we should modify
+~otf22paje.c~ file to set the new callback, as it is now for the
+~otf22paje_enter~. See:
+
+#+begin_src shell :results output
+cat otf22paje.c | grep otf22paje_enter
+#+end_src
+
+#+RESULTS:
+:   OTF2_GlobalEvtReaderCallbacks_SetEnterCallback( evt_callbacks, otf22paje_enter );
+
+I suggest these names for the new callback functions:
+- ~otf22paje_mpisend~
+- ~otf22paje_mpirecv~
+- ~otf22paje_mpicollectivebegin~
+- ~otf22paje_mpicollectiveend~
+- and so on
+*** How to implement?
+**** Poti
+PajeStartLink and PajeEndLink events should be generated. Please refer
+to the [[https://github.com/schnorr/pajeng/blob/master/doc/lang-paje/lang-paje.pdf][PajeNG documentation]] to understand how these work. Since
+akypuera uses poti, please check out the [[https://github.com/schnorr/poti/blob/master/include/poti.h][poti header file]]. For
+example, these are the poti prototypes:
+
+#+begin_src shell :results output
+cat ../../poti/include/poti.h | \
+    grep -e poti_StartLink -e poti_EndLink
+#+end_src
+
+#+RESULTS:
+: void poti_StartLink (double timestamp, const char *container, const char *type, const char *sourceContainer, const char *value, const char *key);
+: void poti_EndLink (double timestamp, const char *container, const char *type, const char *endContainer, const char *value, const char *key);
+
+You may want to use the "user" functions as well, especially to pass
+along the message size (very useful):
+
+#+begin_src shell :results output
+cat ../../poti/include/poti.h | \
+    grep -e poti_user_StartLink -e poti_user_EndLink
+#+end_src
+
+#+RESULTS:
+: void poti_user_StartLink (const int unique, double timestamp, const char *container, const char *type, const char *sourceContainer, const char *value, const char *key, int extra, ...);
+: void poti_user_EndLink (const int unique, double timestamp, const char *container, const char *type, const char *endContainer, const char *value, const char *key, int extra, ...);
+
+Refer to the [[http://github.com/schnorr/poti][poti documentation]] to understand how to declare the
+user events so you can pass the correct event unique identification as
+first parameter for these functions.
+**** Caveats
+Paje requires a unique key for every pair of StartLink/EndLink. These
+are not available from the OTF2 traces, so you should create them in
+the implementation. You can assume FIFO between every pair of MPI
+ranks. For collectives, you will need to generate a single key for
+every pair of StartLink/EndLink, even if a single collective call
+generate multiple pairs of paje link events.  An example of such key
+handling is available in the libaky implementation, especifically in
+the [[../aky_keys.c]] source file (which uses a libc hash to keep such
+keys) and the calls to this module at [[../aky/aky_converter.c]]:
+
+#+begin_src shell :results output
+cat ../aky/aky_converter.c | grep -e 'treat_[^ ]*(double'
+#+end_src
+
+#+RESULTS:
+: treat_1tx_send(double timestamp, rst_event_t const *event, char const *keyc,
+: treat_1tx_recv(double timestamp, rst_event_t const *event, char const *keyc,
+: treat_xt1_recv(double timestamp, rst_event_t const *event, char const *keyc,
+: treat_xt1_send(double timestamp, rst_event_t const *event, char const *keyc,
+
+Perhaps a easy way to implement this is to refactor these four
+functions so they can work outside of the ~aky~-rastro world.
