@@ -80,7 +80,7 @@ OTF2_CallbackCode otf22paje_global_def_location_group_flat (void *userData, OTF2
   const char *name_str = string_hash[name];
 
   char mpi_process[AKY_DEFAULT_STR_SIZE];
-  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", (int)self);
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "t%d", (int)self);
   if (!arguments.dummy){
     nf_container_type_declare ("P", "0");
     nf_state_type_declare ("STATE", "P");
@@ -110,7 +110,7 @@ OTF2_CallbackCode otf22paje_global_def_location_group_hostfile (void *userData, 
   }
 
   char mpi_process[AKY_DEFAULT_STR_SIZE];
-  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", (int)self);
+  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "t%d", (int)self);
   if (!arguments.dummy){
     nf_container_type_declare ("P", "H");
     nf_state_type_declare ("STATE", "P");
