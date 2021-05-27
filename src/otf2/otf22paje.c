@@ -131,16 +131,18 @@ int main (int argc, char **argv)
 
   /* Read definitions */
   size_t i;
-  for ( i = 0; i < num_locations; i++ ){
-    OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, i);
+  for ( i = 0; i < user_data->num_locations; i++ ){
+    OTF2_LocationRef location = user_data->locations[i];
+    OTF2_DefReader* def_reader = OTF2_Reader_GetDefReader (reader, location);
     uint64_t definitions_read = 0;
     OTF2_Reader_ReadAllLocalDefinitions (reader, def_reader, &definitions_read);
     OTF2_Reader_CloseDefReader (reader, def_reader);
   }
 
   /* Create event readers */
-  for (i = 0; i < num_locations; i++){
-    OTF2_Reader_GetEvtReader (reader, i);
+  for (i = 0; i < user_data->num_locations; i++){
+    OTF2_LocationRef location = user_data->locations[i];
+    OTF2_Reader_GetEvtReader (reader, location);
   }
 
   /* Define event callbacks. */
