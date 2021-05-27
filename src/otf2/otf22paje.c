@@ -70,6 +70,9 @@ int main (int argc, char **argv)
   otf2paje_t *user_data = (otf2paje_t*) malloc (sizeof (otf2paje_t));
   user_data->reader = reader;
 
+  /* Get number of locations from the anchor file. */
+  uint64_t          num_locations = 0;
+  OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
   user_data->index_location = 0;
   user_data->num_locations = num_locations;
   user_data->locations = (OTF2_LocationRef*)malloc(sizeof(OTF2_LocationRef)*num_locations);
@@ -125,11 +128,6 @@ int main (int argc, char **argv)
             PROGRAM, __FUNCTION__);
     return 1;
   }
-
-
-  /* Get number of locations from the anchor file. */
-  uint64_t          num_locations = 0;
-  OTF2_Reader_GetNumberOfLocations (reader, &num_locations);
 
   /* Read definitions */
   size_t i;
