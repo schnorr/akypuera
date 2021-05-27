@@ -70,6 +70,13 @@ int main (int argc, char **argv)
   otf2paje_t *user_data = (otf2paje_t*) malloc (sizeof (otf2paje_t));
   user_data->reader = reader;
 
+  user_data->index_location = 0;
+  user_data->num_locations = num_locations;
+  user_data->locations = (OTF2_LocationRef*)malloc(sizeof(OTF2_LocationRef)*num_locations);
+
+  user_data->num_groups = 0;
+  user_data->groups = NULL;
+
   /* Define definition callbacks. */
   OTF2_GlobalDefReaderCallbacks *def_callbacks = OTF2_GlobalDefReaderCallbacks_New();
   OTF2_GlobalDefReaderCallbacks_SetLocationCallback (def_callbacks, otf22paje_global_def_location);
@@ -171,5 +178,7 @@ int main (int argc, char **argv)
   }
 
   OTF2_Reader_Close (reader);
+  free(user_data->locations);
+  free(user_data->groups);
   return 0;
 }

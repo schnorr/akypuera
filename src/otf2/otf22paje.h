@@ -48,6 +48,15 @@ struct otf2paje_s
   OTF2_Reader*    reader;
   double last_timestamp;
   double time_resolution;
+
+  /* location identifiers */
+  OTF2_LocationRef *locations;
+  unsigned long int index_location;
+  unsigned long int num_locations;
+
+  /* group location in system level tree */
+  OTF2_LocationGroupRef *groups;
+  unsigned long int num_groups;
 };
 
 typedef struct otf2paje_s otf2paje_t;
