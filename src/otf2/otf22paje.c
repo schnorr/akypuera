@@ -169,11 +169,12 @@ int main (int argc, char **argv)
                                   &events_read );
   }
 
-  for (i = 0; i < num_locations; i++){
-    char mpi_process[AKY_DEFAULT_STR_SIZE];
-    snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%zu", i);
+  for (i = 0; i < user_data->num_locations; i++){
+    OTF2_LocationRef location = user_data->locations[i];
+    char location_str[AKY_DEFAULT_STR_SIZE];
+    snprintf(location_str, AKY_DEFAULT_STR_SIZE, "t%"PRId64"", location);
     if (!arguments.dummy){
-      poti_DestroyContainer(user_data->last_timestamp, "P", mpi_process);
+      poti_DestroyContainer(user_data->last_timestamp, "thread", location_str);
     }
   }
 
