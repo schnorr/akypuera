@@ -244,8 +244,6 @@ OTF2_CallbackCode otf22paje_global_def_system_tree_node_domain( void* userData, 
   return OTF2_CALLBACK_SUCCESS;
 }
 
-
-
 /* Events callbacks */
 OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp time, void *userData, OTF2_AttributeList* attributes, OTF2_RegionRef regionID)
 {
@@ -256,11 +254,11 @@ OTF2_CallbackCode otf22paje_enter (OTF2_LocationRef locationID, OTF2_TimeStamp t
     return OTF2_CALLBACK_SUCCESS;
   }
 
-  char mpi_process[AKY_DEFAULT_STR_SIZE];
-  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%"PRId64"", locationID);
+  char thread_str[AKY_DEFAULT_STR_SIZE];
+  snprintf(thread_str, AKY_DEFAULT_STR_SIZE, "t%"PRId64"", locationID);
   if (!arguments.dummy && !arguments.no_states){
     poti_PushState(time_to_seconds(time, data->time_resolution),
-                   mpi_process, "STATE", state_name);
+                   thread_str, "STATE", state_name);
   }
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return OTF2_CALLBACK_SUCCESS;
@@ -275,11 +273,11 @@ OTF2_CallbackCode otf22paje_leave (OTF2_LocationRef locationID, OTF2_TimeStamp t
     return OTF2_CALLBACK_SUCCESS;
   }
 
-  char mpi_process[AKY_DEFAULT_STR_SIZE];
-  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%"PRId64"", locationID);
+  char thread_str[AKY_DEFAULT_STR_SIZE];
+  snprintf(thread_str, AKY_DEFAULT_STR_SIZE, "t%"PRId64"", locationID);
   if (!arguments.dummy && !arguments.no_states){
     poti_PopState(time_to_seconds(time, data->time_resolution),
-                  mpi_process, "STATE");
+                  thread_str, "STATE");
   }
   data->last_timestamp = time_to_seconds(time, data->time_resolution);
   return OTF2_CALLBACK_SUCCESS;
