@@ -127,9 +127,29 @@ OTF2_CallbackCode otf22paje_global_def_location_group (void *userData, OTF2_Loca
   const char *name_str = string_hash[name];
   /* Define the type for the location group */
 
-  const char *containerType = type_tree_hash[locationGroupType];
-  const char *newTypeName = "P";
-  int newTypeIndex = locationGroupType + 1;
+  // save "systemTreeParent" of this "self" group
+  otf2paje_t* data = (otf2paje_t*) userData;
+  data->num_groups++;
+  data->groups = realloc(data->groups, data->num_groups * sizeof(OTF2_LocationGroupRef));
+  data->groups[data->num_groups-1] = systemTreeParent;
+
+  return OTF2_CALLBACK_SUCCESS;
+}
+
+OTF2_CallbackCode otf22paje_global_def_location (void* userData, OTF2_LocationRef self, OTF2_StringRef name, OTF2_LocationType locationType, uint64_t numberOfEvents, OTF2_LocationGroupRef locationGroup)
+{
+  const char *name_str = string_hash[name];
+  otf2paje_t* data = (otf2paje_t*) userData;
+  data->locations[data->index_location++] = self;
+
+  // Get system level tree container
+  int node = data->groups[locationGroup];
+  const char *container = container_tree_hash[node];
+
+  /* Define the type for the location */
+  const char *containerType = type_tree_hash[node];
+  const char *newTypeName = "thread";
+  int newTypeIndex = locationType;
 
   if (!find_type_tree_name (newTypeName)){
     type_tree_current_size++;
@@ -145,19 +165,11 @@ OTF2_CallbackCode otf22paje_global_def_location_group (void *userData, OTF2_Loca
   }
 
   /* create the container */
-  int p = (int)systemTreeParent;
-  const char *container = container_tree_hash[p];
-
-  char mpi_process[AKY_DEFAULT_STR_SIZE];
-  snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%d", (int)self);
+  char thread_str[AKY_DEFAULT_STR_SIZE];
+  snprintf(thread_str, AKY_DEFAULT_STR_SIZE, "t%ld", self);
   if (!arguments.dummy){
-    poti_CreateContainer(0, mpi_process, newTypeName, container, name_str);
+    poti_CreateContainer(0, thread_str, newTypeName, container, thread_str);
   }
-  return OTF2_CALLBACK_SUCCESS;
-}
-
-OTF2_CallbackCode otf22paje_global_def_location (void* userData, OTF2_LocationRef self, OTF2_StringRef name, OTF2_LocationType locationType, uint64_t numberOfEvents, OTF2_LocationGroupRef locationGroup)
-{
   return OTF2_CALLBACK_SUCCESS;
 }
 
