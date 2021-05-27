@@ -184,3 +184,42 @@ cat ../aky/aky_converter.c | grep -e 'treat_[^ ]*(double'
 
 Perhaps a easy way to implement this is to refactor these four
 functions so they can work outside of the ~aky~-rastro world.
+* 2020-06-22
+
+Na linha 395 do arquivo ~OTF2_GlobalEvtReaderCallbacks.h~ (função
+~OTF2_GlobalEvtReaderCallback_MpiIsend~) o remetente é o parâmetro
+locationID caso a aplicação rastreada seja MPI. Assim, tu tens o
+remetente em locationID e o destino em receiver. Funciona de maneira
+parecida na função MpiIrecv.
+
+Na linha 260 do arquivo ~otf22paje_handlers.c~, dentro da função ~enter~,
+temos:
+
+~snprintf(mpi_process, AKY_DEFAULT_STR_SIZE, "rank%"PRId64"", locationID);~
+
+Isso efetivamente imprime em ~mpi_process~ o locationID, ou seja, o rank
+do processo MPI. Então, respondendo tua pergunta, sim, o locationID é
+de fato o processo MPI.
+
+Acredito que pelo fato de termos acesso ao remetente e o destinatário
+em cada um desses callbacks, é possível facilmente fazer um mapeamento
+desses eventos pontuais para o StarLink e o EndLink do formato
+Paje. Por exemplo, no ~MpiIsend~, por ser um envio, tu geras o
+StartLink. Como no StartLink tu precisas fazer referência apenas ao
+SourceContainer origem, tu usas o ~locationID~. O ~receiver~, tu usas em
+combinação com o ~locationID~ para gerar uma chave única (usando o
+sistema que relatei no DevLog). Na callback de recepção, tu terás
+acesso ao locationID (o receptor) e também do ~sender~. Neste caso, tu
+geras o EndLink usando o ~locationID~ para referência ao DestContainer,
+e o ~sender~ tu usas também em combinação com o ~locationID~ para
+localizar a chave correta. Caso a chave não exista ainda (o receive
+aconteceu antes do send), tu registras uma nova chave e assim por
+diante. Isso funciona bem para operações síncronas pois permite saber
+o registro/ocorrência do envio e da recepção (do ponto de vista da
+aplicação MPI). Isso ainda funcionára com operações assíncronas, mas
+teremos apenas o registro, não sabemos da ocorrência, ou seja, quando
+de fato a comunicação acontece. Não sei como contornar isso sem entrar
+dentro da implementação MPI específica. Mas, se entendi bem a tua
+proposta de trabalho, grafos de comunicação, acho que para ti basta o
+registro da comunicação.
+
